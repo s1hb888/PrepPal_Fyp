@@ -124,4 +124,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfileManagementScreen;
+export default Profile;

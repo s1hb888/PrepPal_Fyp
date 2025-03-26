@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import PrepPalSplashScreen from './frontend/PrepPalSplashScreen';
-import RegistrationScreen from './frontend/RegistrationScreen';
+import PrepPalSplashScreen from './frontend/SplashScreen';
+import RegistrationScreen from './frontend/Registration';
 import LoginScreen from './frontend/LoginScreen';
-import HomeScreen from './frontend/HomeScreen';
+import HomeScreen from './frontend/Home';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
