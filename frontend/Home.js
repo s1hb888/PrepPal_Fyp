@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-const HomeScreen = ({ navigation }) => {
+const Home = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to PrepPal</Text>
@@ -61,33 +61,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
-Navigation Setup in App.js
-To link all screens correctly (SplashScreen → Home → Registration/Login), update your App.js:
-
-javascript
-Copy
-Edit
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-
-import PrepPalSplashScreen from './frontend/PrepPalSplashScreen';
-import HomeScreen from './frontend/HomeScreen';
-import RegistrationScreen from './frontend/RegistrationScreen';
-import LoginScreen from './frontend/LoginScreen';
-
-const Stack = createStackNavigator();
-
-export default function App() {
-  return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Splash" component={PrepPalSplashScreen} />
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Register" component={RegistrationScreen} />
-        <Stack.Screen name="Login" component={LoginScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  );
-}
+export default Home;
