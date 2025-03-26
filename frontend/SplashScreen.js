@@ -1,17 +1,17 @@
 import React, { useEffect } from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
-import SplashScreen from 'react-native-splash-screen';
+import { View, Text, StyleSheet } from 'react-native';
 
-const PrepPalSplashScreen = () => {
+const SplashScreen = ({ navigation }) => {
   useEffect(() => {
-    SplashScreen.hide();
+    setTimeout(() => {
+      navigation.replace('Register');  // Automatically go to Register screen
+    }, 3000);
   }, []);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.welcomeText}>Welcome</Text>
+      <Text style={styles.welcomeText}>Welcome to PrepPal</Text>
       <Text style={styles.milestoneText}>A milestone to reach your dream</Text>
-      {/* Add your logo or any other elements here */}
     </View>
   );
 };
