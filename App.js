@@ -7,6 +7,11 @@ import Home from './frontend/Home';
 import Registration from './frontend/Registration';
 import Login from './frontend/login';
 import Profile from './frontend/Profile';
+import Main from './frontend/Main';
+import AcademicLearning from './frontend/AcademicLearning';
+import Assessments from './frontend/Assessments';
+import Settings from './frontend/Settings';
+
 
 const Stack = createStackNavigator();
 
@@ -19,6 +24,10 @@ export default function App() {
         <Stack.Screen name="Register" component={Registration} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Profile" component={Profile} />
+        <Stack.Screen name="Main" component={Main} />
+        <Stack.Screen name="AcademicLearning" component={AcademicLearning} />
+        <Stack.Screen name="Assessments" component={Assessments} />
+        <Stack.Screen name="Settings" component={Settings} />
       </Stack.Navigator>
     </NavigationContainer>
   );
