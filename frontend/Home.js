@@ -1,63 +1,75 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
 
 const Home = ({ navigation }) => {
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Welcome to PrepPal</Text>
-      <Text style={styles.subtitle}>Your child's learning journey starts here!</Text>
 
-      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Register')}>
-        <Text style={styles.buttonText}>Get Started</Text>
+      {/* Academic Learning */}
+      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('AcademicLearning')}>
+        <FontAwesome name="book" size={30} color="#4CAF50" />
+        <Text style={styles.cardText}>Academic Learning</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.loginButton} onPress={() => navigation.navigate('Login')}>
-        <Text style={styles.loginText}>Already have an account? Log in</Text>
+      {/* Assessments */}
+      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Assessments')}>
+        <FontAwesome name="pencil" size={30} color="#FFA500" />
+        <Text style={styles.cardText}>Assessments</Text>
       </TouchableOpacity>
-    </View>
+
+      {/* Profile */}
+      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Profile')}>
+        <FontAwesome name="user" size={30} color="#007BFF" />
+        <Text style={styles.cardText}>Profile</Text>
+      </TouchableOpacity>
+
+      {/* Settings */}
+      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('Settings')}>
+        <FontAwesome name="cog" size={30} color="#FF4500" />
+        <Text style={styles.cardText}>Settings</Text>
+      </TouchableOpacity>
+
+      {/* Account Management */}
+      <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('AccountManagement')}>
+        <FontAwesome name="lock" size={30} color="#800080" />
+        <Text style={styles.cardText}>Account Management</Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f9f9f9',
+    flexGrow: 1,
     padding: 20,
+    backgroundColor: '#f9f9f9',
+    alignItems: 'center',
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 20,
     color: '#333',
   },
-  subtitle: {
-    fontSize: 16,
-    color: '#555',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  button: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    width: '80%',
+  card: {
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 10,
+    width: '90%',
     marginBottom: 15,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
   },
-  buttonText: {
-    color: '#fff',
+  cardText: {
     fontSize: 18,
-    fontWeight: 'bold',
-  },
-  loginButton: {
-    marginTop: 10,
-  },
-  loginText: {
-    color: '#4CAF50',
-    fontSize: 16,
+    marginLeft: 15,
+    color: '#333',
   },
 });
 

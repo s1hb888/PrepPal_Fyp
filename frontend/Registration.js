@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons'; // Ensure you install @expo/vector-icons
 
 const Registration = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -24,17 +25,36 @@ const Registration = ({ navigation }) => {
       return;
     }
     Alert.alert('Success', 'Registration successful!');
-    navigation.navigate('Login'); // Navigate to Login after registration
+    navigation.navigate('Login');
   };
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Ionicons name="arrow-back" size={24} color="#333" />
+      </TouchableOpacity>
+
       <Text style={styles.title}>Register</Text>
 
-      <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} keyboardType="email-address" />
-      <TextInput style={styles.input} placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
-      <TextInput style={styles.input} placeholder="Kid's Name" value={kidName} onChangeText={setKidName} />
-      <TextInput style={styles.input} placeholder="Kid's Age" value={kidAge} onChangeText={setKidAge} keyboardType="numeric" />
+      <View style={styles.inputContainer}>
+        <Ionicons name="mail" size={20} color="#555" />
+        <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} keyboardType="email-address" />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Ionicons name="lock-closed" size={20} color="#555" />
+        <TextInput style={styles.input} placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Ionicons name="person" size={20} color="#555" />
+        <TextInput style={styles.input} placeholder="Kid's Name" value={kidName} onChangeText={setKidName} />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Ionicons name="calendar" size={20} color="#555" />
+        <TextInput style={styles.input} placeholder="Kid's Age" value={kidAge} onChangeText={setKidAge} keyboardType="numeric" />
+      </View>
 
       <TouchableOpacity style={styles.button} onPress={handleRegister}>
         <Text style={styles.buttonText}>Register</Text>
@@ -52,44 +72,63 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#1c70ec',
     padding: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
+    color: '#ffffff',
     marginBottom: 20,
+  },
+  inputContainer: {
+    width: '100%',
+    marginBottom: 15,
   },
   input: {
     width: '100%',
     height: 50,
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 10,
+    borderColor: '#ffffff',
+    borderRadius: 12,
     paddingHorizontal: 15,
-    marginBottom: 15,
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff',
+    fontSize: 16,
+    color: '#000',
   },
   button: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 10,
+    backgroundColor: '#fe7100',
+    paddingVertical: 14,
+    borderRadius: 12,
     width: '100%',
     alignItems: 'center',
-    marginBottom: 15,
+    marginTop: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
   },
   buttonText: {
-    color: '#fff',
+    color: '#ffffff',
     fontSize: 18,
     fontWeight: 'bold',
   },
+  backButton: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    padding: 10,
+    borderRadius: 20,
+  },
   loginButton: {
-    marginTop: 10,
+    marginTop: 20,
   },
   loginText: {
-    color: '#4CAF50',
+    color: '#ffffff',
     fontSize: 16,
+    textDecorationLine: 'underline',
   },
 });
 

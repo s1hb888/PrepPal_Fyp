@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-const Login = StyleSheet.create({
+const login = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
@@ -33,4 +33,4 @@ const Login = StyleSheet.create({
     },
 });
 
-export default Login;
+export default login;

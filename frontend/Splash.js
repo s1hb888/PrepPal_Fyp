@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Image, StyleSheet } from 'react-native';
 
 const Splash = ({ navigation }) => {
   useEffect(() => {
@@ -10,8 +10,8 @@ const Splash = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to PrepPal</Text>
-      <Text style={styles.subtitle}>A milestone to reach your dream</Text>
+      {/* Display the splash-icon.png */}
+      <Image source={require('../assets/splash-icon.png')} style={styles.logo} />
     </View>
   );
 };
@@ -21,16 +21,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#fff', // White background
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  subtitle: {
-    fontSize: 16,
-    marginTop: 10,
+  logo: {
+    width: 150,  // Adjust size as needed
+    height: 150, // Adjust size as needed
+    resizeMode: 'contain', // Ensures proper scaling
   },
 });
 
 export default Splash;
+

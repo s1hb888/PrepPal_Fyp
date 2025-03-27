@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import styles from './Styles/LoginStyles'; 
 
-const Login = ({ navigation }) => {
+const login = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
     if (email === 'parent@example.com' && password === 'Password123!') {
       Alert.alert('Success', 'Login successful!');
-      navigation.navigate('Profile'); // Navigate to Profile after login
+      navigation.navigate('Profile');
     } else {
       Alert.alert('Error', 'Invalid email or password.');
     }
@@ -17,7 +18,6 @@ const Login = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
-
       <TextInput style={styles.input} placeholder="Email" value={email} onChangeText={setEmail} keyboardType="email-address" />
       <TextInput style={styles.input} placeholder="Password" value={password} onChangeText={setPassword} secureTextEntry />
 
@@ -28,6 +28,4 @@ const Login = ({ navigation }) => {
   );
 };
 
-export default Login;
-
-
+export default login; 
