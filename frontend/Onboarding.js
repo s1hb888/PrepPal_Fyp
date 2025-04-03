@@ -1,25 +1,28 @@
+
 import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import GestureRecognizer from 'react-native-swipe-gestures';
+
+const { width, height } = Dimensions.get('window');
 
 const onboardingData = [
   {
     id: 1,
     title: "Welcome to PrepPal",
     description: "Helping kids get ready for school in a fun way!",
-    image: "https://cdn.pixabay.com/photo/2016/11/21/15/52/children-1846744_960_720.jpg",
+    image: "https://img.freepik.com/free-vector/children-reading-books-white-background_1308-99595.jpg",
   },
   {
     id: 2,
     title: "Interactive Learning",
     description: "Engage with exciting quizzes, puzzles, and activities.",
-    image: "https://cdn.pixabay.com/photo/2018/04/12/12/56/kids-3314363_960_720.jpg",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT0nJMIer2HceR4f_r6186W8Xm2g4H2qTe0RD2jcZy49RaP0xpHvE_Ee6bEI9HyMehkr0&usqp=CAU",
   },
   {
     id: 3,
     title: "Track Progress & Rewards",
     description: "Earn stars and track your kid's learning journey.",
-    image: "https://cdn.pixabay.com/photo/2016/06/24/10/47/children-1473851_960_720.jpg",
+    image: "https://img.freepik.com/free-vector/children-reading-books-white-background_1308-99595.jpg",
   },
 ];
 
@@ -38,26 +41,64 @@ const Onboarding = ({ navigation }) => {
     }
   };
 
+  const goToNext = () => {
+    if (screenIndex < onboardingData.length - 1) {
+      setScreenIndex(screenIndex + 1);
+    } else {
+      navigation.replace('Login');
+    }
+  };
+
   return (
     <GestureRecognizer 
       onSwipeLeft={handleSwipeLeft} 
       onSwipeRight={handleSwipeRight} 
       style={styles.container}
     >
-      <Image source={{ uri: onboardingData[screenIndex].image }} style={styles.image} />
+      <View style={styles.imageContainer}>
+        <Image 
+          source={{ uri: onboardingData[screenIndex].image }} 
+          style={styles.image} 
+          resizeMode="contain"
+        />
+      </View>
 
-      <Text style={styles.title}>{onboardingData[screenIndex].title}</Text>
-      <Text style={styles.description}>{onboardingData[screenIndex].description}</Text>
+      <View style={styles.textContainer}>
+        <Text style={styles.title}>{onboardingData[screenIndex].title}</Text>
+        <Text style={styles.description}>{onboardingData[screenIndex].description}</Text>
+      </View>
 
-      {screenIndex === onboardingData.length - 1 ? (
-        <TouchableOpacity style={styles.button} onPress={() => navigation.replace('Home')}>
-          <Text style={styles.buttonText}>Get Started</Text>
-        </TouchableOpacity>
-      ) : (
-        <TouchableOpacity style={styles.skipButton} onPress={() => setScreenIndex(onboardingData.length - 1)}>
-          <Text style={styles.skipText}>Skip</Text>
-        </TouchableOpacity>
-      )}
+      <View style={styles.indicatorContainer}>
+        {onboardingData.map((_, index) => (
+          <View 
+            key={index} 
+            style={[
+              styles.indicator, 
+              index === screenIndex ? styles.activeIndicator : styles.inactiveIndicator
+            ]} 
+          />
+        ))}
+      </View>
+
+      <View style={styles.buttonContainer}>
+        {screenIndex === onboardingData.length - 1 ? (
+          <TouchableOpacity style={styles.getStartedButton} onPress={goToNext}>
+            <Text style={styles.getStartedButtonText}>Get Started</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.row}>
+            <TouchableOpacity 
+              style={styles.secondaryButton} 
+              onPress={() => navigation.replace('Login')}
+            >
+              <Text style={styles.secondaryButtonText}>Skip</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.primaryButton} onPress={goToNext}>
+              <Text style={styles.primaryButtonText}>Next</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
     </GestureRecognizer>
   );
 };
@@ -65,49 +106,104 @@ const Onboarding = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1c70ec',
+    backgroundColor: '#ffffff',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     padding: 20,
+    paddingBottom: 40,
+  },
+  imageContainer: {
+    width: width * 0.9,
+    height: height * 0.4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 40,
   },
   image: {
     width: '100%',
-    height: '50%',
-    resizeMode: 'contain',
-    marginBottom: 20,
+    height: '100%',
+  },
+  textContainer: {
+    alignItems: 'center',
+    paddingHorizontal: 30,
   },
   title: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#2d2d2d',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 16,
   },
   description: {
-    fontSize: 18,
-    color: '#ffffff',
+    fontSize: 16,
+    color: '#666666',
     textAlign: 'center',
-    paddingHorizontal: 20,
+    lineHeight: 24,
   },
-  button: {
-    backgroundColor: '#fe7100',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+  indicatorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 20,
+  },
+  indicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 4,
+  },
+  activeIndicator: {
+    width: 20,
+    backgroundColor: '#1c70ec',
+  },
+  inactiveIndicator: {
+    backgroundColor: '#dddddd',
+  },
+  buttonContainer: {
+    width: '100%',
+  },
+  getStartedButton: {
+    backgroundColor: '#EDB900',
+    paddingVertical: 16,
     borderRadius: 30,
-    marginTop: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  buttonText: {
-    color: '#ffffff',
-    fontSize: 18,
+  getStartedButtonText: {
+    color: 'white',
+    fontSize: 16,
     fontWeight: 'bold',
   },
-  skipButton: {
-    marginTop: 20,
+  primaryButton: {
+    backgroundColor: '#EDB900',
+    paddingVertical: 16,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1, 
   },
-  skipText: {
+  primaryButtonText: {
     color: '#ffffff',
     fontSize: 16,
-    textDecorationLine: 'underline',
+    fontWeight: 'bold', 
+  },
+  secondaryButton: {
+    paddingVertical: 16,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#dddddd', 
+  },
+  secondaryButtonText: {
+    color: '#666666',
+    fontSize: 16,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',  
   },
 });
 

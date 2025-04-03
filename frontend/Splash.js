@@ -4,13 +4,12 @@ import { View, Image, StyleSheet } from 'react-native';
 const Splash = ({ navigation }) => {
   useEffect(() => {
     setTimeout(() => {
-      navigation.replace('Home');
+      navigation.replace('Onboarding');
     }, 2000);
   }, []);
 
   return (
-    <View style={styles.container}>
-      {/* Display the splash-icon.png */}
+    <View style={styles.container}> 
       <Image source={require('../assets/splash-icon.png')} style={styles.logo} />
     </View>
   );
@@ -21,12 +20,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff', // White background
+    backgroundColor: '#fff',  
   },
   logo: {
-    width: 150,  // Adjust size as needed
-    height: 150, // Adjust size as needed
-    resizeMode: 'contain', // Ensures proper scaling
+    width: 250,   
+    height: 250,  
+    resizeMode: 'contain',  
   },
 });
 
