@@ -6,10 +6,22 @@ const CommonStyles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   topArea: {
-    height: 200,
+    height: 100,
     backgroundColor: '#FFCF25',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  backButton: {
+    padding: 10,
+  },
+  backText: {
+    color: 'white',
+    fontSize: 16,
+  },
+  logo: {
+    width: 40,   // Set the width of your logo
+    height: 40,  // Set the height of your logo
+    resizeMode: 'contain', // Ensure the logo scales properly
   },
   title: {
     fontSize: 25,
@@ -26,7 +38,7 @@ const CommonStyles = StyleSheet.create({
     backgroundColor: '#2BCB9A',
     width: 170,
     height: 150,
-    margin: 10,
+    margin: 5,
     elevation: 7,
     borderRadius: 10,
     borderWidth:2,
@@ -34,10 +46,11 @@ const CommonStyles = StyleSheet.create({
   },
   cardContent: {
     backgroundColor: '#2BCB9A',
-    flex: 1,
+    
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 15,
+    padding: 5,
+  
     borderRadius: 10
   },
   image: {
@@ -49,7 +62,7 @@ const CommonStyles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginTop: 5,
+    marginTop: 15,
   },
 });
 

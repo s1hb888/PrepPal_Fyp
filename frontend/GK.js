@@ -3,12 +3,12 @@ import { View, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { Card } from 'react-native-paper';
 import styles from '../Styles/CommonStyles';
 
-const parentHome = ({ navigation }) => {
+const GK = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <ScrollView>
         <View style={styles.topArea}>
-          <Text style={styles.title}>Parent Dashboard</Text>
+          <Text style={styles.title}>Learn General Knowledge</Text>
         </View>
         <View style={styles.gridContainer}>
           {menuItems.map((item, index) => (
@@ -28,10 +28,14 @@ const parentHome = ({ navigation }) => {
 };
 
 const menuItems = [
-  { label: 'Course', image: require('../assets/course.png'), screen: 'CourseList' },
-  { label: 'Kid Progress', image: require('../assets/progress.png'), screen: 'QuizzProgress' },
-  { label: 'Profile', image: require('../assets/profile.png'), screen: 'profile' },
-  { label: 'Settings', image: require('../assets/settings.png'), screen: 'settings' },
+  { label: 'Colors', image: require('../assets/color.png'), screen: 'LearningMenu' },
+  { label: 'Shapes', image: require('../assets/shapes.png'), screen: 'NumbersScreen' },
+  { label: 'Counting', image: require('../assets/counting.png'), screen: 'AnimalsScreen' },
+  { label: 'Self introduction', image: require('../assets/introduction.png'), screen: 'LearningMenu' },
+  { label: 'Body parts', image: require('../assets/body.png'), screen: 'NumbersScreen' },
+  { label: 'Fruits', image: require('../assets/fruits.png'), screen: 'AnimalsScreen' },
+  { label: 'Vegetables', image: require('../assets/vegetable.png'), screen: 'LearningMenu' },
+  { label: 'Islamic studies', image: require('../assets/islamic.png'), screen: 'LearningMenu' }
 ];
 
-export default parentHome;
+export default GK;

@@ -3,12 +3,14 @@ import { View, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { Card } from 'react-native-paper';
 import styles from '../Styles/CommonStyles';
 
-const parentHome = ({ navigation }) => {
+const Courses = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <ScrollView>
         <View style={styles.topArea}>
-          <Text style={styles.title}>Parent Dashboard</Text>
+         
+          <Text style={styles.title}>Learn Courses</Text>
+
         </View>
         <View style={styles.gridContainer}>
           {menuItems.map((item, index) => (
@@ -28,10 +30,9 @@ const parentHome = ({ navigation }) => {
 };
 
 const menuItems = [
-  { label: 'Course', image: require('../assets/course.png'), screen: 'CourseList' },
-  { label: 'Kid Progress', image: require('../assets/progress.png'), screen: 'QuizzProgress' },
-  { label: 'Profile', image: require('../assets/profile.png'), screen: 'profile' },
-  { label: 'Settings', image: require('../assets/settings.png'), screen: 'settings' },
+  { label: 'English', image: require('../assets/alphabets.png'), screen: 'LearningMenu' },
+  { label: 'Urdu', image: require('../assets/urdu.png'), screen: 'NumbersScreen' },
+  { label: 'Numbers', image: require('../assets/numbers.png'), screen: 'AnimalsScreen' }
 ];
 
-export default parentHome;
+export default Courses;

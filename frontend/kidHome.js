@@ -8,7 +8,7 @@ const KidHome = ({ navigation }) => {
     <View style={styles.container}>
       <ScrollView>
         <View style={styles.topArea}>
-          <Text style={styles.title}>Kids Dashboard</Text>
+          <Text style={styles.title}>Kid Dashboard</Text>
         </View>
         <View style={styles.gridContainer}>
           {menuItems.map((item, index) => (
@@ -28,9 +28,9 @@ const KidHome = ({ navigation }) => {
 };
 
 const menuItems = [
-  { label: 'Learn Courses', image: require('../assets/learning.png'), screen: 'LearningMenu' },
-  { label: 'Learn GK', image: require('../assets/gk.png'), screen: 'NumbersScreen' },
-  { label: 'Assessment', image: require('../assets/test.png'), screen: 'AnimalsScreen' },
+  { label: 'Learn Courses', image: require('../assets/learning.png'), screen: 'Courses' },
+  { label: 'Learn GK', image: require('../assets/gk.png'), screen: 'GK' },
+  { label: 'Assessment', image: require('../assets/test.png'), screen: 'Assesment' },
   { label: 'Videos', image: require('../assets/video.png'), screen: 'PersonsScreen' },
 ];
 
