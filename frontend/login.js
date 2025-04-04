@@ -19,20 +19,20 @@ const Login = ({ navigation }) => {
       const response = await fetch('http://192.168.10.4:5000/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, role }),
+        body: JSON.stringify({ email, password, role }), // Yeh role bhej rahe ho
       });
   
       const data = await response.json();
   
       if (response.ok) {
-        // Store JWT token
         await AsyncStorage.setItem('token', data.token);
   
         Alert.alert('Success', 'Login successful!');
+  
         
         if (role === 'parent') {
           navigation.navigate('parentHome');
-        } else {
+        } else if (role === 'kid') {
           navigation.navigate('kidHome');
         }
       } else {
@@ -43,7 +43,7 @@ const Login = ({ navigation }) => {
       Alert.alert('Error', 'Server error, please try again later.');
     }
   };
-
+  
   return (
     <View style={styles.container}>
       <View style={styles.appBar}>

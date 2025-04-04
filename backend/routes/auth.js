@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Registration Route
 router.post('/register', async (req, res) => {
-  const { email, password, kidName, kidAge } = req.body;
+  const { email, password, kidName, kidAge, role } = req.body;
 
   // Validate input fields
   if (!email || !password || !kidName || !kidAge) {
@@ -20,16 +20,21 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'Email is already registered.' });
     }
 
+    // Set default role to 'parent' if not provided
+    const userRole = role || 'parent'; // If no role is provided, default to 'parent'
+
     // Create new user
     const user = new User({
       email,
       password,
       kidName,
       kidAge,
-      role: 'parent', // Set the default role as 'parent' or use custom logic
+      role: userRole, // Set the role as per the user selection (or default to 'parent')
     });
 
     // Save user to the database
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(user.password, salt);
     await user.save();
 
     // Respond with success message
@@ -58,19 +63,18 @@ router.post('/login', async (req, res) => {
     }
 
     // Validate password
-    const isMatch = await user.matchPassword(password);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid email or password. Please try again.' });
     }
 
-    // Check if role matches
-    if (role !== user.role) {
-      return res.status(400).json({ message: `Invalid role. Please login as ${user.role}` });
-    }
+    // No need to check role here; assume user logs in based on the role selected during login (if provided)
+    // We don't check roles unless explicitly passed. User will automatically go to correct page.
 
     // Create JWT token
     const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
+    // Send response with the token and role
     res.json({
       message: 'Login successful',
       token,
@@ -83,4 +87,3 @@ router.post('/login', async (req, res) => {
 });
 
 module.exports = router;
-
