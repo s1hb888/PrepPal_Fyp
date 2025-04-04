@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import axios from 'axios';
 
 const Registration = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -11,7 +12,7 @@ const Registration = ({ navigation }) => {
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validatePassword = (password) => /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!email || !validateEmail(email)) {
       Alert.alert('Error', 'Invalid email format.');
       return;
@@ -24,8 +25,28 @@ const Registration = ({ navigation }) => {
       Alert.alert('Error', "Kid’s name and age are required.");
       return;
     }
-    Alert.alert('Success', 'Registration successful!');
-    navigation.navigate('Login');
+
+    try {
+      const response = await axios.post('http://192.168.10.4:5000/api/register', {
+        email,
+        password,
+        kidName,
+        kidAge
+      });
+
+      if (response.status === 201) {
+        Alert.alert('Success', 'Registration successful!');
+        navigation.navigate('Login');  // Navigate to login screen
+      }
+    } catch (error) {
+      if (error.response) {
+        // If response is available, show specific error message
+        Alert.alert('Error', error.response.data.message || 'Registration failed. Please try again.');
+      } else {
+        // Handle errors with no response (e.g., network issues)
+        Alert.alert('Error', 'Server error, please try again later.');
+      }
+    }
   };
 
   return (

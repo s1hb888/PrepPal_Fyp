@@ -2,21 +2,45 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { RadioButton } from 'react-native-paper';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('parent');
 
-  const handleLogin = () => {
-    if (email === '1' && password === '1' && role === 'parent') {
-      Alert.alert('Success', 'Login successful as Parent!');
-      navigation.navigate('parentHome');
-    } else if (email === '1' && password === '1' && role === 'kid') {
-      Alert.alert('Success', 'Login successful as Kid!');
-      navigation.navigate('kidHome');
-    } else {
-      Alert.alert('Error', 'Invalid email or password.');
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Email and Password are required.');
+      return;
+    }
+  
+    try {
+      const response = await fetch('http://192.168.10.4:5000/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, role }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        // Store JWT token
+        await AsyncStorage.setItem('token', data.token);
+  
+        Alert.alert('Success', 'Login successful!');
+        
+        if (role === 'parent') {
+          navigation.navigate('parentHome');
+        } else {
+          navigation.navigate('kidHome');
+        }
+      } else {
+        Alert.alert('Error', data.message || 'Invalid credentials');
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'Server error, please try again later.');
     }
   };
 
@@ -34,7 +58,6 @@ const Login = ({ navigation }) => {
         <Text style={styles.radioLabel}>Login as:</Text>
         <View style={styles.radioOption}>
           <RadioButton
-            style={styles.radioButton}
             value="parent"
             status={role === 'parent' ? 'checked' : 'unchecked'}
             onPress={() => setRole('parent')}
@@ -44,12 +67,12 @@ const Login = ({ navigation }) => {
         </View>
         <View style={styles.radioOption}>
           <RadioButton
-            value="child"
+            value="kid"
             status={role === 'kid' ? 'checked' : 'unchecked'}
             onPress={() => setRole('kid')}
             color="#EF3349"
           />
-          <Text>Child</Text>
+          <Text>Kid</Text>
         </View>
       </View>
       
