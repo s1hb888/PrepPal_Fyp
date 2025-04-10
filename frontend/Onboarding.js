@@ -16,14 +16,16 @@ const onboardingData = [
     id: 2,
     title: "Interactive Learning",
     description: "Engage with exciting quizzes, puzzles, and activities.",
-    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRT0nJMIer2HceR4f_r6186W8Xm2g4H2qTe0RD2jcZy49RaP0xpHvE_Ee6bEI9HyMehkr0&usqp=CAU",
+    image: "https://static.vecteezy.com/system/resources/previews/002/391/032/non_2x/online-learning-concept-with-cartoon-character-vector.jpg",
   },
+  
   {
     id: 3,
     title: "Track Progress & Rewards",
     description: "Earn stars and track your kid's learning journey.",
-    image: "https://img.freepik.com/free-vector/children-reading-books-white-background_1308-99595.jpg",
+    image: "https://static.vecteezy.com/system/resources/previews/040/532/044/non_2x/illustration-of-success-concept-school-achievement-and-success-illustration-first-place-winner-on-white-background-teamwork-consept-vector.jpg",
   },
+ 
 ];
 
 const Onboarding = ({ navigation }) => {
@@ -45,7 +47,7 @@ const Onboarding = ({ navigation }) => {
     if (screenIndex < onboardingData.length - 1) {
       setScreenIndex(screenIndex + 1);
     } else {
-      navigation.replace('Login');
+      navigation.replace('Home');
     }
   };
 
@@ -89,7 +91,7 @@ const Onboarding = ({ navigation }) => {
           <View style={styles.row}>
             <TouchableOpacity 
               style={styles.secondaryButton} 
-              onPress={() => navigation.replace('Login')}
+              onPress={() => navigation.replace('Home')}
             >
               <Text style={styles.secondaryButtonText}>Skip</Text>
             </TouchableOpacity>

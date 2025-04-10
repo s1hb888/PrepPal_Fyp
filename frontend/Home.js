@@ -1,17 +1,29 @@
 
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Image, FlatList, Dimensions } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
+  Image,
+  FlatList,
+  Dimensions,
+  Modal,
+} from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 
 const Home = ({ navigation }) => {
-  // Data for the slider with image URLs
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [selectedTab, setSelectedTab] = useState('Home');
+
   const sliderData = [
-    { id: '1', imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1TIKdHnFEil8tdXKLi5idMDG_Zg2hhiwl4_3IDhalZfA_sGCi2SnSbA823L69hMX-6zI&usqp=CAU' },
-    { id: '2',  imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1TIKdHnFEil8tdXKLi5idMDG_Zg2hhiwl4_3IDhalZfA_sGCi2SnSbA823L69hMX-6zI&usqp=CAU' },
-    { id: '3',  imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS1TIKdHnFEil8tdXKLi5idMDG_Zg2hhiwl4_3IDhalZfA_sGCi2SnSbA823L69hMX-6zI&usqp=CAU' },
+    { id: '1', imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTi6uCBD3asZ4S89k62ggZ6rty1QculLefW9A&s' },
+    { id: '2', imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTi6uCBD3asZ4S89k62ggZ6rty1QculLefW9A&s' },
+    { id: '3', imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTi6uCBD3asZ4S89k62ggZ6rty1QculLefW9A&s' },
   ];
 
-  // Data for the grid cards
   const cardData = [
     { id: '1', title: 'Academic Learning', icon: 'book', color: '#4CAF50', screen: 'AcademicLearning' },
     { id: '2', title: 'Assessments', icon: 'pencil', color: '#FFA500', screen: 'Assessments' },
@@ -20,7 +32,6 @@ const Home = ({ navigation }) => {
     { id: '5', title: 'Account Management', icon: 'lock', color: '#800080', screen: 'Registration' },
   ];
 
-  // Render item for slider
   const renderSliderItem = ({ item }) => (
     <View style={styles.sliderItem}>
       <Image source={{ uri: item.imageUrl }} style={styles.sliderImage} />
@@ -30,53 +41,135 @@ const Home = ({ navigation }) => {
     </View>
   );
 
-  // Render item for grid cards
-// Render item for grid cards
-const renderCardItem = ({ item }) => (
-  <TouchableOpacity 
-    style={[styles.card, { backgroundColor: '#FFDF6D', borderLeftColor: item.color }]} // Changed background color to red
-    onPress={() => navigation.navigate(item.screen)}
-  >
-    <FontAwesome name={item.icon} size={40} color={item.color} />
-    <Text style={styles.cardText}>{item.title}</Text>
-  </TouchableOpacity>
-);
+  const renderCardItem = ({ item }) => (
+    <TouchableOpacity
+      style={[styles.card, { backgroundColor: '#FFDF6D', borderLeftColor: item.color }]}
+      onPress={() => navigation.navigate(item.screen)}
+    >
+      <FontAwesome name={item.icon} size={40} color={item.color} />
+      <Text style={styles.cardText}>{item.title}</Text>
+    </TouchableOpacity>
+  );
 
+  const renderTabContent = () => {
+    switch (selectedTab) {
+      case 'Home':
+        return (
+          <ScrollView style={styles.container}>
+            <View style={styles.sliderContainer}>
+              <FlatList
+                data={sliderData}
+                renderItem={renderSliderItem}
+                keyExtractor={(item) => item.id}
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+              />
+            </View>
+            <Text style={styles.sectionTitle}>Features</Text>
+            <FlatList
+              data={cardData}
+              renderItem={renderCardItem}
+              keyExtractor={(item) => item.id}
+              numColumns={2}
+              columnWrapperStyle={styles.row}
+              scrollEnabled={false}
+            />
+          </ScrollView>
+        );
+      case 'Profile':
+        return (
+          <View style={styles.tabScreen}>
+            <Text style={styles.tabText}>This is the Profile screen</Text>
+          </View>
+        );
+      case 'Settings':
+        return (
+          <View style={styles.tabScreen}>
+            <Text style={styles.tabText}>Settings screen content here</Text>
+          </View>
+        );
+      case 'Notifications':
+        return (
+          <View style={styles.tabScreen}>
+            <Text style={styles.tabText}>You have no new notifications</Text>
+          </View>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* App Bar */}
-      {/* <View style={styles.appBar}>
+      {/* AppBar */}
+      <View style={styles.appBar}>
+        <TouchableOpacity onPress={() => setDrawerVisible(true)} style={styles.menuButton}>
+          <FontAwesome name="bars" size={24} color="#fff" />
+        </TouchableOpacity>
         <Text style={styles.appBarTitle}>Welcome To PrepPal</Text>
-      </View> */}
-       <View style={styles.appBar}>
-      <Text style={styles.appBarTitle}>Welcome To PrepPal</Text>
-    </View>
+      </View>
 
-      <ScrollView style={styles.container}>
-        {/* Slider */}
-        <View style={styles.sliderContainer}>
-          <FlatList
-            data={sliderData}
-            renderItem={renderSliderItem}
-            keyExtractor={item => item.id}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
+      {/* Drawer */}
+      <Modal visible={drawerVisible} animationType="slide" transparent>
+        <TouchableOpacity style={styles.drawerOverlay} onPress={() => setDrawerVisible(false)} />
+        <View style={styles.drawer}>
+          <Image
+            source={{ uri: 'https://cdn-icons-png.flaticon.com/512/219/219983.png' }}
+            style={styles.drawerIcon}
           />
-        </View>
+          <Text style={styles.drawerTitle}>PrepPal</Text>
 
-        {/* Grid Cards */}
-        <Text style={styles.sectionTitle}>Features</Text>
-        <FlatList
-          data={cardData}
-          renderItem={renderCardItem}
-          keyExtractor={item => item.id}
-          numColumns={2}
-          columnWrapperStyle={styles.row}
-          scrollEnabled={false}
-        />
-      </ScrollView>
+          {/* 6 drawer items */}
+          <TouchableOpacity style={styles.drawerItem}>
+            <FontAwesome name="home" size={20} />
+            <Text style={styles.drawerItemText}>Home</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.drawerItem}>
+            <FontAwesome name="user" size={20} />
+            <Text style={styles.drawerItemText}>Profile</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.drawerItem}>
+            <FontAwesome name="cog" size={20} />
+            <Text style={styles.drawerItemText}>Settings</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.drawerItem}>
+            <FontAwesome name="bell" size={20} />
+            <Text style={styles.drawerItemText}>Notifications</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.drawerItem}>
+            <FontAwesome name="info-circle" size={20} />
+            <Text style={styles.drawerItemText}>About Us</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.drawerItem}>
+            <FontAwesome name="sign-out" size={20} />
+            <Text style={styles.drawerItemText}>Logout</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
+
+      {/* Tab Content */}
+      {renderTabContent()}
+
+      {/* Bottom Bar */}
+      <View style={styles.bottomBar}>
+        <TouchableOpacity onPress={() => setSelectedTab('Home')} style={styles.bottomTab}>
+          <FontAwesome name="home" size={24} color={selectedTab === 'Home' ? '#FFFFFF' : '#666'} />
+          <Text style={{ color: selectedTab === 'Home' ? '#FFFFFF' : '#666' }}>Home</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setSelectedTab('Profile')} style={styles.bottomTab}>
+          <FontAwesome name="user" size={24} color={selectedTab === 'Profile' ? '#FFFFFF' : '#666'} />
+          <Text style={{ color: selectedTab === 'Profile' ? '#FFFFFF' : '#666' }}>Profile</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setSelectedTab('Settings')} style={styles.bottomTab}>
+          <FontAwesome name="cog" size={24} color={selectedTab === 'Settings' ? '#FFFFFF' : '#666'} />
+          <Text style={{ color: selectedTab === 'Settings' ? '#FFFFFF' : '#666' }}>Settings</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setSelectedTab('Notifications')} style={styles.bottomTab}>
+          <FontAwesome name="bell" size={24} color={selectedTab === 'Notifications' ? '#FFFFFF' : '#666'} />
+          <Text style={{ color: selectedTab === 'Notifications' ? '#FFFFFF' : '#666' }}>Alerts</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
@@ -90,22 +183,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   appBar: {
-    backgroundColor: '#007AFF', // Change to preferred color
-    paddingVertical: 30,
+    backgroundColor: '#EF3349',
+    paddingVertical: 20,
     paddingHorizontal: 20,
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 4, // Shadow effect for Android
-    shadowColor: '#000', // Shadow effect for iOS
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
   },
   appBarTitle: {
-    
     color: '#fff',
-    fontSize: 30,
+    fontSize: 24,
     fontWeight: 'bold',
+    marginLeft: 20,
+  },
+  menuButton: {
+    padding: 5,
   },
   container: {
     flex: 1,
@@ -146,7 +237,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 15,
-    color: '#333',
+    color: '#FFFFFF',
   },
   row: {
     justifyContent: 'space-between',
@@ -170,6 +261,66 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: '#333',
     textAlign: 'center',
+  },
+  bottomBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#ddd',
+    backgroundColor: '#EF3349',
+  },
+  bottomTab: {
+    alignItems: 'center',
+  },
+  drawerOverlay: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  drawer: {
+    width: 250,
+    height: '100%',
+    backgroundColor: '#fff',
+    paddingTop: 40,
+    paddingHorizontal: 20,
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    elevation: 5,
+  },
+  drawerIcon: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginBottom: 15,
+    backgroundColor: '#EF3349',
+    alignSelf: 'center',
+  },
+  drawerTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  drawerItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 15, 
+  },
+  drawerItemText: {
+    fontSize: 16,
+    marginLeft: 15,
+  },
+  tabScreen: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tabText: {
+    fontSize: 18,
+    color: '#555',
   },
 });
 

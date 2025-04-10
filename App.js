@@ -8,10 +8,10 @@ import Onboarding from './frontend/Onboarding';
 import Registration from './frontend/Registration';
 import Profile from './frontend/Profile';
 import Home from './frontend/Home';
-import kidHome from './frontend/KidHome';
+import kidHome from './frontend/kidHome';
 import Courses from './frontend/Courses';
 import LearningMenu from './frontend/LearningMenu';
-import parentHome from './frontend/ParentHome';
+import parentHome from './frontend/parentHome';
 import AcademicLearning from './frontend/AcademicLearning';
 import Assessments from './frontend/Assessments';
 import Assesment from './frontend/Assesment';
@@ -31,10 +31,9 @@ export default function App() {
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Profile" component={Profile} />
         <Stack.Screen name="Home" component={Home} />
-        <Stack.Screen name="KidHome" component={KidHome} />
+        <Stack.Screen name="kidHome" component={kidHome} />
         <Stack.Screen name="LearningMenu" component={LearningMenu} />
         <Stack.Screen name="parentHome" component={parentHome} />
-        <Stack.Screen name="ParentHome" component={ParentHome} />
         <Stack.Screen name="AcademicLearning" component={AcademicLearning} />
         <Stack.Screen name="Assessments" component={Assessments} />
         <Stack.Screen name="Assesment" component={Assesment} />

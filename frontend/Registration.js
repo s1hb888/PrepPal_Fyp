@@ -57,7 +57,6 @@ const Registration = ({ navigation }) => {
         </TouchableOpacity>
       </View>
       <Image source={require('../assets/splash-icon.png')} style={styles.logo} />
-
       <Text style={styles.title}>Register</Text>
 
       <View style={styles.inputContainer}>
@@ -174,4 +173,3 @@ const styles = StyleSheet.create({
 });
 
 export default Registration;
-
