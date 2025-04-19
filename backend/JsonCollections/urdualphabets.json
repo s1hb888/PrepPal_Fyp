@@ -1,0 +1,224 @@
+ [
+    {
+      "alphabet": "آ",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F1-removebg-preview%20(1).png?alt=media&token=0bc3d115-6dc7-486d-b29d-8162dde76255",
+      "word": "آ سے آم",
+      "sound_text": "آ سے آم"
+    },
+    {
+      "alphabet": "ا",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F2-removebg-preview%20(1).png?alt=media&token=f7ad2591-fb58-4515-88aa-9626a331b774",
+      "word": "ا سے انار",
+      "sound_text": "ا سے انار"
+    },
+    {
+      "alphabet": "ب",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F3-removebg-preview.png?alt=media&token=02f71062-5139-425e-b894-c459e40ba1a4",
+      "word": "ب سے بلی",
+      "sound_text": "ب سے بلی"
+    },
+    {
+      "alphabet": "پ",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F4-removebg-preview.png?alt=media&token=4efc664d-5706-4056-b6fb-6d68b1479565",
+      "word": "پ سے پنکھا",
+      "sound_text": "پ سے پنکھا"
+    },
+    {
+      "alphabet": "ت",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2FTala-removebg-preview.png?alt=media&token=ccfcf417-4eb3-43c7-b112-bfc02ea168b6",
+      "word": "ت سے تَالا",
+      "sound_text": "ت سے تَالا"
+    },
+    {
+      "alphabet": "ٹ",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F6-removebg-preview.png?alt=media&token=b2369344-7850-4786-a7ee-b294b19a6901",
+      "word": "ٹ سے ٹوپی",
+      "sound_text": "ٹ سے ٹوپی"
+    },
+    {
+      "alphabet": "ث",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F7-removebg-preview.png?alt=media&token=b9d156cd-4728-4302-a0f3-a51b06bc59a0",
+      "word": "ث سے ثمر",
+      "sound_text": "ث سے ثمر"
+    },
+    {
+      "alphabet": "ج",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2Fshoes-removebg-preview.png?alt=media&token=643fedb0-1dbd-4c5c-973e-4d5590702596",
+      "word": "ج سے جُوتا",
+      "sound_text": "ج سے جُوتا"
+    },
+    {
+      "alphabet": "چ",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F9-removebg-preview.png?alt=media&token=62a8012b-9903-4b1c-99c4-c31e495cd290",
+      "word": "چ سے چابی",
+      "sound_text": "چ سے چابی"
+    },
+    {
+      "alphabet": "ح",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F10-removebg-preview.png?alt=media&token=4dc9a7a6-431d-4f39-928f-e945b98084b2",
+      "word": "ح سے حلوہ",
+      "sound_text": "ح سے حلوہ"
+    },
+    {
+      "alphabet": "خ",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2Fkhazana-removebg-preview.png?alt=media&token=d66c48c5-5394-4715-9ad5-042df34754bb",
+      "word": "خ سے خزانہ",
+      "sound_text": "خ سے خزانہ"
+    },
+    {
+      "alphabet": "د",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F12-removebg-preview.png?alt=media&token=657858f0-1b16-4cb7-8722-1809a7d81e95",
+      "word": "د سے دَوات",
+      "sound_text": "د سے دَوات"
+    },
+    {
+      "alphabet": "ڈ",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F13-removebg-preview.png?alt=media&token=34834dd7-2949-48bd-87b0-26fd35769cf1",
+      "word": "ڈ سے ڈاکٹر",
+      "sound_text": "ڈ سے ڈاکٹر"
+    },
+    {
+      "alphabet": "ذ",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F14-removebg-preview.png?alt=media&token=80806155-b2e1-4d1f-a464-42884d02062c",
+      "word": "ذ سے ذخیرہ",
+      "sound_text": "ذ سے ذخیرہ"
+    },
+    {
+      "alphabet": "ر",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F15-removebg-preview.png?alt=media&token=570ebd74-c2c3-412f-b9d1-c9e258d63d98",
+      "word": "ر سے ریل گاڑی",
+      "sound_text": "ر سے ریل گاڑی"
+    },
+    {
+      "alphabet": "ڑ",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F16-removebg-preview.png?alt=media&token=989f3813-87ff-4b93-9a02-68decf635310",
+      "word": "ڑ سے پہاڑ",
+      "sound_text": "ڑ سے پہاڑ"
+    },
+    {
+      "alphabet": "ز",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F17-removebg-preview.png?alt=media&token=4a14a0b2-4ce2-4207-aa1f-8900b3a04a91",
+      "word": "ز سے زیبرا",
+      "sound_text": "ز سے زیبرا"
+    },
+    {
+      "alphabet": "ژ",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F18-removebg-preview.png?alt=media&token=9bb6ba22-62e0-4c65-b639-dd066487b148",
+      "word": "ژ سے ژالہ باری",
+      "sound_text": "ژ سے ژالہ باری"
+    },
+    {
+      "alphabet": "س",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F19-removebg-preview.png?alt=media&token=5aa8b2d6-8a24-4e9b-bf16-798a63cdbe1f",
+      "word": "س سے سورج",
+      "sound_text": "س سے سورج"
+    },
+    {
+      "alphabet": "ش",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2Fevening.JPG?alt=media&token=a600ec70-3cd9-431b-9cce-a7ad7ec09d73",
+      "word": "ش سے شام",
+      "sound_text": "ش سے شام"
+    },
+    {
+      "alphabet": "ص",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F21-removebg-preview.png?alt=media&token=e68b1cbd-0528-4267-a264-0fdc57eea7b6",
+      "word": "ص سے صابن",
+      "sound_text": "ص سے صابن"
+    },
+    {
+      "alphabet": "ض",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F22-removebg-preview.png?alt=media&token=97f2e8c7-15ee-4539-bc34-fa034e233d79",
+      "word": "ض سے ضعیف",
+      "sound_text": "ض سے ضعیف"
+    },
+    {
+      "alphabet": "ط",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F23-removebg-preview.png?alt=media&token=6780fc60-ce12-448c-bb7f-89fa269a567d",
+      "word": "ط سے طوطا",
+      "sound_text": "ط سے طوطا"
+    },
+    {
+      "alphabet": "ظ",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F24-removebg-preview.png?alt=media&token=1034d567-bbd5-497e-8a1a-3c7a77481640",
+      "word": "ظ سے ظروف",
+      "sound_text": "ظ سے ظروف"
+    },
+    {
+      "alphabet": "ع",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F25-removebg-preview.png?alt=media&token=228c4dfc-31a0-4e50-9504-d9649017c606",
+      "word": "ع سے عینک",
+      "sound_text": "ع سے عینک"
+    },
+    {
+      "alphabet": "غ",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2Fanger-removebg-preview.png?alt=media&token=fda44ef5-2c91-4656-b0ad-e81fc6af1919",
+      "word": "غ سے غصہ",
+      "sound_text": "غ سے غصہ"
+    },
+    {
+      "alphabet": "ف",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F27-removebg-preview.png?alt=media&token=0786d779-4180-40c1-b2ee-e589df44c5e8",
+      "word": "ف سے فاختہ",
+      "sound_text": "ف سے فاختہ"
+    },
+    {
+      "alphabet": "ق",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2Fkaaf.JPG?alt=media&token=fcaaea35-d72b-45d0-bee7-2c868fd0318d",
+      "word": "ق سے قینچی",
+      "sound_text": "ق سے قینچی"
+    },
+    {
+      "alphabet": "ک",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F28-removebg-preview.png?alt=media&token=d00f2f8a-a52f-4969-84fb-e01494251715",
+      "word": "ک سے کبوتر",
+      "sound_text": "ک سے کبوتر"
+    },
+    {
+      "alphabet": "گ",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F29-removebg-preview.png?alt=media&token=858ca6cd-4080-4b64-b9cf-c54d28b7ffc6",
+      "word": "گ سے گڑیا",
+      "sound_text": "گ سے گڑیا"
+    },
+    {
+      "alphabet": "ل",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2Fstick-removebg-preview.png?alt=media&token=e8dbcadb-b0f6-4bfa-ad24-184453cefa8f",
+      "word": "ل سے لاٹھی",
+      "sound_text": "ل سے لاٹھی"
+    },
+    {
+      "alphabet": "م",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F31-removebg-preview.png?alt=media&token=e80e88e8-7744-4c4c-9da4-a90670860ce1",
+      "word": "م سے مور",
+      "sound_text": "م سے مور"
+    },
+    {
+      "alphabet": "ن",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F32-removebg-preview.png?alt=media&token=1fc86818-88f3-4b9e-b0a9-ccd5d0cf9db9",
+      "word": "ن سے ناریل",
+      "sound_text": "ن سے ناریل"
+    },
+    {
+      "alphabet": "و",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F33-removebg-preview.png?alt=media&token=9709ee40-f10f-4339-af0a-7c6b19dba022",
+      "word": "و سے وردی",
+      "sound_text": "و سے وردی"
+    },
+    {
+      "alphabet": "ہ",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F34-removebg-preview.png?alt=media&token=45349e8a-952e-4de9-a7c7-2c74822c7193",
+      "word": "ہ سے ہاتھی",
+      "sound_text": "ہ سے ہاتھی"
+    },
+    {
+      "alphabet": "ء",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F35-removebg-preview.png?alt=media&token=e1ce0fb8-3b4a-41c2-8249-ce7fc5cc0239",
+      "word": "ء سے گائے",
+      "sound_text": "ء سے گائے"
+    },
+    {
+      "alphabet": "ی، ے",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FUrdu%2F36-removebg-preview.png?alt=media&token=300bbdf5-d33d-454f-af38-e613d3c0da41",
+      "word": "ی اور ے سے  یاک",
+      "sound_text": "ی اور ے سے  یاک"
+    }
+  ]

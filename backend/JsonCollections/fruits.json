@@ -1,0 +1,72 @@
+ [
+    {
+     "word": "Melon",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2FMelon-removebg-preview.png?alt=media&token=a4cfeb74-2571-4c42-8609-d5e5035e4e7f",
+      "sound_text": "Melon"
+    },
+    {
+      "word": "Apple",
+       "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fapple-removebg-preview.png?alt=media&token=c3d3b263-503e-4f98-821c-5f9dbc9eba0f",
+       "sound_text": "Apple"
+     },
+     {
+      "word": "Banana",
+       "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fbanana-removebg-preview.png?alt=media&token=2cb44e2b-daed-4d66-9df7-bf4d1973a0b3",
+       "sound_text": "Banana"
+     },
+     {
+      "word": "Cherry",
+       "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fcherry-removebg-preview.png?alt=media&token=78e3fa11-7452-46d3-b205-0183af7c12e6",
+       "sound_text": "Cherry"
+     },
+     {
+      "word": "Grapes",
+       "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fgrapes-removebg-preview.png?alt=media&token=58d125f5-0881-492d-9772-b8cf1f11838b",
+       "sound_text": "Grapes"
+     },
+     {
+      "word": "Guava",
+       "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fguava-removebg-preview.png?alt=media&token=faabbb0b-2e68-40f1-99ed-0871458aade8",
+       "sound_text": "Guava"
+     },
+     {
+      "word": "Mango",
+       "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fmango-removebg-preview.png?alt=media&token=70dd7c06-1cee-4ea3-96ba-7eb597bd296a",
+       "sound_text": "Mango"
+     },
+     {
+      "word": "Orange",
+       "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Forange-removebg-preview.png?alt=media&token=c6be892f-1de9-406b-b564-9b08baacb95c",
+       "sound_text": "Orange"
+     },
+     {
+      "word": "Papaya",
+       "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fpapaya-removebg-preview.png?alt=media&token=318d0be1-6af9-4bc9-ad03-35179320b8b2",
+       "sound_text": "Papaya"
+     },
+     {
+      "word": "Peach",
+       "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fpeach-removebg-preview.png?alt=media&token=caaab7e8-7a0e-49e5-95fb-8d954cdde61e",
+       "sound_text": "Peach"
+     },
+     {
+      "word": "Pear",
+       "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fpear-removebg-preview.png?alt=media&token=edbb850a-33d6-4d86-ab63-ad4ff2fe7fb5",
+       "sound_text": "Pear"
+     },
+     {
+      "word": "Pineapple",
+       "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fpineapple-removebg-preview.png?alt=media&token=7cd43340-4df2-4633-8695-27920fc4076d",
+       "sound_text": "Pineapple"
+     },
+     {
+      "word": "Strawberry",
+       "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fstrawberry-removebg-preview.png?alt=media&token=9adda13a-c818-4739-b401-e749145038b0",
+       "sound_text": "Strawberry"
+     },
+     {
+      "word": "Watermelon",
+       "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fwatermelon-removebg-preview.png?alt=media&token=9c7206a0-a3d7-49d4-aa3f-edfaa0d021d4",
+       "sound_text": "Watermelon"
+     }
+  ]

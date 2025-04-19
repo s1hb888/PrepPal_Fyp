@@ -1,0 +1,127 @@
+[
+  {
+   "word": "Forhead",
+    "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2FForhead-removebg-preview.png?alt=media&token=55078332-9629-412f-94b2-08fc82d09d59",
+    "sound_text": "Forhead"
+  },
+  {
+    "word": "Ankle",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Fankle-removebg-preview.png?alt=media&token=26cdc5ae-bfaa-40c2-857d-526360179dbf",
+     "sound_text": "Ankle"
+   },
+   {
+    "word": "Arm",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Farm-removebg-preview.png?alt=media&token=b68d4406-2b41-465c-aaba-8d814365797f",
+     "sound_text": "Arm"
+   },
+   {
+    "word": "Cheeks",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Fcheeks-removebg-preview.png?alt=media&token=3b8c852a-43b2-45fc-ad37-8e210497940e",
+     "sound_text": "Cheeks"
+   },
+   {
+    "word": "Chest",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Fchest-removebg-preview.png?alt=media&token=d51b1537-6352-4b8d-b381-c5f3e100b3b9",
+     "sound_text": "Chest"
+   },
+   {
+    "word": "Chin",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Fchin-removebg-preview.png?alt=media&token=9b591433-541c-4960-8fdc-329c1f59bbe8",
+     "sound_text": "Chin"
+   },
+   {
+    "word": "Ear",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Fear-removebg-preview.png?alt=media&token=75116eda-725a-4971-96c5-28375ac9fa7e",
+     "sound_text": "Ear"
+   },
+   {
+    "word": "Elbow",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Felbow-removebg-preview.png?alt=media&token=ddffacfb-09f2-43a5-a574-5ad708367051",
+     "sound_text": "Elbow"
+   },
+   {
+    "word": "Eye",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Feye-removebg-preview.png?alt=media&token=f1166339-aff0-4b1e-b107-614a35bd698c",
+     "sound_text": "Eye"
+   },
+   {
+    "word": "Eyebrows",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Feyebrows-removebg-preview.png?alt=media&token=a6c2237c-25d4-42be-a12c-614e3e6ea1d4",
+     "sound_text": "Eyebrows"
+   },
+   {
+    "word": "Feet",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Ffeet-removebg-preview.png?alt=media&token=c72116c0-3c6a-48f0-8630-ed7304b44526",
+     "sound_text": "Feet"
+   },
+   {
+    "word": "Fingers",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Ffingers-removebg-preview.png?alt=media&token=8a55d8d6-b99f-4460-89f9-dba37affa3ec",
+     "sound_text": "Fingers"
+   },
+   {
+    "word": "Hair",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Fhair-removebg-preview.png?alt=media&token=f664b872-ee89-4ac6-98c8-0a0235f7756d",
+     "sound_text": "Hair"
+   },
+   {
+    "word": "Hand",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Fhand-removebg-preview.png?alt=media&token=70c78986-506e-4e7f-9d97-6cf6ce105ebb",
+     "sound_text": "Hand"
+   },
+   {
+    "word": "Knees",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Fknee-removebg-preview.png?alt=media&token=8ba9726a-ab84-4c96-965a-6b2e1f7cb5d5",
+     "sound_text": "knees"
+   },
+   {
+    "word": "Legs",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Flegs-removebg-preview.png?alt=media&token=2741195c-b333-428b-923f-e2aae2aeff74",
+     "sound_text": "Legs"
+   },
+   {
+    "word": "Lips",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Flips-removebg-preview.png?alt=media&token=c1eddd3a-36e4-4976-bb0c-0c9426087cc1",
+     "sound_text": "Lips"
+   },
+   {
+    "word": "Mouth",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Fmouth-removebg-preview.png?alt=media&token=3c0455bc-4ad8-489e-a17b-7f34c37a0fba",
+     "sound_text": "Mouth"
+   },
+   {
+    "word": "Neck",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Fneck-removebg-preview.png?alt=media&token=794630b5-677e-4584-9092-47edaa0c75ee",
+     "sound_text": "Neck"
+   },
+   {
+    "word": "Nose",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Fnose-removebg-preview.png?alt=media&token=1044c811-eade-4461-aa10-be49f81f7d9b",
+     "sound_text": "Nose"
+   },
+   {
+    "word": "Stomach",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Fstomach-removebg-preview.png?alt=media&token=87fc5fdd-38d5-4f01-a81e-387b3e71456a",
+     "sound_text": "Stomach"
+   },
+   {
+    "word": "Teeth",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Fteeth-removebg-preview.png?alt=media&token=51ecd867-177e-464f-b33a-a55817e193bf",
+     "sound_text": "Teeth"
+   },
+   {
+    "word": "Thigh",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Fthigh-removebg-preview.png?alt=media&token=b22a64dd-1334-456b-b888-3b4827f614af",
+     "sound_text": "Thigh"
+   },
+   {
+    "word": "Toe",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Ftoe-removebg-preview.png?alt=media&token=44d1010e-b94f-4b83-90eb-b2d3c25b11b8",
+     "sound_text": "Toe"
+   },
+   {
+    "word": "Tongue",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FBodyparts%2Ftongue-removebg-preview.png?alt=media&token=e5848376-bc5f-4423-9bd6-0746bc572f6e",
+     "sound_text": "Tongue"
+   }
+]

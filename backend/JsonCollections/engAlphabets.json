@@ -1,0 +1,161 @@
+{
+  "letters": [
+    {
+      "alphabet": "A",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F1.png?alt=media&token=329adae6-842b-4174-aa18-a74bff5c3eeb",
+      "word": "Apple",
+      "sound_text": "A for Apple"
+    },
+    {
+      "alphabet": "B",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F2-removebg-preview.png?alt=media&token=76185f18-386e-4464-a649-0100f1c3232b",
+      "word": "Ball",
+      "sound_text": "B for Ball"
+    },
+    {
+      "alphabet": "C",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F3-removebg-preview.png?alt=media&token=5b9fdca0-4d68-4958-8bff-2f1825bd171a",
+      "word": "Cat",
+      "sound_text": "C for Cat"
+    },
+    {
+      "alphabet": "D",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F4-removebg-preview.png?alt=media&token=aca1a3b1-0518-4580-bab4-503ed7ae5993",
+      "word": "Dog",
+      "sound_text": "D for Dog"
+    },
+    {
+      "alphabet": "E",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F5-removebg-preview.png?alt=media&token=f7f99ff7-cf1e-44b5-a176-4584b5dbe404",
+      "word": "Eggplant",
+      "sound_text": "E for Eggplant"
+    },
+    {
+      "alphabet": "F",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F6-removebg-preview.png?alt=media&token=e6f5ccba-d559-4541-bcf1-759a832bc507",
+      "word": "Flower",
+      "sound_text": "F for Flower"
+    },
+    {
+      "alphabet": "G",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F7-removebg-preview.png?alt=media&token=9297f961-dd03-4ea3-98ea-db9e312b838c",
+      "word": "Guitar",
+      "sound_text": "G for Guitar"
+    },
+    {
+      "alphabet": "H",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F8-removebg-preview.png?alt=media&token=4f591205-1c28-4479-9a9c-49978cf7502d",
+      "word": "Hat",
+      "sound_text": "H for Hat"
+    },
+    {
+      "alphabet": "I",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F9-removebg-preview.png?alt=media&token=05e23612-d39a-414d-ac38-842c6eb935ac",
+      "word": "Igloo",
+      "sound_text": "I for Igloo"
+    },
+    {
+      "alphabet": "J",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F10-removebg-preview.png?alt=media&token=4bbdeefc-6a01-41b9-bad9-f2900efaafef",
+      "word": "Jacket",
+      "sound_text": "J for Jacket"
+    },
+    {
+      "alphabet": "K",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F11-removebg-preview.png?alt=media&token=23c8ea18-091b-4d04-aadc-b93d1058b9d0",
+      "word": "Key",
+      "sound_text": "K for Key"
+    },
+    {
+      "alphabet": "L",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F12-removebg-preview.png?alt=media&token=b86a7f80-ede2-4b5c-b2e3-61f85025a105",
+      "word": "Lemon",
+      "sound_text": "L for Lemon"
+    },
+    {
+      "alphabet": "M",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F13-removebg-preview.png?alt=media&token=05cb0ede-f3e8-4f5a-929a-b4832de7d801",
+      "word": "Monkey",
+      "sound_text": "M for Monkey"
+    },
+    {
+      "alphabet": " N",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F14-removebg-preview.png?alt=media&token=c6b66f62-2acc-4739-a70d-aa1f453d4286",
+      "word": "Nail",
+      "sound_text": "N for Nail"
+    },
+    {
+      "alphabet": "O",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F15-removebg-preview.png?alt=media&token=3ad6e518-e0f3-474d-b8cc-1191ca899771",
+      "word": "Orange",
+      "sound_text": "O for Orange"
+    },
+    {
+      "alphabet": "P",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F16-removebg-preview.png?alt=media&token=228b99af-4210-4303-9600-e0b9f04dad7b",
+      "word": "Pear",
+      "sound_text": "P for Pear"
+    },
+    {
+      "alphabet": "Q",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F17-removebg-preview.png?alt=media&token=1a17e141-a55f-45f2-97f1-2db6e067c4ea",
+      "word": "Queen",
+      "sound_text": "Q for Queen"
+    },
+    {
+      "alphabet": "R",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F18-removebg-preview.png?alt=media&token=e50dcfb1-7776-48c9-90ed-a3a7c1bcdafb",
+      "word": "Rabbit",
+      "sound_text": "R for Rabbit"
+    },
+    {
+      "alphabet": "S",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F19-removebg-preview.png?alt=media&token=4416782c-0ef2-4682-b4e1-a51b7284039a",
+      "word": "Sun",
+      "sound_text": "S for Sun"
+    },
+    {
+      "alphabet": "T",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F20-removebg-preview.png?alt=media&token=2a190f3c-94e7-4ba4-8d12-c7e5f65b82d8",
+      "word": "Tortoise",
+      "sound_text": "T for Tortoise"
+    },
+    {
+      "alphabet": "U",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F21-removebg-preview.png?alt=media&token=4f3fe6a6-979d-4625-8567-c9a68d3bd769",
+      "word": "Umbrella",
+      "sound_text": "U for Umbrella"
+    },
+    {
+      "alphabet": "V",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F22-removebg-preview.png?alt=media&token=8ec50700-ee73-48c4-bfb3-713f1b837838",
+      "word": "Van",
+      "sound_text": "V for Van"
+    },
+    {
+      "alphabet": "W",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F23-removebg-preview.png?alt=media&token=3d7d4d38-4b46-4ac0-9c63-0411de16a6ca",
+      "word": "Watermelon",
+      "sound_text": "W for Watermelon"
+    },
+    {
+      "alphabet": "X",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F24-removebg-preview.png?alt=media&token=1c86a8f3-26c0-4d04-8228-6da707fe35d4",
+      "word": "Xlophone",
+      "sound_text": "X for Xlophone"
+    },
+    {
+      "alphabet": "y",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F25-removebg-preview.png?alt=media&token=da47dd8c-a88c-4286-8821-5adb6daf3372",
+      "word": "Yoyo",
+      "sound_text": "Y for Yoyo"
+    },
+    {
+      "alphabet": "Z",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FEnglish%2F26-removebg-preview.png?alt=media&token=0452b4c5-4b04-411d-bc9b-deb66f66d9b2",
+      "word": "Zebra",
+      "sound_text": "Z for Zebra"
+    }
+    
+  ]
+}

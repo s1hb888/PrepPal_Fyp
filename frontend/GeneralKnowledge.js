@@ -16,21 +16,16 @@ import {
 const screenWidth = Dimensions.get('window').width;
 
 const subjects = [
-  { id: '1', name: 'Animals', icon: require('../assets/animal.png'), color: ['#f7b733', '#fc4a1a'] },
-  { id: '2', name: 'Birds', icon: require('../assets/bird.png'), color: ['#4facfe', '#00f2fe'] },
-  { id: '3', name: 'Numbers', icon: require('../assets/numbers.png'), color: ['#56ab2f', '#a8e063'] },
-  { id: '4', name: 'Alphabets', icon: require('../assets/alphabets.png'), color: ['#ff9966', '#ff5e62'] },
-  { id: '5', name: 'Fruits', icon: require('../assets/fruits.png'), color: ['#00c6ff', '#0072ff'] },
-  { id: '6', name: 'Vegetables', icon: require('../assets/vegetable.png'), color: ['#f857a6', '#ff5858'] },
-  { id: '7', name: 'Colors', icon: require('../assets/color.png'), color: ['#43cea2', '#185a9d'] },
-  { id: '8', name: 'Flowers', icon: require('../assets/flower.png'), color: ['#f7971e', '#ffd200'] },
-  { id: '9', name: 'Organs', icon: require('../assets/human-organs.png'), color: ['#654ea3', '#eaafc8'] },
-  { id: '10', name: 'Shapes', icon: require('../assets/shapes.png'), color: ['#3a1c71', '#d76d77'] },
-  { id: '11', name: 'Vehicles', icon: require('../assets/car.png'), color: ['#36d1dc', '#5b86e5'] },
-  { id: '12', name: 'Maths', icon: require('../assets/tools.png'), color: ['#f12711', '#f5af19'] },
+  { id: '1', name: 'Animals', icon: require('../assets/animal.png'), color: ['#EF3349', '#EF3349'] },
+  { id: '5', name: 'Fruits', icon: require('../assets/fruits.png'), color: ['#2BCB9A', '#2BCB9A'] },
+  { id: '6', name: 'Vegetables', icon: require('../assets/vegetable.png'), color: ['#FFCF25', '#FFCF25'] },
+  { id: '7', name: 'Colors', icon: require('../assets/color.png'), color: ['#EF3349', '#EF3349'] },
+  { id: '9', name: 'Body Parts', icon: require('../assets/human-organs.png'), color: ['#2BCB9A', '#2BCB9A'] },
+  { id: '10', name: 'Shapes', icon: require('../assets/shapes.png'), color: ['#FFCF25', '#FFCF25'] },
+  { id: '11', name: 'Counting', icon: require('../assets/numbers.png'), color: ['#EF3349', '#EF3349'] },
 ];
 
-const HomeScreen = ({ navigation }) => {
+const GeneralKnowledge = ({ navigation }) => {
   const renderItem = ({ item }) => (
     <TouchableOpacity
       style={[styles.card, { backgroundColor: item.color[0] }]}
@@ -74,7 +69,7 @@ const styles = StyleSheet.create({
   kids: {
     fontSize: 30,
     fontWeight: 'bold',
-    color: '#ff4081',
+    color: '#EF3349',
     marginBottom: 24,
   },
   card: {
@@ -106,4 +101,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default GeneralKnowledge;
