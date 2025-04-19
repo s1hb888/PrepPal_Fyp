@@ -3,6 +3,8 @@ import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, Image } fro
 import { Ionicons } from '@expo/vector-icons';
 import { RadioButton } from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import API_BASE_URL from './config';
+
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -14,26 +16,29 @@ const Login = ({ navigation }) => {
       Alert.alert('Error', 'Email and Password are required.');
       return;
     }
-  
+
     try {
-      const response = await fetch('http://192.168.10.4:5000/api/login', {
+      const response = await fetch(`${API_BASE_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, role }), // Yeh role bhej rahe ho
+        body: JSON.stringify({ email, password, role }),
       });
-  
+
       const data = await response.json();
-  
+      console.log('Response from server:', data); 
       if (response.ok) {
+        // Store token in AsyncStorage
         await AsyncStorage.setItem('token', data.token);
-  
+        const storedToken = await AsyncStorage.getItem('token');
+        console.log('Stored Token:', storedToken);
+
+
         Alert.alert('Success', 'Login successful!');
-  
-        
+
         if (role === 'parent') {
-          navigation.navigate('parentHome');
+          navigation.navigate('Home');
         } else if (role === 'kid') {
-          navigation.navigate('kidHome');
+          navigation.navigate('KidHome');
         }
       } else {
         Alert.alert('Error', data.message || 'Invalid credentials');
@@ -43,7 +48,7 @@ const Login = ({ navigation }) => {
       Alert.alert('Error', 'Server error, please try again later.');
     }
   };
-  
+
   return (
     <View style={styles.container}>
       <View style={styles.appBar}>
@@ -106,6 +111,64 @@ const Login = ({ navigation }) => {
       </TouchableOpacity>
     </View>
   );
+};
+
+
+const updateProfile = async (data) => {
+  const token = await AsyncStorage.getItem('token');
+  if (!token) {
+    return Alert.alert('Error', 'You must be logged in to update profile.');
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/update`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      Alert.alert('Success', 'Profile updated successfully');
+    } else {
+      Alert.alert('Error', result.message || 'Failed to update profile');
+    }
+  } catch (error) {
+    console.error(error);
+    Alert.alert('Error', 'Server error, please try again later.');
+  }
+};
+
+const deleteAccount = async () => {
+  const token = await AsyncStorage.getItem('token');
+  if (!token) {
+    return Alert.alert('Error', 'You must be logged in to delete your account.');
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/delete`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      Alert.alert('Success', 'Account deleted successfully');
+      // Clear stored token after deleting account
+      await AsyncStorage.removeItem('token');
+      navigation.navigate('Login');
+    } else {
+      Alert.alert('Error', result.message || 'Failed to delete account');
+    }
+  } catch (error) {
+    console.error(error);
+    Alert.alert('Error', 'Server error, please try again later.');
+  }
 };
 
 const styles = StyleSheet.create({

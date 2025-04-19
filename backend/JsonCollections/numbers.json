@@ -1,0 +1,62 @@
+[
+    {
+      "number": "1",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FNumbers%2F1-removebg-preview%20(1).png?alt=media&token=83f9c2a9-7b02-4b59-a468-65b043239cb5",
+      "word": "One",
+      "sound_text": "One"
+    },
+    {
+      "number": "2",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FNumbers%2F2-removebg-preview-removebg-preview.png?alt=media&token=2962d8ad-5aff-4c47-aacf-aec0472ca3b7",
+      "word": "Two",
+      "sound_text": "Two"
+    },
+    {
+      "number": "3",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FNumbers%2F3-removebg-preview.png?alt=media&token=b575181b-db5b-498f-9850-9ca385bacab6",
+      "word": "Three",
+      "sound_text": "Three"
+    },
+    {
+      "number": "4",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FNumbers%2F4-removebg-preview.png?alt=media&token=9e31cc8e-c78c-4c68-ab10-f8a73e1cea41",
+      "word": "Four",
+      "sound_text": "Four"
+    },
+    {
+      "number": "5",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FNumbers%2F5-removebg-preview.png?alt=media&token=0865965a-9d65-4e36-9ba8-17fd1af7fcff",
+      "word": "Five",
+      "sound_text": "Five"
+    },
+    {
+      "number": "6",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FNumbers%2F6-removebg-preview.png?alt=media&token=2dd01bac-1b3c-422b-a88a-af067a880c09",
+      "word": "Six",
+      "sound_text": "Six"
+    },
+    {
+      "number": "7",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FNumbers%2F7-removebg-preview.png?alt=media&token=cb1e7510-2aa3-4347-a376-cd8a155a239a",
+      "word": "Seven",
+      "sound_text": "Seven"
+    },
+    {
+      "number": "8",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FNumbers%2F8-removebg-preview.png?alt=media&token=bb6819ff-2627-445d-be57-f010286c7bef",
+      "word": "Eight",
+      "sound_text": "Eight"
+    },
+    {
+      "number": "9",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FNumbers%2F9-removebg-preview.png?alt=media&token=fac29d24-2f49-412e-a126-c90186773b70",
+      "word": "Nine",
+      "sound_text": "Nine"
+    },
+    {
+      "number": "10",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FAlphabets%2FNumbers%2F10-removebg-preview.png?alt=media&token=3df33d96-1171-435b-a42a-9322d0377635",
+      "word": "Ten",
+      "sound_text": "Ten"
+    }
+  ]

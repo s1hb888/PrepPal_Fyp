@@ -1,0 +1,47 @@
+[
+  {
+   "word": "Circle",
+    "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FShapes%2FCircle-removebg-preview.png?alt=media&token=0ba853ad-a739-4564-894b-ce738a6982c4",
+    "sound_text": "Circle, A round shape with no corners."
+  },
+  {
+    "word": "Ellipse",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FShapes%2FEllipse-removebg-preview.png?alt=media&token=2b9a32aa-d0fb-40a7-b7f1-1e7925d4d990",
+     "sound_text": "Ellipse, A stretched-out circle, like an oval."
+   },
+   {
+    "word": "Heart",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FShapes%2FHeart-removebg-preview.png?alt=media&token=53fbfa0a-72f3-4e07-a036-aba1d6d7f1a1",
+     "sound_text": "Heart, A shape that shows love, round on top and pointy at the bottom."
+   },
+   {
+    "word": "Hexagon",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FShapes%2FHexagoon-removebg-preview.png?alt=media&token=9a275102-a824-4b96-8f23-aed509af4ef3",
+     "sound_text": "Hexagon, A shape with 6 sides and 6 corners."
+   },
+   {
+    "word": "Octagon",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FShapes%2FOctagon-removebg-preview.png?alt=media&token=ec8b4541-e318-494b-858c-0e1ff208defa",
+     "sound_text": "Octagon, A shape with 8 sides and 8 corners."
+   },
+   {
+    "word": "Rectangle",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FShapes%2FRectangle-removebg-preview.png?alt=media&token=0d89069d-ec29-4c2e-a583-2a5a62395af5",
+     "sound_text": "Rectangle, A shape with 4 sides, where opposite sides are equal. "
+   },
+   {
+    "word": "Rhombus",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FShapes%2FRhombus-removebg-preview.png?alt=media&token=8f2a20a0-0481-4bba-946a-a6bc9311d269",
+     "sound_text": "Rhombus, A shape with 4 equal sides, but slanted like a diamond. "
+   },
+   {
+    "word": "Sqaure",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FShapes%2FSquare-removebg-preview.png?alt=media&token=f2cdfc1a-0a2a-4e2d-9c5b-f9e8a6f121f3",
+     "sound_text": "Square, A shape with 4 equal sides and 4 right angles."
+   },
+   {
+    "word": "Star",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FShapes%2Fstar-removebg-preview.png?alt=media&token=4205564a-adc1-435d-a33c-57628e182d6c",
+     "sound_text": "Star, A pointy shape that looks like it shines in the sky."
+   }
+]

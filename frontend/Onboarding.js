@@ -47,7 +47,7 @@ const Onboarding = ({ navigation }) => {
     if (screenIndex < onboardingData.length - 1) {
       setScreenIndex(screenIndex + 1);
     } else {
-      navigation.replace('Home');
+      navigation.replace('Login');
     }
   };
 
@@ -153,10 +153,11 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     marginHorizontal: 4,
+    color:'#2BCB9A',
   },
   activeIndicator: {
     width: 20,
-    backgroundColor: '#1c70ec',
+    backgroundColor: '#2BCB9A',
   },
   inactiveIndicator: {
     backgroundColor: '#dddddd',

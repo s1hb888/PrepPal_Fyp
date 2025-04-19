@@ -32,13 +32,13 @@ const Settings = ({ navigation }) => {
       activeOpacity={onPress ? 0.7 : 1}
     >
       <View style={styles.row}>
-        <Icon name={icon} size={24} color="#4CAF50" />
+        <Icon name={icon} size={24} color="#2BCB9A" />
         <Text style={styles.itemText}>{label}</Text>
       </View>
       {isSwitch ? (
         <Switch value={switchValue} onValueChange={onSwitch} />
       ) : (
-        <Icon name="chevron-right" size={22} color="#999" />
+        <Icon name="chevron-right" size={22} color="#2BCB9A" />
       )}
     </TouchableOpacity>
   );
@@ -48,23 +48,17 @@ const Settings = ({ navigation }) => {
       <Text style={styles.title}>Settings</Text>
 
       <SectionHeader title="Account" />
-      <SettingItem icon="lock-reset" label="Change Password" onPress={() => alert('Change Password')} />
-      <SettingItem icon="account-circle-outline" label="Edit Profile" onPress={() => alert('Edit Profile')} />
-      <SettingItem icon="email-outline" label="Update Email" onPress={() => alert('Update Email')} />
+      <SettingItem icon="account-circle-outline" label="Manage Profile" onPress={() => alert('Edit Profile')} />
+      
 
       <SectionHeader title="App Preferences" />
       <SettingItem icon="bell-outline" label="Manage Notifications" onPress={() => alert('Manage Notifications')} />
-      <SettingItem icon="translate" label="Language Preferences" onPress={() => alert('Language Settings')} />
-      <SettingItem icon="theme-light-dark" label="Dark Mode" isSwitch switchValue={darkMode} onSwitch={setDarkMode} />
 
-      <SectionHeader title="Support" />
-      <SettingItem icon="shield-lock-outline" label="Privacy Policy" onPress={() => alert('Privacy Policy')} />
-      <SettingItem icon="file-document-outline" label="Terms & Conditions" onPress={() => alert('Terms & Conditions')} />
-      <SettingItem icon="information-outline" label="About App" onPress={() => alert('About App')} />
+
 
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <View style={styles.row}>
-          <Icon name="logout" size={24} color="#fff" />
+          <Icon name="logout" size={24} color="#000" />
           <Text style={styles.logoutText}>Logout</Text>
         </View>
       </TouchableOpacity>
@@ -76,7 +70,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     paddingTop: 60,
-    backgroundColor: '#f0f4f8',
+    backgroundColor: '#F1F1F1',
   },
   title: {
     fontSize: 28,
@@ -90,7 +84,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 20,
     marginBottom: 10,
-    color: '#4CAF50',
+    color: '#2BCB9A',
   },
   settingItem: {
     backgroundColor: '#fff',
@@ -118,7 +112,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   logoutButton: {
-    backgroundColor: '#e53935',
+    backgroundColor: '#FFCF25',
     paddingVertical: 14,
     paddingHorizontal: 16,
     borderRadius: 12,
@@ -129,7 +123,7 @@ const styles = StyleSheet.create({
   logoutText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#000',
     marginLeft: 10,
   },
 });

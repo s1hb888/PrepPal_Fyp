@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
+import API_BASE_URL from './config';
 
 const Registration = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -27,7 +28,7 @@ const Registration = ({ navigation }) => {
     }
 
     try {
-      const response = await axios.post('http://192.168.10.4:5000/api/register', {
+      const response = await axios.post(`${API_BASE_URL}/api/register`, {
         email,
         password,
         kidName,

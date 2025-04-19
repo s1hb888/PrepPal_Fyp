@@ -1,0 +1,72 @@
+[
+  {
+   "word": "Beetroot",
+    "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FVegetables%2Fbeetroot-removebg-preview.png?alt=media&token=898a848d-6df9-40e4-be02-0a1c5c61809c",
+    "sound_text": "Beetroot"
+  },
+  {
+    "word": "Brinjal",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FVegetables%2Fbrinjal-removebg-preview.png?alt=media&token=8a0a4f8f-e7fc-4141-94c4-5a5c53e2cb3e",
+     "sound_text": "Brinjal"
+   },
+   {
+    "word": "Carrot",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FVegetables%2Fcarrot-removebg-preview.png?alt=media&token=aa65b72c-e3db-4666-b2cf-4449dcb87031",
+     "sound_text": "Carrot"
+   },
+   {
+    "word": "Cauliflower",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FVegetables%2Fcauliflower-removebg-preview.png?alt=media&token=fa634789-7a61-43e5-aec5-2a3142edab45",
+     "sound_text": "Cauliflower"
+   },
+   {
+    "word": "Cobbage",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FVegetables%2Fcobbage-removebg-preview.png?alt=media&token=b2bdf020-0766-4db5-9a14-f169740dad12",
+     "sound_text": "Cobbage"
+   },
+   {
+    "word": "Cucumber",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FVegetables%2Fcucumber-removebg-preview.png?alt=media&token=4bdf679c-557b-4217-8475-21d8c5fae5e9",
+     "sound_text": "Cucumber"
+   },
+   {
+    "word": "Curry",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FVegetables%2Fcurry-removebg-preview.png?alt=media&token=214a4a1b-ddbf-4a65-a16c-896fdf30305f",
+     "sound_text": "Curry"
+   },
+   {
+    "word": "Ladyfinger",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FVegetables%2Fladyfinger-removebg-preview.png?alt=media&token=80fa40bb-8a0f-4621-90a7-65ae3f86fda7",
+     "sound_text": "Ladyfinger"
+   },
+   {
+    "word": "Mint",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FVegetables%2Fmint-removebg-preview.png?alt=media&token=4adf1466-0d9b-4528-b345-f493439485d7",
+     "sound_text": "Mint"
+   },
+   {
+    "word": "Onion",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FVegetables%2Fonion-removebg-preview.png?alt=media&token=7984caf6-8dc7-4774-8301-2b73f00b5fb6",
+     "sound_text": "Onion"
+   },
+   {
+    "word": "Peas",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FVegetables%2Fpeas-removebg-preview.png?alt=media&token=413ee753-4d72-4ad8-81c5-7159c0c4309a",
+     "sound_text": "Peas"
+   },
+   {
+    "word": "Potato",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FVegetables%2Fpotato-removebg-preview.png?alt=media&token=cc26d2bf-1cb9-4352-bf74-f32e45012826",
+     "sound_text": "Potato"
+   },
+   {
+    "word": "Radish",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FVegetables%2Fradish-removebg-preview.png?alt=media&token=4fc7851d-418f-4c6c-be97-71d58025cad9",
+     "sound_text": "Radish"
+   },
+   {
+    "word": "Tomato",
+     "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FVegetables%2Ftomato-removebg-preview.png?alt=media&token=8ae293b8-6475-4e5c-aece-9a2be14b344c",
+     "sound_text": "Tomato"
+   }
+]

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   View,
@@ -13,6 +12,11 @@ import {
   Modal,
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import Profile from './Profile';
+import Settings from './Settings';
+import AboutUs from './AboutUs';
+
+
 
 const Home = ({ navigation }) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
@@ -25,11 +29,10 @@ const Home = ({ navigation }) => {
   ];
 
   const cardData = [
-    { id: '1', title: 'Academic Learning', icon: 'book', color: '#4CAF50', screen: 'AcademicLearning' },
-    { id: '2', title: 'Assessments', icon: 'pencil', color: '#FFA500', screen: 'Assessments' },
+    { id: '1', title: 'Manage courses', icon: 'book', color: '#4CAF50', screen: '' },
+    { id: '2', title: 'Progress tracking', icon: 'pencil', color: '#FFA500', screen: 'Assessm' },
     { id: '3', title: 'Profile', icon: 'user', color: '#007BFF', screen: 'Profile' },
     { id: '4', title: 'Settings', icon: 'cog', color: '#FF4500', screen: 'Settings' },
-    { id: '5', title: 'Account Management', icon: 'lock', color: '#800080', screen: 'Registration' },
   ];
 
   const renderSliderItem = ({ item }) => (
@@ -77,18 +80,13 @@ const Home = ({ navigation }) => {
             />
           </ScrollView>
         );
-      case 'Profile':
-        return (
-          <View style={styles.tabScreen}>
-            <Text style={styles.tabText}>This is the Profile screen</Text>
-          </View>
-        );
+
+      case 'Profile': 
+        return Profile ? <Profile /> : <Text>Profile not found</Text>;
       case 'Settings':
-        return (
-          <View style={styles.tabScreen}>
-            <Text style={styles.tabText}>Settings screen content here</Text>
-          </View>
-        );
+        return Settings ? <Settings /> : <Text>Settings not found</Text>;
+      case 'AboutUs':
+        return AboutUs ? <AboutUs /> : <Text>AboutUs not found</Text>;
       case 'Notifications':
         return (
           <View style={styles.tabScreen}>
@@ -120,24 +118,52 @@ const Home = ({ navigation }) => {
           />
           <Text style={styles.drawerTitle}>PrepPal</Text>
 
-          {/* 6 drawer items */}
-          <TouchableOpacity style={styles.drawerItem}>
+          {/* Drawer Items */}
+          <TouchableOpacity style={styles.drawerItem}
+          onPress={() => {
+            setSelectedTab('Home');
+            setDrawerVisible(false);
+          }}
+          >
             <FontAwesome name="home" size={20} />
             <Text style={styles.drawerItemText}>Home</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.drawerItem}>
+          <TouchableOpacity
+            style={styles.drawerItem}
+            onPress={() => {
+              setSelectedTab('Profile');
+              setDrawerVisible(false);
+            }}
+          >
             <FontAwesome name="user" size={20} />
             <Text style={styles.drawerItemText}>Profile</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.drawerItem}>
+          <TouchableOpacity
+            style={styles.drawerItem}
+            onPress={() => {
+              setSelectedTab('Settings');
+              setDrawerVisible(false);
+            }}
+          >
             <FontAwesome name="cog" size={20} />
             <Text style={styles.drawerItemText}>Settings</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.drawerItem}>
+          <TouchableOpacity
+            style={styles.drawerItem}
+            onPress={() => {
+              setSelectedTab('Notifications');
+              setDrawerVisible(false);
+            }}
+          >
             <FontAwesome name="bell" size={20} />
             <Text style={styles.drawerItemText}>Notifications</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.drawerItem}>
+          <TouchableOpacity style={styles.drawerItem}
+           onPress={() => {
+            setSelectedTab('AboutUs');
+            setDrawerVisible(false);
+          }}
+          >
             <FontAwesome name="info-circle" size={20} />
             <Text style={styles.drawerItemText}>About Us</Text>
           </TouchableOpacity>
@@ -154,20 +180,20 @@ const Home = ({ navigation }) => {
       {/* Bottom Bar */}
       <View style={styles.bottomBar}>
         <TouchableOpacity onPress={() => setSelectedTab('Home')} style={styles.bottomTab}>
-          <FontAwesome name="home" size={24} color={selectedTab === 'Home' ? '#FFFFFF' : '#666'} />
-          <Text style={{ color: selectedTab === 'Home' ? '#FFFFFF' : '#666' }}>Home</Text>
+          <FontAwesome name="home" size={24} color={selectedTab === 'Home' ? '#EF3349' : '#666'} />
+          <Text style={{ color: selectedTab === 'Home' ? '#EF3349' : '#666' }}>Kid Home</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setSelectedTab('Profile')} style={styles.bottomTab}>
-          <FontAwesome name="user" size={24} color={selectedTab === 'Profile' ? '#FFFFFF' : '#666'} />
-          <Text style={{ color: selectedTab === 'Profile' ? '#FFFFFF' : '#666' }}>Profile</Text>
+          <FontAwesome name="user" size={24} color={selectedTab === 'Profile' ? '#EF3349' : '#666'} />
+          <Text style={{ color: selectedTab === 'Profile' ? '#EF3349' : '#666' }}>Profile</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setSelectedTab('Settings')} style={styles.bottomTab}>
-          <FontAwesome name="cog" size={24} color={selectedTab === 'Settings' ? '#FFFFFF' : '#666'} />
-          <Text style={{ color: selectedTab === 'Settings' ? '#FFFFFF' : '#666' }}>Settings</Text>
+          <FontAwesome name="cog" size={24} color={selectedTab === 'Settings' ? '#EF3349' : '#666'} />
+          <Text style={{ color: selectedTab === 'Settings' ? '#EF3349' : '#666' }}>Settings</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setSelectedTab('Notifications')} style={styles.bottomTab}>
-          <FontAwesome name="bell" size={24} color={selectedTab === 'Notifications' ? '#FFFFFF' : '#666'} />
-          <Text style={{ color: selectedTab === 'Notifications' ? '#FFFFFF' : '#666' }}>Alerts</Text>
+          <FontAwesome name="bell" size={24} color={selectedTab === 'Notifications' ? '#EF3349' : '#666'} />
+          <Text style={{ color: selectedTab === 'Notifications' ? '#EF3349' : '#666' }}>Alerts</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -184,19 +210,26 @@ const styles = StyleSheet.create({
   },
   appBar: {
     backgroundColor: '#EF3349',
-    paddingVertical: 20,
+    paddingVertical: 45,
     paddingHorizontal: 20,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
   },
   appBarTitle: {
     color: '#fff',
     fontSize: 24,
     fontWeight: 'bold',
-    marginLeft: 20,
+    textAlign: 'center',
+    position: 'absolute',
+    left: 0,
+    right: 0,
   },
   menuButton: {
-    padding: 5,
+    position: 'absolute',
+    left: 20,
+    zIndex: 1,
   },
   container: {
     flex: 1,
@@ -237,7 +270,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 15,
-    color: '#FFFFFF',
+    color: '#000000',
   },
   row: {
     justifyContent: 'space-between',
@@ -268,7 +301,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderTopWidth: 1,
     borderTopColor: '#ddd',
-    backgroundColor: '#EF3349',
+    backgroundColor: '#2BCB9A',
   },
   bottomTab: {
     alignItems: 'center',
@@ -277,41 +310,40 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     height: '100%',
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(0,0,0,0.3)',
   },
   drawer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
     width: 250,
     height: '100%',
     backgroundColor: '#fff',
-    paddingTop: 40,
+    paddingTop: 50,
     paddingHorizontal: 20,
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    elevation: 5,
+    zIndex: 1000,
   },
   drawerIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginBottom: 15,
-    backgroundColor: '#EF3349',
-    alignSelf: 'center',
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginBottom: 10,
   },
   drawerTitle: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 'bold',
-    textAlign: 'center',
+    color: '#EF3349',
     marginBottom: 30,
   },
   drawerItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 15, 
+    paddingVertical: 15,
   },
   drawerItemText: {
-    fontSize: 16,
-    marginLeft: 15,
+    fontSize: 18,
+    marginLeft: 10,
+    color: '#333',
   },
   tabScreen: {
     flex: 1,
@@ -320,7 +352,7 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: 18,
-    color: '#555',
+    color: '#333',
   },
 });
 
