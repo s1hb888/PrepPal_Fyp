@@ -8,11 +8,13 @@ require('dotenv').config();  // Load environment variables
 // Routes
 const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/Profile');
+const vowelRoute = require('./routes/vowel');
 
 // Models
 const Alphabet = require('./models/Alphabet');
 const Urdu = require('./models/Urdu');
 const Number = require('./models/Number');
+const Vowel = require('./models/Vowel');
 
 // DB Config
 const connectDB = require('./config/db');
@@ -32,6 +34,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Routes
 app.use('/api', authRoutes);
 app.use('/api', profileRoutes);
+app.use('/api/vowels', require('./routes/vowel'));
 
 // Custom GET Routes
 app.get('/alphabets', async (req, res) => {
