@@ -1,6 +1,8 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import VowelScreen from './frontend/VowelsScreen';
+
 
 // Import screens (Check filenames and ensure they exist)
 import Splash from './frontend/Splash';
@@ -46,6 +48,7 @@ export default function App() {
         <Stack.Screen name="Courses" component={Courses} />
         <Stack.Screen name="GeneralKnowledge" component={GeneralKnowledge} />
         <Stack.Screen name="EnglishAlphaBetsScreen" component={EnglishAlphaBetsScreen} />
+        <Stack.Screen name="VowelScreen" component={VowelScreen} />
         <Stack.Screen name="Numbers" component={Numbers} />
         <Stack.Screen name="Alphabets" component={Alphabets} />
         <Stack.Screen name="AboutUs" component={AboutUs} />
