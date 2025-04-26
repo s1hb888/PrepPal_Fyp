@@ -69,8 +69,8 @@ const ProfileScreen = ({ navigation }) => {
       });
 
       if (response.data.success) {
-        setImage(`${response.data.imageUrl}?t=${Date.now()}`); // bust cache
-        fetchProfile(); // refresh other details if needed
+        setImage(`${response.data.imageUrl}?t=${Date.now()}`); 
+        fetchProfile(); 
         Alert.alert('Success', 'Profile image updated successfully');
       }
       
