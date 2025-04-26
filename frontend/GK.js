@@ -26,9 +26,8 @@ const GK = ({ navigation }) => {
     </View>
   );
 };
-
 const menuItems = [
-  { label: 'Colors', image: require('../assets/color.png'), screen: 'LearningMenu' },
+  { label: 'Colors', image: require('../assets/color.png'), screen: 'Color' },
   { label: 'Shapes', image: require('../assets/shapes.png'), screen: 'NumbersScreen' },
   { label: 'Counting', image: require('../assets/counting.png'), screen: 'AnimalsScreen' },
   { label: 'Self introduction', image: require('../assets/introduction.png'), screen: 'LearningMenu' },
@@ -36,6 +35,7 @@ const menuItems = [
   { label: 'Fruits', image: require('../assets/fruits.png'), screen: 'AnimalsScreen' },
   { label: 'Vegetables', image: require('../assets/vegetable.png'), screen: 'LearningMenu' },
   { label: 'Islamic studies', image: require('../assets/islamic.png'), screen: 'LearningMenu' }
+
 ];
 
 export default GK;

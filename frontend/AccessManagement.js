@@ -1,10 +1,12 @@
-import React from 'react'
-import { View, Text, ScrollView, Image, TouchableOpacity, StyleSheet } from 'react-native';
-const Courses = ({ navigation }) => {
+import React from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
+const AccessManagement = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.topArea}>
-        <Text style={styles.title}>Academic Learning</Text>
+        <Text style={styles.title}>Access Management</Text>
       </View>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {menuItems.map((item, index) => (
@@ -14,10 +16,10 @@ const Courses = ({ navigation }) => {
             activeOpacity={0.8}
           >
             <View style={styles.card}>
-              <Image source={item.image} style={styles.image} />
+              <Icon name={item.icon} size={60} color="#2BCB9A" style={styles.icon} />
               <View style={styles.textContainer}>
                 <Text style={styles.cardTitle}>{item.label}</Text>
-                <Text style={styles.cardSubtitle}>Tap to start learning</Text>
+                <Text style={styles.cardSubtitle}>Tap to manage</Text>
               </View>
             </View>
           </TouchableOpacity>
@@ -28,9 +30,9 @@ const Courses = ({ navigation }) => {
 };
 
 const menuItems = [
-  { label: 'English', image: require('../assets/alphabets.png'), screen: 'EnglishAlphaBetsScreen' },
-  { label: 'Urdu', image: require('../assets/urdu.png'), screen: 'Urdu' },
-  { label: 'Numbers', image: require('../assets/numbers.png'), screen: 'Numbers' },
+  { label: 'English', icon: 'alphabetical', screen: 'AlphabetsAccessScreen' },
+  { label: 'Urdu', icon: 'alphabetical-variant', screen: 'UrduAccessScreen' },
+  { label: 'Numbers', icon: 'numeric', screen: 'NumberAccessScreen' },
 ];
 
 const styles = StyleSheet.create({
@@ -40,7 +42,7 @@ const styles = StyleSheet.create({
   },
   topArea: {
     paddingVertical: 30,
-    backgroundColor: '#EF3349',
+    backgroundColor: '#2BCB9A',
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 25,
     alignItems: 'center',
@@ -55,7 +57,7 @@ const styles = StyleSheet.create({
   },
   card: {
     flexDirection: 'row',
-    backgroundColor: '#FFCF25',
+    backgroundColor: '#e6f7f3',
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
@@ -66,10 +68,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 4,
   },
-  image: {
-    width: 60,
-    height: 60,
-    resizeMode: 'contain',
+  icon: {
     marginRight: 16,
   },
   textContainer: {
@@ -78,8 +77,7 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#EF3349',
-    
+    color: '#2BCB9A',
   },
   cardSubtitle: {
     fontSize: 14,
@@ -88,4 +86,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Courses;
+export default AccessManagement;

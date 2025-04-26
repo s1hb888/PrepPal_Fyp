@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, ScrollView, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Card } from 'react-native-paper';
-
 const kidHome = ({ navigation }) => {
   return (
     <View style={styles.container}>
@@ -25,7 +24,6 @@ const kidHome = ({ navigation }) => {
     </View>
   );
 };
-
 const menuItems = [
   { label: 'Alphabets', image: require('../assets/alphabets.png'), screen: 'AlphabetsScreen' },
   { label: 'Numbers', image: require('../assets/numbers.png'), screen: 'NumbersScreen' },
@@ -34,7 +32,6 @@ const menuItems = [
   { label: 'Foods', image: require('../assets/food.png'), screen: 'FoodsScreen' },
   { label: 'Phrases', image: require('../assets/phrases.png'), screen: 'PhrasesScreen' },
 ];
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

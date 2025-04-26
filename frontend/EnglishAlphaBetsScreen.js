@@ -12,26 +12,38 @@ import axios from 'axios';
 import * as Speech from 'expo-speech';
 import API_BASE_URL from './config'; // 🔁 Make sure this file exports the correct API base URL
 import styles from '../Styles/learningStyles';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const { width } = Dimensions.get('window');
-
 const EnglishAlphaBetsScreen = () => {
   const [alphabetData, setAlphabetData] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef(null);
-
   useEffect(() => {
     fetchAlphabetData();
   }, []);
 
   const fetchAlphabetData = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/alphabets`);
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        console.warn('No token found in storage');
+        return;
+      }
+  
+      const response = await axios.get(`${API_BASE_URL}/api/access/alphabets`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
       console.log('Fetched:', response.data);
       setAlphabetData(response.data);
     } catch (error) {
       console.error('Error loading alphabets:', error);
+      Alert.alert('Error', 'Failed to load alphabets. Please try again.');
     }
   };
+  
 
   const handleVoicePress = (soundText) => {
     if (soundText) {

@@ -12,6 +12,7 @@ import axios from 'axios';
 import * as Speech from 'expo-speech';
 import API_BASE_URL from './config'; // 🔁 Make sure this file exports the correct API base URL
 import styles from '../Styles/learningStyles';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const { width } = Dimensions.get('window');
 
 const Numbers = () => {
@@ -25,13 +26,26 @@ const Numbers = () => {
 
   const fetchAlphabetData = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/numbers`);
+      const token = await AsyncStorage.getItem('token');
+      if (!token) {
+        console.warn('No token found in storage');
+        return;
+      }
+  
+      const response = await axios.get(`${API_BASE_URL}/api/access/numbers`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
       console.log('Fetched:', response.data);
       setAlphabetData(response.data);
     } catch (error) {
       console.error('Error loading numbers:', error);
+      Alert.alert('Error', 'Failed to load numbers. Please try again.');
     }
   };
+  
 
   const handleVoicePress = (soundText) => {
     if (soundText) {

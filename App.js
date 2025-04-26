@@ -2,9 +2,10 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import VowelScreen from './frontend/VowelsScreen';
+import BodypartsScreen from './frontend/BodypartsScreen';
+import ShapeLearning from './frontend/ShapeLearning';
+import FruitScreen from './frontend/FruitScreen'; // ✅ Add this line
 
-
-// Import screens (Check filenames and ensure they exist)
 import Splash from './frontend/Splash';
 import Onboarding from './frontend/Onboarding';
 import Registration from './frontend/Registration';
@@ -14,7 +15,7 @@ import Home from './frontend/Home';
 import KidHome from './frontend/KidHome';
 import Courses from './frontend/Courses';
 import LearningMenu from './frontend/LearningMenu';
-import parentHome from './frontend/parentHome';
+
 import AcademicLearning from './frontend/AcademicLearning';
 import Assessments from './frontend/Assessments';
 import Assesment from './frontend/Assesment';
@@ -26,6 +27,12 @@ import Numbers from './frontend/Numbers';
 import Alphabets from './frontend/Alphabets';
 import Urdu from './frontend/Urdu';
 
+import VegetableScreen from './frontend/VegetableScreen'; // ✅ Add this line
+import Color from './frontend/Color';
+import NumberAccessScreen from './frontend/NumberAccessScreen';
+import UrduAccessScreen from './frontend/UrduAccessScreen';
+import AlphabetsAccessScreen from './frontend/AlphabetsAccessScreen';
+import AccessManagement from './frontend/AccessManagement';
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -40,7 +47,6 @@ export default function App() {
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="KidHome" component={KidHome} />
         <Stack.Screen name="LearningMenu" component={LearningMenu} />
-        <Stack.Screen name="parentHome" component={parentHome} />
         <Stack.Screen name="AcademicLearning" component={AcademicLearning} />
         <Stack.Screen name="Assessments" component={Assessments} />
         <Stack.Screen name="Assesment" component={Assesment} />
@@ -52,7 +58,16 @@ export default function App() {
         <Stack.Screen name="Numbers" component={Numbers} />
         <Stack.Screen name="Alphabets" component={Alphabets} />
         <Stack.Screen name="AboutUs" component={AboutUs} />
+        <Stack.Screen name="BodypartsScreen" component={BodypartsScreen} />
         <Stack.Screen name="Urdu" component={Urdu} />
+        <Stack.Screen name="ShapeLearning" component={ShapeLearning} />
+        <Stack.Screen name="FruitScreen" component={FruitScreen} />
+        <Stack.Screen name="VegetableScreen" component={VegetableScreen} /> 
+        <Stack.Screen name="Color" component={Color} />
+        <Stack.Screen name="NumberAccessScreen" component={NumberAccessScreen} />
+        <Stack.Screen name="UrduAccessScreen" component={UrduAccessScreen} />
+        <Stack.Screen name="AlphabetsAccessScreen" component={AlphabetsAccessScreen} />
+        <Stack.Screen name="AccessManagement" component={AccessManagement} />
       </Stack.Navigator>
     </NavigationContainer>
   );

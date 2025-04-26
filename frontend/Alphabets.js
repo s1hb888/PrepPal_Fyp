@@ -1,13 +1,9 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-
 const Alphabets = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Choose a Language</Text>
-
-   
-
       <TouchableOpacity
   style={[styles.card, { backgroundColor: '#2BCB9A' }]}
   onPress={() => navigation.navigate('EnglishAlphaBetsScreen')}>
