@@ -3,20 +3,26 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config();  // Load environment variables
+require('dotenv').config(); // Load environment variables
 
 // Routes
 const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/Profile');
-
-// Models
+const vowelRoutes = require('./routes/vowel');
+const bodyPartRoute = require('./routes/bodypart'); // ✅ BodyPart route added
+const fruitRoutes = require('./routes/fruit'); // ✅ Fruits route added
+const vegetableRoutes = require('./routes/vegetable');
+// Models (for reference, though not used directly in server.js)
 const Alphabet = require('./models/Alphabet');
 const Urdu = require('./models/Urdu');
 const Number = require('./models/Number');
+const Vowel = require('./models/Vowel');
+const BodyPart = require('./models/BodyPart'); // ✅ BodyPart model added
 
 // DB Config
 const connectDB = require('./config/db');
 
+// Initialize app
 const app = express();
 
 // Middleware
@@ -29,10 +35,13 @@ connectDB();
 // Static folder for uploads
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Routes
+// Use Routes
 app.use('/api', authRoutes);
 app.use('/api', profileRoutes);
-
+app.use('/api/vowels', vowelRoutes);
+app.use('/api/bodyparts', bodyPartRoute); // ✅ Body parts route used
+app.use('/api/fruits', fruitRoutes); // ✅ Use fruits route
+app.use('/api/vegetables', vegetableRoutes); // ✅ Use vegetables route
 // Custom GET Routes
 app.get('/alphabets', async (req, res) => {
   try {
@@ -64,5 +73,5 @@ app.get('/numbers', async (req, res) => {
 // Start server
 const port = process.env.PORT || 5000;
 app.listen(port, '0.0.0.0', () => {
-  console.log(` Server running on port ${port}`);
+  console.log(`Server running on port ${port}`);
 });
