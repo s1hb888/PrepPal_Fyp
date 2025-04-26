@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import {
   View,
@@ -14,14 +12,55 @@ import {
 const screenWidth = Dimensions.get('window').width;
 
 const subjects = [
-  { id: '1', name: 'Animals', icon: require('../assets/animal.png'), color: ['#EF3349', '#EF3349'] },
-  { id: '5', name: 'Fruits', icon: require('../assets/fruits.png'), color: ['#2BCB9A', '#2BCB9A'] },
-  { id: '6', name: 'Vegetables', icon: require('../assets/vegetable.png'), color: ['#FFCF25', '#FFCF25'] },
-  { id: '7', name: 'Colors', icon: require('../assets/color.png'), color: ['#EF3349', '#EF3349'] },
-  { id: '8', name: 'Vowels', icon: require('../assets/vowel.png'), color: ['#2BCB9A', '#2BCB9A'] },
-  { id: '9', name: 'Body Parts', icon: require('../assets/human-organs.png'), color: ['#FFCF25', '#FFCF25'] },
-  { id: '10', name: 'Shapes', icon: require('../assets/shapes.png'), color: ['#EF3349', '#EF3349'] },
-  { id: '11', name: 'Counting', icon: require('../assets/numbers.png'), color: ['#2BCB9A', '#2BCB9A'] },
+  {
+    id: '1',
+    name: 'Animals',
+    icon: require('../assets/animal.png'),
+    color: ['#EF3349', '#EF3349'],
+    screen: 'AnimalsScreen',
+  },
+  {
+    id: '5',
+    name: 'Fruits',
+    icon: require('../assets/fruits.png'),
+    color: ['#2BCB9A', '#2BCB9A'],
+    screen: 'FruitsScreen',
+  },
+  {
+    id: '6',
+    name: 'Vegetables',
+    icon: require('../assets/vegetable.png'),
+    color: ['#FFCF25', '#FFCF25'],
+    screen: 'VegetablesScreen',
+  },
+  {
+    id: '7',
+    name: 'Colors',
+    icon: require('../assets/color.png'),
+    color: ['#EF3349', '#EF3349'],
+    screen: 'Color',
+  },
+  {
+    id: '9',
+    name: 'Body Parts',
+    icon: require('../assets/human-organs.png'),
+    color: ['#2BCB9A', '#2BCB9A'],
+    screen: 'BodyPartsScreen',
+  },
+  {
+    id: '10',
+    name: 'Shapes',
+    icon: require('../assets/shapes.png'),
+    color: ['#FFCF25', '#FFCF25'],
+    screen: 'ShapesScreen',
+  },
+  {
+    id: '11',
+    name: 'Counting',
+    icon: require('../assets/numbers.png'),
+    color: ['#EF3349', '#EF3349'],
+    screen: 'CountingScreen',
+  },
 ];
 
 const GeneralKnowledge = ({ navigation }) => {
@@ -29,10 +68,8 @@ const GeneralKnowledge = ({ navigation }) => {
     <TouchableOpacity
       style={[styles.card, { backgroundColor: item.color[0] }]}
       onPress={() => {
-        if (item.name === 'Alphabets') {
-          navigation.navigate('AlphabetsScreen');
-        } else if (item.name === 'Vowels') {
-          navigation.navigate('VowelScreen');
+        if (item.screen) {
+          navigation.navigate(item.screen);
         }
       }}
     >
@@ -42,7 +79,6 @@ const GeneralKnowledge = ({ navigation }) => {
       </View>
     </TouchableOpacity>
   );
-  
 
   return (
     <View style={styles.container}>
