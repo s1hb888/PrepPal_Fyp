@@ -24,12 +24,9 @@ const userSchema = new mongoose.Schema({
     enum: ['parent', 'kid'],
     required: true,
   },
-  profileImage: {
-    type: String, 
-  },  
 });
 
-// Password hashing middleware
+// Encrypt password before saving
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     return next();
@@ -47,4 +44,3 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;
-

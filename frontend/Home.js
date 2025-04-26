@@ -6,70 +6,55 @@ import {
   StyleSheet,
   ScrollView,
   SafeAreaView,
-  Image,
-  FlatList,
-  Dimensions,
   Modal,
+  FlatList,
+  Image,
+  Dimensions,
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import LottieView from 'lottie-react-native';
 import Profile from './Profile';
 import Settings from './Settings';
 import AboutUs from './AboutUs';
 
-
+const windowWidth = Dimensions.get('window').width;
+const cardWidth = (windowWidth - 40) / 2 - 10;
 
 const Home = ({ navigation }) => {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [selectedTab, setSelectedTab] = useState('Home');
 
-  const sliderData = [
-    { id: '1', imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTi6uCBD3asZ4S89k62ggZ6rty1QculLefW9A&s' },
-    { id: '2', imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTi6uCBD3asZ4S89k62ggZ6rty1QculLefW9A&s' },
-    { id: '3', imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTi6uCBD3asZ4S89k62ggZ6rty1QculLefW9A&s' },
-  ];
-
   const cardData = [
-    { id: '1', title: 'Manage courses', icon: 'book', color: '#4CAF50', screen: '' },
-    { id: '2', title: 'Progress tracking', icon: 'pencil', color: '#FFA500', screen: 'Assessm' },
-    { id: '3', title: 'Profile', icon: 'user', color: '#007BFF', screen: 'Profile' },
-    { id: '4', title: 'Settings', icon: 'cog', color: '#FF4500', screen: 'Settings' },
+    { id: '1', title: 'Manage courses', icon: 'book', color: '#2BCB9A', screen: 'AccessManagement' },
+    { id: '2', title: 'Progress tracking', icon: 'pencil', color: '#2BCB9A', screen: 'Assessm' },
+    { id: '3', title: 'Profile', icon: 'user', color: '#2BCB9A', screen: 'Profile' },
+    { id: '4', title: 'Settings', icon: 'cog', color: '#2BCB9A', screen: 'Settings' },
   ];
-
-  const renderSliderItem = ({ item }) => (
-    <View style={styles.sliderItem}>
-      <Image source={{ uri: item.imageUrl }} style={styles.sliderImage} />
-      <View style={styles.sliderOverlay}>
-        <Text style={styles.sliderText}>{item.text}</Text>
-      </View>
-    </View>
-  );
 
   const renderCardItem = ({ item }) => (
     <TouchableOpacity
-      style={[styles.card, { backgroundColor: '#FFDF6D', borderLeftColor: item.color }]}
+      style={[styles.card, { backgroundColor: '#e6f7f3', borderLeftColor: item.color }]}
       onPress={() => navigation.navigate(item.screen)}
     >
-      <FontAwesome name={item.icon} size={40} color={item.color} />
+      <FontAwesome name={item.icon} size={36} color={item.color} />
       <Text style={styles.cardText}>{item.title}</Text>
     </TouchableOpacity>
   );
-
   const renderTabContent = () => {
     switch (selectedTab) {
       case 'Home':
         return (
           <ScrollView style={styles.container}>
-            <View style={styles.sliderContainer}>
-              <FlatList
-                data={sliderData}
-                renderItem={renderSliderItem}
-                keyExtractor={(item) => item.id}
-                horizontal
-                pagingEnabled
-                showsHorizontalScrollIndicator={false}
+            <View style={styles.animationContainer}>
+              <LottieView
+                source={require('../assets/animations/Animation.json')}
+                autoPlay
+                loop
+                style={{ height: 200, width: 200, color:'#2BCB9A'}}
               />
             </View>
-            <Text style={styles.sectionTitle}>Features</Text>
+
+            <Text style={styles.sectionTitle}>Manage & Track</Text>
             <FlatList
               data={cardData}
               renderItem={renderCardItem}
@@ -80,13 +65,12 @@ const Home = ({ navigation }) => {
             />
           </ScrollView>
         );
-
-      case 'Profile': 
-        return Profile ? <Profile /> : <Text>Profile not found</Text>;
+      case 'Profile':
+        return <Profile />;
       case 'Settings':
-        return Settings ? <Settings /> : <Text>Settings not found</Text>;
+        return <Settings />;
       case 'AboutUs':
-        return AboutUs ? <AboutUs /> : <Text>AboutUs not found</Text>;
+        return <AboutUs />;
       case 'Notifications':
         return (
           <View style={styles.tabScreen}>
@@ -100,7 +84,6 @@ const Home = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* AppBar */}
       <View style={styles.appBar}>
         <TouchableOpacity onPress={() => setDrawerVisible(true)} style={styles.menuButton}>
           <FontAwesome name="bars" size={24} color="#fff" />
@@ -108,7 +91,6 @@ const Home = ({ navigation }) => {
         <Text style={styles.appBarTitle}>Welcome To PrepPal</Text>
       </View>
 
-      {/* Drawer */}
       <Modal visible={drawerVisible} animationType="slide" transparent>
         <TouchableOpacity style={styles.drawerOverlay} onPress={() => setDrawerVisible(false)} />
         <View style={styles.drawer}>
@@ -118,55 +100,26 @@ const Home = ({ navigation }) => {
           />
           <Text style={styles.drawerTitle}>PrepPal</Text>
 
-          {/* Drawer Items */}
-          <TouchableOpacity style={styles.drawerItem}
-          onPress={() => {
-            setSelectedTab('Home');
-            setDrawerVisible(false);
-          }}
-          >
-            <FontAwesome name="home" size={20} />
-            <Text style={styles.drawerItemText}>Home</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.drawerItem}
-            onPress={() => {
-              setSelectedTab('Profile');
-              setDrawerVisible(false);
-            }}
-          >
-            <FontAwesome name="user" size={20} />
-            <Text style={styles.drawerItemText}>Profile</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.drawerItem}
-            onPress={() => {
-              setSelectedTab('Settings');
-              setDrawerVisible(false);
-            }}
-          >
-            <FontAwesome name="cog" size={20} />
-            <Text style={styles.drawerItemText}>Settings</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.drawerItem}
-            onPress={() => {
-              setSelectedTab('Notifications');
-              setDrawerVisible(false);
-            }}
-          >
-            <FontAwesome name="bell" size={20} />
-            <Text style={styles.drawerItemText}>Notifications</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.drawerItem}
-           onPress={() => {
-            setSelectedTab('AboutUs');
-            setDrawerVisible(false);
-          }}
-          >
-            <FontAwesome name="info-circle" size={20} />
-            <Text style={styles.drawerItemText}>About Us</Text>
-          </TouchableOpacity>
+          {['Home', 'Profile', 'Settings', 'Notifications', 'AboutUs'].map((tab) => (
+            <TouchableOpacity
+              key={tab}
+              style={styles.drawerItem}
+              onPress={() => {
+                setSelectedTab(tab);
+                setDrawerVisible(false);
+              }}
+            >
+              <FontAwesome name={
+                tab === 'Home' ? 'home' :
+                tab === 'Profile' ? 'user' :
+                tab === 'Settings' ? 'cog' :
+                tab === 'Notifications' ? 'bell' : 'info-circle'} size={20} />
+              <Text style={styles.drawerItemText}>
+                {tab === 'AboutUs' ? 'About Us' : tab}
+              </Text>
+            </TouchableOpacity>
+          ))}
+
           <TouchableOpacity style={styles.drawerItem}>
             <FontAwesome name="sign-out" size={20} />
             <Text style={styles.drawerItemText}>Logout</Text>
@@ -174,42 +127,37 @@ const Home = ({ navigation }) => {
         </View>
       </Modal>
 
-      {/* Tab Content */}
       {renderTabContent()}
 
-      {/* Bottom Bar */}
       <View style={styles.bottomBar}>
         <TouchableOpacity onPress={() => setSelectedTab('Home')} style={styles.bottomTab}>
-          <FontAwesome name="home" size={24} color={selectedTab === 'Home' ? '#EF3349' : '#666'} />
-          <Text style={{ color: selectedTab === 'Home' ? '#EF3349' : '#666' }}>Kid Home</Text>
+          <FontAwesome name="home" size={24} color={selectedTab === 'Home' ? '#ffffff' : '#666'} />
+          <Text style={{ color: selectedTab === 'Home' ? '#ffffff' : '#666' }}>Home</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setSelectedTab('Profile')} style={styles.bottomTab}>
-          <FontAwesome name="user" size={24} color={selectedTab === 'Profile' ? '#EF3349' : '#666'} />
-          <Text style={{ color: selectedTab === 'Profile' ? '#EF3349' : '#666' }}>Profile</Text>
+          <FontAwesome name="user" size={24} color={selectedTab === 'Profile' ? '#ffffff' : '#666'} />
+          <Text style={{ color: selectedTab === 'Profile' ? '#ffffff' : '#666' }}>Profile</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setSelectedTab('Settings')} style={styles.bottomTab}>
-          <FontAwesome name="cog" size={24} color={selectedTab === 'Settings' ? '#EF3349' : '#666'} />
-          <Text style={{ color: selectedTab === 'Settings' ? '#EF3349' : '#666' }}>Settings</Text>
+          <FontAwesome name="cog" size={24} color={selectedTab === 'Settings' ? '#ffffff' : '#666'} />
+          <Text style={{ color: selectedTab === 'Settings' ? '#ffffff' : '#666' }}>Settings</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setSelectedTab('Notifications')} style={styles.bottomTab}>
-          <FontAwesome name="bell" size={24} color={selectedTab === 'Notifications' ? '#EF3349' : '#666'} />
-          <Text style={{ color: selectedTab === 'Notifications' ? '#EF3349' : '#666' }}>Alerts</Text>
+          <FontAwesome name="bell" size={24} color={selectedTab === 'Notifications' ? '#ffffff' : '#666'} />
+          <Text style={{ color: selectedTab === 'Notifications' ? '#ffffff' : '#666' }}>Alerts</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
 };
 
-const windowWidth = Dimensions.get('window').width;
-const cardWidth = (windowWidth - 40) / 2 - 10;
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff',
   },
   appBar: {
-    backgroundColor: '#EF3349',
+    backgroundColor: '#2BCB9A',
     paddingVertical: 45,
     paddingHorizontal: 20,
     flexDirection: 'row',
@@ -226,6 +174,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
   },
+  
   menuButton: {
     position: 'absolute',
     left: 20,
@@ -234,43 +183,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#ffffff',
   },
-  sliderContainer: {
-    height: 150,
-    marginBottom: 20,
-  },
-  sliderItem: {
-    width: windowWidth - 40,
-    height: 150,
+  animationContainer: {
+    alignItems: 'center',
+    backgroundColor: '#e6f7f3',
+    padding: 10,
     borderRadius: 10,
-    overflow: 'hidden',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-    position: 'relative',
-  },
-  sliderImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  sliderOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  sliderText: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
+    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 15,
-    color: '#000000',
+    color: '#333',
   },
   row: {
     justifyContent: 'space-between',
@@ -284,6 +210,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderLeftWidth: 5,
+    backgroundColor: '#e6f7f3',
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 5,
@@ -332,7 +259,7 @@ const styles = StyleSheet.create({
   drawerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#EF3349',
+    color: '#2BCB9A',
     marginBottom: 30,
   },
   drawerItem: {

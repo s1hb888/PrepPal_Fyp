@@ -28,7 +28,6 @@ const KidHome = ({ navigation }) => {
     { id: '3', title: 'Assessment', icon: 'edit', color: '#007BFF', screen: 'Assessments' },
     { id: '4', title: 'Videos', icon: 'video-camera', color: '#FF4500', screen: 'PersonsScreen' },
   ];
-
   const renderSliderItem = ({ item }) => (
     <View style={styles.sliderItem}>
       <Image source={{ uri: item.imageUrl }} style={styles.sliderImage} />
@@ -37,7 +36,6 @@ const KidHome = ({ navigation }) => {
       </View>
     </View>
   );
-
   const renderCardItem = ({ item }) => (
     <TouchableOpacity
       style={[styles.card, { backgroundColor: '#FFDF6D', borderLeftColor: item.color }]}
