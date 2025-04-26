@@ -15,7 +15,7 @@ import Home from './frontend/Home';
 import KidHome from './frontend/KidHome';
 import Courses from './frontend/Courses';
 import LearningMenu from './frontend/LearningMenu';
-import parentHome from './frontend/parentHome';
+
 import AcademicLearning from './frontend/AcademicLearning';
 import Assessments from './frontend/Assessments';
 import Assesment from './frontend/Assesment';
@@ -26,7 +26,13 @@ import EnglishAlphaBetsScreen from './frontend/EnglishAlphaBetsScreen';
 import Numbers from './frontend/Numbers';
 import Alphabets from './frontend/Alphabets';
 import Urdu from './frontend/Urdu';
+
 import VegetableScreen from './frontend/VegetableScreen'; // ✅ Add this line
+import Color from './frontend/Color';
+import NumberAccessScreen from './frontend/NumberAccessScreen';
+import UrduAccessScreen from './frontend/UrduAccessScreen';
+import AlphabetsAccessScreen from './frontend/AlphabetsAccessScreen';
+import AccessManagement from './frontend/AccessManagement';
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -41,7 +47,6 @@ export default function App() {
         <Stack.Screen name="Home" component={Home} />
         <Stack.Screen name="KidHome" component={KidHome} />
         <Stack.Screen name="LearningMenu" component={LearningMenu} />
-        <Stack.Screen name="parentHome" component={parentHome} />
         <Stack.Screen name="AcademicLearning" component={AcademicLearning} />
         <Stack.Screen name="Assessments" component={Assessments} />
         <Stack.Screen name="Assesment" component={Assesment} />
@@ -58,7 +63,12 @@ export default function App() {
         <Stack.Screen name="ShapeLearning" component={ShapeLearning} />
         <Stack.Screen name="FruitScreen" component={FruitScreen} />
         <Stack.Screen name="VegetableScreen" component={VegetableScreen} /> 
-        </Stack.Navigator>
+        <Stack.Screen name="Color" component={Color} />
+        <Stack.Screen name="NumberAccessScreen" component={NumberAccessScreen} />
+        <Stack.Screen name="UrduAccessScreen" component={UrduAccessScreen} />
+        <Stack.Screen name="AlphabetsAccessScreen" component={AlphabetsAccessScreen} />
+        <Stack.Screen name="AccessManagement" component={AccessManagement} />
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }
