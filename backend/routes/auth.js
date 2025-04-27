@@ -1,3 +1,5 @@
+
+
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
@@ -8,6 +10,7 @@ const Alphabet = require('../models/Alphabet');
 const Number = require('../models/Number');
 const Urdu = require('../models/Urdu');
 
+const bcrypt = require('bcryptjs');
 // Registration Route
 router.post('/register', async (req, res) => {
   const { email, password, kidName, kidAge, role } = req.body;

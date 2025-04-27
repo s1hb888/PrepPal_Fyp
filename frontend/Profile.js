@@ -1,26 +1,83 @@
-import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, Image, StyleSheet, Modal } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
-
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import API_BASE_URL from './config';
 
-const Profile = () => {
+
+const ProfileScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [kidName, setKidName] = useState('');
   const [kidAge, setKidAge] = useState('');
-  const [image, setImage] = useState(null); // local image state
-const [isModalVisible, setModalVisible] = useState(false); // For editing options modal
-const [showImageOptions, setShowImageOptions] = useState(false); // For choosing image source
+  const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [showImageOptions, setShowImageOptions] = useState(false);
+  const [isModalVisible, setModalVisible] = useState(false);
 
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/api/Profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await response.json();
+
+      if (response.ok) {
+        if (result.profileImage) {
+          setImage(`${API_BASE_URL}${result.profileImage}`);
+        }
+        setEmail(result.email);
+        setKidName(result.kidName);
+        setKidAge(result.kidAge.toString());
+      } else {
+        Alert.alert('Error', result.message || 'Failed to fetch profile');
+      }
+    } catch (error) {
+      console.error('Fetch Profile Error:', error);
+    }
+  };
 
   const validatePassword = (pwd) => {
     const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return regex.test(pwd);
+  };
+
+  const handleUploadImage = async (imageUri) => {
+    const formData = new FormData();
+    formData.append('profileImage', {
+      uri: imageUri,
+      name: 'profile.jpg',
+      type: 'image/jpeg',
+    });
+
+    try {
+      const token = await AsyncStorage.getItem('token');
+      const response = await axios.put(`${API_BASE_URL}/api/profile/photo`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.data.success) {
+        setImage(`${response.data.imageUrl}?t=${Date.now()}`); // bust cache
+        fetchProfile(); // refresh other details if needed
+        Alert.alert('Success', 'Profile image updated successfully');
+      }
+      
+    } catch (error) {
+      console.error('Upload error:', error.response?.data || error.message);
+      Alert.alert('Error', 'Image upload failed');
+    }
   };
 
   const handleSave = async () => {
@@ -30,38 +87,33 @@ const [showImageOptions, setShowImageOptions] = useState(false); // For choosing
     }
 
     if (password && !validatePassword(password)) {
-      Alert.alert(
-        'Error',
-        'Password must be at least 8 characters long and include one uppercase letter, one digit, and one special character.'
-      );
+      Alert.alert('Error', 'Weak password. Must include uppercase, number & special char.');
       return;
     }
 
     try {
-      const token = await AsyncStorage.getItem('token'); 
-
-      const payload = {
-        email,
-        ...(kidName && { kidName }),
-        ...(kidAge && { kidAge }),
-        ...(password && { password }),
-        ...(image && { profileImage: image }), // send image URI (optional)
-      };
-
-      const response = await axios.put(`${API_BASE_URL}/api/update`, payload, {
+      setLoading(true);
+      const token = await AsyncStorage.getItem('token');
+      const response = await fetch(`${API_BASE_URL}/api/update`, {
+        method: 'PUT',
         headers: {
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify({ password, kidName, kidAge }),
       });
 
-      if (response.status === 200) {
-        Alert.alert('Success', 'Profile updated successfully.');
+      const result = await response.json();
+      if (response.ok) {
+        Alert.alert('Success', result.message);
       } else {
-        Alert.alert('Error', 'Failed to update profile.');
+        Alert.alert('Error', result.message || 'Update failed');
       }
     } catch (error) {
-      console.error(error);
-      Alert.alert('Error', 'Server error, please try again later.');
+      console.error('Update Error:', error);
+      Alert.alert('Error', 'Server error. Try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -73,162 +125,182 @@ const [showImageOptions, setShowImageOptions] = useState(false); // For choosing
         style: 'destructive',
         onPress: async () => {
           try {
-            const token = await AsyncStorage.getItem('token'); 
-            if (!token) {
-              Alert.alert('Error', 'No authentication token found.');
-              return;
-            }
-
-            const response = await axios.delete(`${API_BASE_URL}/api/delete`, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              },
-              data: {
-                email: email,  
-              },
+            const token = await AsyncStorage.getItem('token');
+            const response = await fetch(`${API_BASE_URL}/api/delete`, {
+              method: 'DELETE',
+              headers: { Authorization: `Bearer ${token}` },
             });
 
-            if (response.status === 200) {
-              Alert.alert('Deleted', 'Your account has been deleted.');
+            const result = await response.json();
+
+            if (response.ok) {
+              await AsyncStorage.removeItem('token');
+              Alert.alert('Deleted', 'Account deleted successfully.');
+              navigation.replace('Registration');
             } else {
-              Alert.alert('Error', 'Failed to delete account.');
+              Alert.alert('Error', result.message || 'Failed to delete account');
             }
           } catch (error) {
-            console.error(error);
-            Alert.alert('Error', 'Server error, please try again later.');
+            console.error('Delete Error:', error);
+            Alert.alert('Error', 'Server error. Try again.');
           }
         },
       },
     ]);
   };
 
-// Pick Image from Gallery or Camera
-const pickImage = async () => {
-  let result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    allowsEditing: true,
-    aspect: [1, 1],
-    quality: 0.5,
-  });
+  const rotateImage = async () => {
+    const editedImage = await ImageManipulator.manipulateAsync(
+      imagePreview,
+      [{ rotate: 90 }],
+      { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+    );
+    setImagePreview(editedImage.uri);
+  };
 
-  if (!result.canceled) {
-    setImage(result.assets[0].uri);
-    setModalVisible(true); // Show modal for image editing
-  }
-};
+  const flipImageHorizontal = async () => {
+    const editedImage = await ImageManipulator.manipulateAsync(
+      imagePreview,
+      [{ flip: ImageManipulator.FlipType.Horizontal }],
+      { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+    );
+    setImagePreview(editedImage.uri);
+  };
 
-// Rotate Image
-const rotateImage = async () => {
-  const editedImage = await ImageManipulator.manipulateAsync(
-    image,
-    [{ rotate: 90 }],
-    { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
-  );
-  setImage(editedImage.uri);
-};
-
-// Flip Image Horizontally
-const flipImageHorizontal = async () => {
-  const editedImage = await ImageManipulator.manipulateAsync(
-    image,
-    [{ flip: ImageManipulator.FlipType.Horizontal }],
-    { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
-  );
-  setImage(editedImage.uri);
-};
-
-// Flip Image Vertically
-const flipImageVertical = async () => {
-  const editedImage = await ImageManipulator.manipulateAsync(
-    image,
-    [{ flip: ImageManipulator.FlipType.Vertical }],
-    { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
-  );
-  setImage(editedImage.uri);
-};
+  const flipImageVertical = async () => {
+    const editedImage = await ImageManipulator.manipulateAsync(
+      imagePreview,
+      [{ flip: ImageManipulator.FlipType.Vertical }],
+      { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+    );
+    setImagePreview(editedImage.uri);
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View style={styles.profileInfo}>
-        <TouchableOpacity onPress={pickImage} style={styles.imageWrapper}>
-          <Image
-            source={image ? { uri: image } : require('../assets/family.png')}
-            style={styles.profileImage}
-          />
+        <TouchableOpacity onPress={() => setShowImageOptions(true)} style={styles.imageWrapper}>
+          {image ? (
+            <Image source={{ uri: image }} style={styles.profileImage} />
+          ) : (
+            <View style={styles.profileImage} />
+          )}
           <View style={styles.editIconWrapper}>
             <Feather name="edit-2" size={16} color="#fff" />
           </View>
         </TouchableOpacity>
-        <Text style={styles.name}>Your Name</Text>
-        <Text style={styles.location}>Your Location</Text>
       </View>
 
-      {/* Custom Image Picker Options */}
-<Modal
-  animationType="slide"
-  transparent={true}
-  visible={showImageOptions}
-  onRequestClose={() => setShowImageOptions(false)}>
-  <View style={styles.modalContainer}>
-    <View style={styles.modalContent}>
-      <Text style={styles.modalHeader}>Select Image From</Text>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[styles.modalButton, { backgroundColor: '#2BCB9A' }]}
-          onPress={async () => {
-            const result = await ImagePicker.launchCameraAsync({
-              allowsEditing: true,
-              aspect: [1, 1],
-              quality: 0.5,
-            });
-            if (!result.canceled) {
-              setImage(result.assets[0].uri);
-              setShowImageOptions(false);
-              setModalVisible(true);
-            }
-          }}>
-          <Text style={styles.buttonText}>Camera</Text>
-        </TouchableOpacity>
+      {/* Image Selection Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showImageOptions}
+        onRequestClose={() => setShowImageOptions(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalHeader}>Choose Image</Text>
 
-        <TouchableOpacity
-          style={[styles.modalButton, { backgroundColor: '#2BCB9A' }]}
-          onPress={async () => {
-            const result = await ImagePicker.launchImageLibraryAsync({
-              allowsEditing: true,
-              aspect: [1, 1],
-              quality: 0.5,
-            });
-            if (!result.canceled) {
-              setImage(result.assets[0].uri);
-              setShowImageOptions(false);
-              setModalVisible(true);
-            }
-          }}>
-          <Text style={styles.buttonText}>Gallery</Text>
-        </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.modalButton, { backgroundColor: '#2BCB9A', marginBottom: 10 }]}
+              onPress={async () => {
+                const result = await ImagePicker.launchImageLibraryAsync({
+                  allowsEditing: true,
+                  aspect: [1, 1],
+                  quality: 0.5,
+                });
+                if (!result.canceled) {
+                  setImagePreview(result.assets[0].uri);
+                  setShowImageOptions(false);
+                  setModalVisible(true);
+                }
+              }}
+            >
+              <Text style={styles.buttonText}>Choose from Gallery</Text>
+            </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.modalButton, { backgroundColor: '#EF3349' }]}
-          onPress={() => setShowImageOptions(false)}>
-          <Text style={styles.buttonText}>Cancel</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  </View>
-</Modal>
+            <TouchableOpacity
+              style={[styles.modalButton, { backgroundColor: '#2BCB9A', marginBottom: 20 }]}
+              onPress={async () => {
+                const result = await ImagePicker.launchCameraAsync({
+                  allowsEditing: true,
+                  aspect: [1, 1],
+                  quality: 0.5,
+                });
+                if (!result.canceled) {
+                  setImagePreview(result.assets[0].uri);
+                  setShowImageOptions(false);
+                  setModalVisible(true);
+                }
+              }}
+            >
+              <Text style={styles.buttonText}>Take Picture</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.modalButton, { backgroundColor: '#EF3349' }]}
+              onPress={() => setShowImageOptions(false)}
+            >
+              <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Preview Modal */}
+      {imagePreview && isModalVisible && (
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={isModalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalHeader}>Preview</Text>
+              <Image
+                source={{ uri: imagePreview }}
+                style={{ width: 200, height: 200, borderRadius: 100, alignSelf: 'center', marginBottom: 20 }}
+              />
+
+              <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 20 }}>
+                <TouchableOpacity onPress={rotateImage} style={styles.modalButton}>
+                  <Text style={styles.buttonText}>Rotate</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={flipImageHorizontal} style={styles.modalButton}>
+                  <Text style={styles.buttonText}>Flip H</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={flipImageVertical} style={styles.modalButton}>
+                  <Text style={styles.buttonText}>Flip V</Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity
+                onPress={() => {
+                  setImage(imagePreview);
+                  handleUploadImage(imagePreview);
+                  setModalVisible(false);
+                }}
+                style={{
+                  backgroundColor: '#2BCB9A',
+                  paddingVertical: 12,
+                  paddingHorizontal: 30,
+                  borderRadius: 50,
+                  alignSelf: 'center',
+                }}
+              >
+                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 18 }}>✓ Done</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
 
       {/* Form */}
       <View style={styles.formContainer}>
         <Text style={styles.label}>Email</Text>
-        <TextInput
-          placeholder="Enter your email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          style={styles.input}
-        />
+        <TextInput value={email} editable={false} style={styles.input} />
 
         <Text style={styles.label}>Password</Text>
         <TextInput
@@ -284,25 +356,14 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
     borderWidth: 4,
-    borderColor: '#fff',
+    borderColor: '#EF3349',
     backgroundColor: '#ddd',
-  },
-  name: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginTop: 10,
-    color: '#333',
-  },
-  location: {
-    fontSize: 16,
-    color: '#777',
-    marginTop: 5,
   },
   formContainer: {
     padding: 20,
   },
   label: {
-    color: '#000',
+    color: '#EF3349',
     marginBottom: 8,
     fontWeight: '600',
   },
@@ -352,7 +413,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     right: 0,
-    backgroundColor: '#2BCB9A',
+    backgroundColor: '#FFCF25',
     borderRadius: 12,
     padding: 5,
     borderWidth: 1,
@@ -375,9 +436,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#EF3349',
     marginBottom: 20,
-  },
-  buttonContainer: {
-    flexDirection: 'column',
+    textAlign: 'center',
   },
   modalButton: {
     backgroundColor: '#FFCF25',
@@ -388,4 +447,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Profile;
+export default ProfileScreen;

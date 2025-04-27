@@ -13,10 +13,10 @@ const subjects = [
 
   {
     id: '1',
-    name: 'Animals',
-    icon: require('../assets/animal.png'),
+    name: 'Vowels',
+    icon: require('../assets/vowel.png'),
     color: ['#EF3349', '#EF3349'],
-    screen: 'AnimalsScreen',
+    screen: 'VowelsScreen',
   },
   {
     id: '5',
@@ -60,7 +60,13 @@ const subjects = [
     color: ['#EF3349', '#EF3349'],
     screen: 'CountingScreen',
   },
-
+  {
+    id: '11',
+    name: 'Islamic Studies',
+    icon: require('../assets/islamic.png'),
+    color: ['#2BCB9A', '#2BCB9A'],
+    screen: '',
+  },
 ];
 
 const GeneralKnowledge = ({ navigation }) => {
