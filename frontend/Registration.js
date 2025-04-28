@@ -9,6 +9,7 @@ const Registration = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [kidName, setKidName] = useState('');
   const [kidAge, setKidAge] = useState('');
+  const [passwordVisible, setPasswordVisible] = useState(false); // For toggling password visibility
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validatePassword = (password) => /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
@@ -26,7 +27,11 @@ const Registration = ({ navigation }) => {
       Alert.alert('Error', "Kid’s name and age are required.");
       return;
     }
-
+    if (kidAge < 3 || kidAge > 5) {
+      Alert.alert('Error', 'Kid’s age must be between 3 and 5 years.');
+      return;
+    }
+  
     try {
       const response = await axios.post(`${API_BASE_URL}/api/register`, {
         email,
@@ -34,21 +39,20 @@ const Registration = ({ navigation }) => {
         kidName,
         kidAge
       });
-
+  
       if (response.status === 201) {
         Alert.alert('Success', 'Registration successful!');
         navigation.navigate('Login');  // Navigate to login screen
       }
     } catch (error) {
       if (error.response) {
-        // If response is available, show specific error message
         Alert.alert('Error', error.response.data.message || 'Registration failed. Please try again.');
       } else {
-        // Handle errors with no response (e.g., network issues)
         Alert.alert('Error', 'Server error, please try again later.');
       }
     }
   };
+  
 
   return (
     <View style={styles.container}>
@@ -78,8 +82,16 @@ const Registration = ({ navigation }) => {
           placeholder="Password"
           value={password}
           onChangeText={setPassword}
-          secureTextEntry
+          secureTextEntry={!passwordVisible} // Toggle visibility
         />
+        <TouchableOpacity onPress={() => setPasswordVisible(!passwordVisible)}>
+          <Ionicons 
+            name={passwordVisible ? "eye-off" : "eye"} 
+            size={24} 
+            color="#555" 
+            style={styles.eyeIcon}
+          />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.inputContainer}>
@@ -152,6 +164,10 @@ const styles = StyleSheet.create({
     height: 50,
     color: '#000',
   },
+  eyeIcon: {
+    position: 'absolute',
+    right: 10,
+  },
   button: {
     width: '100%',
     height: 50,
@@ -170,6 +186,12 @@ const styles = StyleSheet.create({
     color: '#EF3349',
     fontSize: 16,
     textDecorationLine: 'underline',
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 10,
+    top: '5%', 
+    transform: [{ translateY: -12 }], 
   },
 });
 

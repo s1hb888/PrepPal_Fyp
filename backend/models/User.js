@@ -24,6 +24,9 @@ const userSchema = new mongoose.Schema({
     enum: ['parent', 'kid'],
     required: true,
   },
+  profileImage: {
+    type: String, 
+  }
 });
 
 // Encrypt password before saving

@@ -10,6 +10,7 @@ const Login = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('parent');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -92,15 +93,22 @@ const Login = ({ navigation }) => {
         />
       </View>
       <View style={styles.inputContainer}>
-        <Ionicons name="lock-closed" size={20} color="#555" />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-      </View>
+  <Ionicons name="lock-closed" size={20} color="#555" />
+  <TextInput
+    style={styles.input}
+    placeholder="Password"
+    value={password}
+    onChangeText={setPassword}
+    secureTextEntry={!showPassword} // <-- password hide/show toggle
+  />
+  <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+    <Ionicons
+      name={showPassword ? 'eye-off' : 'eye'}
+      size={20}
+      color="#555"
+    />
+  </TouchableOpacity>
+</View>
       
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login</Text>

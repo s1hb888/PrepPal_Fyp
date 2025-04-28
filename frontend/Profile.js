@@ -18,6 +18,8 @@ const ProfileScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [showImageOptions, setShowImageOptions] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
 
   useEffect(() => {
     fetchProfile();
@@ -26,7 +28,7 @@ const ProfileScreen = ({ navigation }) => {
   const fetchProfile = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/Profile`, {
+      const response = await fetch(`${API_BASE_URL}/api/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const result = await response.json();
@@ -69,8 +71,8 @@ const ProfileScreen = ({ navigation }) => {
       });
 
       if (response.data.success) {
-        setImage(`${response.data.imageUrl}?t=${Date.now()}`); // bust cache
-        fetchProfile(); // refresh other details if needed
+        setImage(`${response.data.imageUrl}?t=${Date.now()}`); 
+        fetchProfile(); 
         Alert.alert('Success', 'Profile image updated successfully');
       }
       
@@ -79,18 +81,23 @@ const ProfileScreen = ({ navigation }) => {
       Alert.alert('Error', 'Image upload failed');
     }
   };
-
   const handleSave = async () => {
     if (!kidName || !kidAge) {
       Alert.alert('Error', "Please enter your kid’s name and age.");
       return;
     }
-
+  
+    // Kid Age Validation
+    if (kidAge < 3 || kidAge > 5) {
+      Alert.alert('Error', 'Kid’s age must be between 3 and 5 years.');
+      return;
+    }
+  
     if (password && !validatePassword(password)) {
       Alert.alert('Error', 'Weak password. Must include uppercase, number & special char.');
       return;
     }
-
+  
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
@@ -102,7 +109,7 @@ const ProfileScreen = ({ navigation }) => {
         },
         body: JSON.stringify({ password, kidName, kidAge }),
       });
-
+  
       const result = await response.json();
       if (response.ok) {
         Alert.alert('Success', result.message);
@@ -116,7 +123,7 @@ const ProfileScreen = ({ navigation }) => {
       setLoading(false);
     }
   };
-
+  
   const handleDeleteAccount = async () => {
     Alert.alert('Confirm Deletion', 'Are you sure you want to delete your account?', [
       { text: 'Cancel', style: 'cancel' },
@@ -130,13 +137,14 @@ const ProfileScreen = ({ navigation }) => {
               method: 'DELETE',
               headers: { Authorization: `Bearer ${token}` },
             });
-
+  
             const result = await response.json();
-
+  
             if (response.ok) {
+              // Remove token from AsyncStorage to expire it
               await AsyncStorage.removeItem('token');
               Alert.alert('Deleted', 'Account deleted successfully.');
-              navigation.replace('Registration');
+              navigation.replace('Registration');  // Navigate to Registration screen
             } else {
               Alert.alert('Error', result.message || 'Failed to delete account');
             }
@@ -148,6 +156,7 @@ const ProfileScreen = ({ navigation }) => {
       },
     ]);
   };
+  
 
   const rotateImage = async () => {
     const editedImage = await ImageManipulator.manipulateAsync(
@@ -302,14 +311,19 @@ const ProfileScreen = ({ navigation }) => {
         <Text style={styles.label}>Email</Text>
         <TextInput value={email} editable={false} style={styles.input} />
 
-        <Text style={styles.label}>Password</Text>
-        <TextInput
-          placeholder="Enter new password (optional)"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          style={styles.input}
-        />
+        <View style={styles.passwordContainer}>
+  <TextInput
+    placeholder="Enter new password (optional)"
+    value={password}
+    onChangeText={setPassword}
+    secureTextEntry={!showPassword}
+    style={styles.passwordInput}
+  />
+  <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+    <Feather name={showPassword ? 'eye' : 'eye-off'} size={20} color="#999" />
+  </TouchableOpacity>
+</View>
+
 
         <Text style={styles.label}>Kid's Name</Text>
         <TextInput
@@ -444,6 +458,20 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     borderRadius: 8,
     alignItems: 'center',
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 15,
+    backgroundColor: '#fff',
+  },
+  passwordInput: {
+    flex: 1,
+    paddingVertical: 10,
   },
 });
 

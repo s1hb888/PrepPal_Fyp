@@ -49,7 +49,6 @@ router.put('/profile/photo', verifyToken, upload.single('profileImage'), async (
 });
 
 
-// Update Profile Info
 router.put('/update', verifyToken, async (req, res) => {
   const { password, kidName, kidAge } = req.body;
 
@@ -57,13 +56,21 @@ router.put('/update', verifyToken, async (req, res) => {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ message: 'User not found.' });
 
-    if (password) {
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(password, salt);
-    }
-
+    if (password) user.password = password; // Just assign, hashing pre-save karega
     if (kidName) user.kidName = kidName;
-    if (kidAge) user.kidAge = kidAge;
+
+    if (kidAge) {
+      const kidAgeNumber = parseInt(kidAge);
+
+      // Validate Kid's Age only if user is 'kid' role
+      if (user.role === 'kid') {
+        if (kidAgeNumber < 3 || kidAgeNumber > 5) {
+          return res.status(400).json({ message: "Kid's age must be between 3 and 5 years." });
+        }
+      }
+
+      user.kidAge = kidAgeNumber;
+    }
 
     await user.save();
     res.status(200).json({ message: 'Profile updated successfully.' });
@@ -73,9 +80,12 @@ router.put('/update', verifyToken, async (req, res) => {
   }
 });
 
-// Delete Account
+
+
+// Delete Account Route
 router.delete('/delete', verifyToken, async (req, res) => {
   try {
+    // Find and delete user by ID
     const user = await User.findByIdAndDelete(req.user.id);
     if (!user) return res.status(404).json({ message: 'User not found.' });
 
@@ -85,5 +95,6 @@ router.delete('/delete', verifyToken, async (req, res) => {
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 });
+
 
 module.exports = router;
