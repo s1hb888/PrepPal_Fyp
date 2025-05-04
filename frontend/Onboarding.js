@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import GestureRecognizer from 'react-native-swipe-gestures';
@@ -18,14 +17,12 @@ const onboardingData = [
     description: "Engage with exciting quizzes, puzzles, and activities.",
     image: "https://static.vecteezy.com/system/resources/previews/002/391/032/non_2x/online-learning-concept-with-cartoon-character-vector.jpg",
   },
-  
   {
     id: 3,
     title: "Track Progress & Rewards",
     description: "Earn stars and track your kid's learning journey.",
     image: "https://static.vecteezy.com/system/resources/previews/040/532/044/non_2x/illustration-of-success-concept-school-achievement-and-success-illustration-first-place-winner-on-white-background-teamwork-consept-vector.jpg",
   },
- 
 ];
 
 const Onboarding = ({ navigation }) => {
@@ -91,7 +88,7 @@ const Onboarding = ({ navigation }) => {
           <View style={styles.row}>
             <TouchableOpacity 
               style={styles.secondaryButton} 
-              onPress={() => navigation.replace('Home')}
+              onPress={() => navigation.replace('Login')} // ✅ Changed from 'Home' to 'Login'
             >
               <Text style={styles.secondaryButtonText}>Skip</Text>
             </TouchableOpacity>

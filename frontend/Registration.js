@@ -15,18 +15,24 @@ const Registration = ({ navigation }) => {
   const validatePassword = (password) => /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
 
   const handleRegister = async () => {
-    if (!email || !validateEmail(email)) {
+    if (!email || !password || !kidName || !kidAge) {
+      Alert.alert('Error', 'All fields are required.');
+      return;
+    }
+  
+    if (!validateEmail(email)) {
       Alert.alert('Error', 'Invalid email format.');
       return;
     }
-    if (!password || !validatePassword(password)) {
-      Alert.alert('Error', 'Password must be at least 8 characters long and contain an uppercase letter, a digit, and a special character.');
+  
+    if (!validatePassword(password)) {
+      Alert.alert(
+        'Error',
+        'Password must be at least 8 characters long and contain an uppercase letter, a digit, and a special character.'
+      );
       return;
     }
-    if (!kidName || !kidAge) {
-      Alert.alert('Error', "Kid’s name and age are required.");
-      return;
-    }
+  
     if (kidAge < 3 || kidAge > 5) {
       Alert.alert('Error', 'Kid’s age must be between 3 and 5 years.');
       return;
@@ -42,7 +48,7 @@ const Registration = ({ navigation }) => {
   
       if (response.status === 201) {
         Alert.alert('Success', 'Registration successful!');
-        navigation.navigate('Login');  // Navigate to login screen
+        navigation.navigate('Login');
       }
     } catch (error) {
       if (error.response) {
@@ -52,6 +58,7 @@ const Registration = ({ navigation }) => {
       }
     }
   };
+  
   
 
   return (

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Image, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import axios from 'axios';
 import * as Speech from 'expo-speech';
+import { Audio } from 'expo-av';
 import API_BASE_URL from './config';
 
 const VegetableScreen = () => {
@@ -10,6 +11,7 @@ const VegetableScreen = () => {
   const [currentShadowVegetable, setCurrentShadowVegetable] = useState(null);
   const [selectedVegetable, setSelectedVegetable] = useState(null);
   const [animationStarted, setAnimationStarted] = useState(false);
+  const [buzzerSound, setBuzzerSound] = useState(null);
 
   // Animation values for moving the selected vegetable image
   const translateX = new Animated.Value(0);
@@ -21,6 +23,22 @@ const VegetableScreen = () => {
         setVegetables(res.data);
         generateNewSet(res.data);
       });
+
+    // Load buzzer sound
+    const loadBuzzer = async () => {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../assets/sounds/buzzer.mp3') // Path to buzzer sound file
+      );
+      setBuzzerSound(sound);
+    };
+
+    loadBuzzer();
+
+    return () => {
+      if (buzzerSound) {
+        buzzerSound.unloadAsync();
+      }
+    };
   }, []);
 
   const generateNewSet = (allVegetables) => {
@@ -43,22 +61,18 @@ const VegetableScreen = () => {
     if (vegetable.word === currentShadowVegetable.word) {
       setSelectedVegetable(vegetable);
       Speech.speak(vegetable.sound_text);
-  
-      // Animate the image to move to the shadow position
       animateImageToShadow(vegetable);
-  
+
       const updatedList = vegetables.filter(v => v.word !== vegetable.word);
       setTimeout(() => {
         setSelectedVegetable(null);
         setVegetables(updatedList);
-  
+
         if (updatedList.length >= 3) {
           generateNewSet(updatedList);
         } else {
-          // End of game or reset logic
           Speech.speak("Well done! You matched all the vegetables.");
           setTimeout(() => {
-            // Ensure no previous vegetables are repeated by setting fresh data
             axios.get(`${API_BASE_URL}/api/vegetables`)
               .then(res => {
                 setVegetables(res.data);
@@ -68,6 +82,11 @@ const VegetableScreen = () => {
         }
       }, 3000);
     } else {
+      // Play buzzer sound when the wrong vegetable is selected
+      if (buzzerSound) {
+        buzzerSound.replayAsync();
+      }
+
       setSelectedVegetable(null);
     }
   };
@@ -192,3 +211,4 @@ const styles = StyleSheet.create({
 });
 
 export default VegetableScreen;
+

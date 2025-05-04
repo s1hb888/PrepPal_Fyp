@@ -19,6 +19,7 @@ router.post('/register', async (req, res) => {
   if (!email || !password || !kidName || !kidAge) {
     return res.status(400).json({ message: 'All fields are required.' });
   }
+  
 
   // Validate Email Format
   const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
