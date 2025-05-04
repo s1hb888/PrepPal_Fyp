@@ -39,16 +39,16 @@ export default function Color() {
           />
         ))}
       </View>
-<View style={styles.svgArea}>
+      
+      <View style={styles.svgArea}>
         <Svg height="400" width="250" viewBox="0 0 250 400">
-        
           <Defs>
             <LinearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
               <Stop offset="0%" style={{ stopColor: selectedColor, stopOpacity: 1 }} />
-              <Stop offset="100%" style={{ stopColor: 'white', stopOpacity: 1 }} />
+              <Stop offset="100%" style={{ stopColor: selectedColor, stopOpacity: 1 }} />
             </LinearGradient>
           </Defs>
-          
+
           {/* Stick */}
           <Rect
             x="115"
@@ -65,8 +65,8 @@ export default function Color() {
             cy="100"
             r="80"
             fill="url(#grad1)" // Applying gradient color
-            stroke="white"
-            strokeWidth="5"
+            stroke="black" // Black border
+            strokeWidth="2" // Thin border
           />
         </Svg>
       </View>
