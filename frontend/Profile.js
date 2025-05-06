@@ -1,4 +1,14 @@
-import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, Image, StyleSheet, Modal } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  ScrollView,
+  Image,
+  StyleSheet,
+  Modal,
+} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
@@ -6,7 +16,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import API_BASE_URL from './config';
-
 
 const ProfileScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -19,7 +28,6 @@ const ProfileScreen = ({ navigation }) => {
   const [showImageOptions, setShowImageOptions] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
 
   useEffect(() => {
     fetchProfile();
@@ -53,6 +61,11 @@ const ProfileScreen = ({ navigation }) => {
     return regex.test(pwd);
   };
 
+  const validateKidName = (name) => {
+    const regex = /^[A-Za-z ]+$/;
+    return regex.test(name);
+  };
+
   const handleUploadImage = async (imageUri) => {
     const formData = new FormData();
     formData.append('profileImage', {
@@ -71,33 +84,37 @@ const ProfileScreen = ({ navigation }) => {
       });
 
       if (response.data.success) {
-        setImage(`${response.data.imageUrl}?t=${Date.now()}`); 
-        fetchProfile(); 
+        setImage(`${response.data.imageUrl}?t=${Date.now()}`);
+        fetchProfile();
         Alert.alert('Success', 'Profile image updated successfully');
       }
-      
     } catch (error) {
       console.error('Upload error:', error.response?.data || error.message);
       Alert.alert('Error', 'Image upload failed');
     }
   };
+
   const handleSave = async () => {
     if (!kidName || !kidAge) {
-      Alert.alert('Error', "Please enter your kid’s name and age.");
+      Alert.alert('Error', 'Please enter your kid’s name and age.');
       return;
     }
-  
-    // Kid Age Validation
+
+    if (!validateKidName(kidName)) {
+      Alert.alert('Error', 'Kid’s name should contain only alphabets and spaces.');
+      return;
+    }
+
     if (kidAge < 3 || kidAge > 5) {
       Alert.alert('Error', 'Kid’s age must be between 3 and 5 years.');
       return;
     }
-  
+
     if (password && !validatePassword(password)) {
       Alert.alert('Error', 'Weak password. Must include uppercase, number & special char.');
       return;
     }
-  
+
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
@@ -109,7 +126,7 @@ const ProfileScreen = ({ navigation }) => {
         },
         body: JSON.stringify({ password, kidName, kidAge }),
       });
-  
+
       const result = await response.json();
       if (response.ok) {
         Alert.alert('Success', result.message);
@@ -123,7 +140,7 @@ const ProfileScreen = ({ navigation }) => {
       setLoading(false);
     }
   };
-  
+
   const handleDeleteAccount = async () => {
     Alert.alert('Confirm Deletion', 'Are you sure you want to delete your account?', [
       { text: 'Cancel', style: 'cancel' },
@@ -137,14 +154,13 @@ const ProfileScreen = ({ navigation }) => {
               method: 'DELETE',
               headers: { Authorization: `Bearer ${token}` },
             });
-  
+
             const result = await response.json();
-  
+
             if (response.ok) {
-              // Remove token from AsyncStorage to expire it
               await AsyncStorage.removeItem('token');
               Alert.alert('Deleted', 'Account deleted successfully.');
-              navigation.replace('Registration');  // Navigate to Registration screen
+              navigation.replace('Registration');
             } else {
               Alert.alert('Error', result.message || 'Failed to delete account');
             }
@@ -156,7 +172,6 @@ const ProfileScreen = ({ navigation }) => {
       },
     ]);
   };
-  
 
   const rotateImage = async () => {
     const editedImage = await ImageManipulator.manipulateAsync(
@@ -270,7 +285,13 @@ const ProfileScreen = ({ navigation }) => {
               <Text style={styles.modalHeader}>Preview</Text>
               <Image
                 source={{ uri: imagePreview }}
-                style={{ width: 200, height: 200, borderRadius: 100, alignSelf: 'center', marginBottom: 20 }}
+                style={{
+                  width: 200,
+                  height: 200,
+                  borderRadius: 100,
+                  alignSelf: 'center',
+                  marginBottom: 20,
+                }}
               />
 
               <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 20 }}>
@@ -312,18 +333,17 @@ const ProfileScreen = ({ navigation }) => {
         <TextInput value={email} editable={false} style={styles.input} />
 
         <View style={styles.passwordContainer}>
-  <TextInput
-    placeholder="Enter new password (optional)"
-    value={password}
-    onChangeText={setPassword}
-    secureTextEntry={!showPassword}
-    style={styles.passwordInput}
-  />
-  <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-    <Feather name={showPassword ? 'eye' : 'eye-off'} size={20} color="#999" />
-  </TouchableOpacity>
-</View>
-
+          <TextInput
+            placeholder="Enter new password (optional)"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+            style={styles.passwordInput}
+          />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+            <Feather name={showPassword ? 'eye' : 'eye-off'} size={20} color="#999" />
+          </TouchableOpacity>
+        </View>
 
         <Text style={styles.label}>Kid's Name</Text>
         <TextInput
