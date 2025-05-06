@@ -9,22 +9,23 @@ const Registration = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [kidName, setKidName] = useState('');
   const [kidAge, setKidAge] = useState('');
-  const [passwordVisible, setPasswordVisible] = useState(false); // For toggling password visibility
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const validatePassword = (password) => /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
+  const validatePassword = (password) =>
+    /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
 
   const handleRegister = async () => {
     if (!email || !password || !kidName || !kidAge) {
       Alert.alert('Error', 'All fields are required.');
       return;
     }
-  
+
     if (!validateEmail(email)) {
       Alert.alert('Error', 'Invalid email format.');
       return;
     }
-  
+
     if (!validatePassword(password)) {
       Alert.alert(
         'Error',
@@ -32,12 +33,17 @@ const Registration = ({ navigation }) => {
       );
       return;
     }
-  
+
+    if (!/^[A-Za-z]+$/.test(kidName.trim())) {
+      Alert.alert('Error', 'Kid name must contain only alphabets (no numbers or special characters).');
+      return;
+    }
+
     if (kidAge < 3 || kidAge > 5) {
       Alert.alert('Error', 'Kid’s age must be between 3 and 5 years.');
       return;
     }
-  
+
     try {
       const response = await axios.post(`${API_BASE_URL}/api/register`, {
         email,
@@ -45,7 +51,7 @@ const Registration = ({ navigation }) => {
         kidName,
         kidAge
       });
-  
+
       if (response.status === 201) {
         Alert.alert('Success', 'Registration successful!');
         navigation.navigate('Login');
@@ -58,8 +64,6 @@ const Registration = ({ navigation }) => {
       }
     }
   };
-  
-  
 
   return (
     <View style={styles.container}>
@@ -89,13 +93,13 @@ const Registration = ({ navigation }) => {
           placeholder="Password"
           value={password}
           onChangeText={setPassword}
-          secureTextEntry={!passwordVisible} // Toggle visibility
+          secureTextEntry={!passwordVisible}
         />
         <TouchableOpacity onPress={() => setPasswordVisible(!passwordVisible)}>
-          <Ionicons 
-            name={passwordVisible ? "eye-off" : "eye"} 
-            size={24} 
-            color="#555" 
+          <Ionicons
+            name={passwordVisible ? 'eye-off' : 'eye'}
+            size={24}
+            color="#555"
             style={styles.eyeIcon}
           />
         </TouchableOpacity>
@@ -174,6 +178,8 @@ const styles = StyleSheet.create({
   eyeIcon: {
     position: 'absolute',
     right: 10,
+    top: '5%',
+    transform: [{ translateY: -12 }],
   },
   button: {
     width: '100%',
@@ -193,12 +199,6 @@ const styles = StyleSheet.create({
     color: '#EF3349',
     fontSize: 16,
     textDecorationLine: 'underline',
-  },
-  eyeIcon: {
-    position: 'absolute',
-    right: 10,
-    top: '5%', 
-    transform: [{ translateY: -12 }], 
   },
 });
 
