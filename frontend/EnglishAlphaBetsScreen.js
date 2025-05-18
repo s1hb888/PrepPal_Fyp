@@ -52,7 +52,7 @@ const EnglishAlphaBetsScreen = () => {
   };
 
   const handleNext = () => {
-    if (currentIndex < alphabetData.length - 1) {
+    if (currentIndex < alphabetData.length - 1){
       const newIndex = currentIndex + 1;
       setCurrentIndex(newIndex);
       flatListRef.current.scrollToIndex({ index: newIndex, animated: true });
@@ -70,7 +70,7 @@ const EnglishAlphaBetsScreen = () => {
   useEffect(() => {
    
     if (alphabetData.length > 0 && alphabetData[currentIndex]?.sound_text) {
-      Speech.stop(); // optional: stop any previous speech
+      Speech.stop(); 
       Speech.speak(alphabetData[currentIndex].sound_text);
     }
   }, [currentIndex, alphabetData]);

@@ -61,10 +61,7 @@ const ProfileScreen = ({ navigation }) => {
     return regex.test(pwd);
   };
 
-  const validateKidName = (name) => {
-    const regex = /^[A-Za-z ]+$/;
-    return regex.test(name);
-  };
+  const validateKidName = (name) => /^[A-Za-z ]+$/.test(name.trim());
 
   const handleUploadImage = async (imageUri) => {
     const formData = new FormData();
@@ -215,7 +212,7 @@ const ProfileScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
-      {/* Image Selection Modal */}
+      {/* Image Picker Modal */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -487,11 +484,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     marginBottom: 15,
-    backgroundColor: '#fff',
   },
   passwordInput: {
     flex: 1,
     paddingVertical: 10,
+    fontSize: 16,
   },
 });
 

@@ -9,7 +9,7 @@ const verifyToken = require('../middleware/authMiddleware');
 const Alphabet = require('../models/Alphabet');
 const Number = require('../models/Number');
 const Urdu = require('../models/Urdu');
-const bcrypt = require('bcryptjs');
+
 
 // Registration Route
 router.post('/register', async (req, res) => {
