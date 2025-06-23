@@ -26,6 +26,10 @@ const userSchema = new mongoose.Schema({
   },
   profileImage: {
     type: String, 
+  },
+  isActive: {
+    type: Boolean,
+    default: true, // new users will be active by default
   }
 });
 

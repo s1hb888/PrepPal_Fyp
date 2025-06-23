@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -6,98 +6,89 @@ import {
   StyleSheet,
   FlatList,
   Image,
-  Dimensions,
 } from 'react-native';
-const screenWidth = Dimensions.get('window').width;
-const subjects = [
+import { LinearGradient } from 'expo-linear-gradient';
 
+const subjects = [
   {
     id: '1',
     name: 'Vowels',
     icon: require('../assets/vowel.png'),
-    color: ['#EF3349', '#EF3349'],
-    screen: 'VowelsScreen',
+    color: ['#FFC1CC', '#FFB6C1'], // pink
+    screen: 'VowelScreen',
   },
   {
-    id: '5',
+    id: '2',
     name: 'Fruits',
     icon: require('../assets/fruits.png'),
-    color: ['#2BCB9A', '#2BCB9A'],
-    screen: 'FruitsScreen',
+    color: ['#A0F0DC', '#7BE7CE'], // mint
+    screen: 'FruitScreen',
   },
   {
-    id: '6',
+    id: '3',
     name: 'Vegetables',
     icon: require('../assets/vegetable.png'),
-    color: ['#FFCF25', '#FFCF25'],
-    screen: 'VegetablesScreen',
+    color: ['#FFE680', '#FFD54F'], // yellow
+    screen: 'VegetableScreen',
   },
   {
-    id: '7',
+    id: '4',
     name: 'Colors',
     icon: require('../assets/color.png'),
-    color: ['#EF3349', '#EF3349'],
+    color: ['#FFC1CC', '#FFB6C1'], // pink
     screen: 'Color',
   },
   {
-    id: '9',
+    id: '5',
     name: 'Body Parts',
     icon: require('../assets/human-organs.png'),
-    color: ['#2BCB9A', '#2BCB9A'],
-    screen: 'BodyPartsScreen',
+    color: ['#A0F0DC', '#7BE7CE'], // mint
+    screen: 'BodypartsScreen',
   },
   {
-    id: '10',
+    id: '6',
     name: 'Shapes',
     icon: require('../assets/shapes.png'),
-    color: ['#FFCF25', '#FFCF25'],
-    screen: 'ShapesScreen',
+    color: ['#FFE680', '#FFD54F'], // yellow
+    screen: 'ShapeLearning',
   },
   {
-    id: '11',
+    id: '7',
     name: 'Counting',
     icon: require('../assets/numbers.png'),
-    color: ['#EF3349', '#EF3349'],
+    color: ['#FFC1CC', '#FFB6C1'], // pink
     screen: 'CountingScreen',
   },
   {
-    id: '11',
+    id: '8',
     name: 'Islamic Studies',
     icon: require('../assets/islamic.png'),
-    color: ['#2BCB9A', '#2BCB9A'],
-    screen: '',
+    color: ['#A0F0DC', '#7BE7CE'], // mint
+    screen: 'IslamicScreen',
   },
 ];
 
 const GeneralKnowledge = ({ navigation }) => {
   const renderItem = ({ item }) => (
     <TouchableOpacity
-      style={[styles.card, { backgroundColor: item.color[0] }]}
+      style={styles.cardWrapper}
       onPress={() => {
-
-        if (item.name === 'Animals') {
-          navigation.navigate('AnimalsScreen');
-        } else if (item.name === 'Fruits') {
-          navigation.navigate('FruitScreen');
-        } else if (item.name === 'Vegetables') {
-          navigation.navigate('VegetableScreen'); // Navigate to VegetablesScreen
-        } else if (item.name === 'Colors') {
-          navigation.navigate('Color');
-        } else if (item.name === 'Vowels') {
-          navigation.navigate('VowelScreen');
-        } else if (item.name === 'Body Parts') {
-          navigation.navigate('BodypartsScreen');
-        } else if (item.name === 'Shapes') {
-          navigation.navigate('ShapeLearning');
-        } else if (item.name === 'Counting') {
-          navigation.navigate('CountingScreen');
+        if (item.screen) {
+          navigation.navigate(item.screen);
         }
       }}
     >
-      <View style={styles.row}>
-        <Image source={item.icon} style={styles.icon} resizeMode="contain" />
-        <Text style={styles.cardText}>{item.name}</Text>
-      </View>
+      <LinearGradient
+        colors={item.color}
+        style={styles.card}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <View style={styles.row}>
+          <Image source={item.icon} style={styles.icon} resizeMode="contain" />
+          <Text style={styles.cardText}>{item.name}</Text>
+        </View>
+      </LinearGradient>
     </TouchableOpacity>
   );
 
@@ -128,13 +119,16 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 22,
     fontWeight: '500',
-    color: '#444',
+    color: 'rgb(0,0,0)',
   },
   kids: {
     fontSize: 30,
     fontWeight: 'bold',
-    color: '#EF3349',
+    color: 'rgb(255,182,193)',
     marginBottom: 24,
+  },
+  cardWrapper: {
+    marginBottom: 16,
   },
   card: {
     flexDirection: 'row',
@@ -142,7 +136,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingVertical: 18,
     paddingHorizontal: 20,
-    marginBottom: 16,
     elevation: 6,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
@@ -154,10 +147,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cardText: {
-    color: '#fff',
     fontSize: 22,
     fontWeight: 'bold',
     marginLeft: 20,
+    color: '#000',
   },
   icon: {
     width: 60,

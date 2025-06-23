@@ -17,6 +17,8 @@ const vegetableRoutes = require('./routes/vegetable');
 const Alphabet = require('./models/Alphabet');
 const Urdu = require('./models/Urdu');
 const Number = require('./models/Number');
+const videoRoutes = require('./routes/videoRoutes'); 
+
  //  BodyPart model added
 
 // DB Config
@@ -24,7 +26,6 @@ const Number = require('./models/Number');
 const connectDB = require('./config/db');
 
 
-require('dotenv').config();  // Load environment variables
 
 // Initialize app
 const app = express();
@@ -37,41 +38,17 @@ app.use(bodyParser.json());
 connectDB();
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/api/videos', videoRoutes); 
 
 // Use Routes
 app.use('/api', authRoutes);
 app.use('/api', profileRoutes);
 app.use('/api/vowels', vowelRoutes);
 app.use('/api/bodyparts', bodyPartRoute); // Body parts route used
-app.use('/api/fruits', fruitRoutes); // Use fruits route
-app.use('/api/vegetables', vegetableRoutes); // Use vegetables route
-// Custom GET Routes
-// Use the authentication routes
+app.use('/api/fruits', fruitRoutes); 
+app.use('/api/vegetables', vegetableRoutes); 
 app.use('/api', authRoutes);
-/* app.get('/alphabets', async (req, res) => {
-  try {
-    const data = await Alphabet.find();
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch data' });
-  }
-});
-app.get('/urdu', async (req, res) => {
-  try {
-    const data = await Urdu.find();
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch data' });
-  }
-});
-app.get('/numbers', async (req, res) => {
-  try {
-    const data = await Number.find();
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch data' });
-  }
-}); */
+
 
 // Start the server
 const port = process.env.PORT || 5000;

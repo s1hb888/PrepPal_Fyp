@@ -1,17 +1,28 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  Dimensions,
+  Platform,
+} from 'react-native';
 import Svg, { Circle, Rect, Defs, LinearGradient, Stop } from 'react-native-svg';
+
 import * as Speech from 'expo-speech';
 
+const { width, height } = Dimensions.get('window');
+
 const COLORS = [
-  'red', 'blue', 'green', 'yellow', 'orange', 'purple',
-  'pink', 'brown', 'black', 'white', 'gray', 'cyan',
-  'magenta', 'lime', 'teal', 'navy', 'gold', 'silver',
-  'beige', 'maroon', 'violet', 'indigo', 'turquoise', 'chocolate',
-  'skyblue', 'coral', 'salmon', 'plum', 'khaki'
+  'red', 'green', 'black', 'white',
+  'blue', 'yellow', 'orange', 'pink',
+  'navy', 'brown', 'purple', 'gray'
 ];
 
-export default function Color() {
+
+export default function ColorScreen() {
   const [selectedColor, setSelectedColor] = useState('red');
 
   const handleColorSelect = (color) => {
@@ -21,55 +32,71 @@ export default function Color() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.heading}>🍭 Tap a Color to Paint the Lollipop!</Text>
+      {/* Gradient Background Top */}
+      <View style={styles.gradientTop} />
 
-      {/* Color Palette */}
-      <View style={styles.palette}>
-        {COLORS.map((color) => (
-          <TouchableOpacity
-            key={color}
-            style={[
-              styles.colorBox,
-              {
-                backgroundColor: color,
-                borderWidth: selectedColor === color ? 3 : 1,
-              },
-            ]}
-            onPress={() => handleColorSelect(color)}
-          />
-        ))}
-      </View>
-      
+      {/* Heading */}
+      <Text style={styles.heading}>🎨 Pick a Color & Make Your Lollipop Pop!</Text>
+
+      {/* Lollipop */}
       <View style={styles.svgArea}>
-        <Svg height="400" width="250" viewBox="0 0 250 400">
+        <Svg height="385" width="245" viewBox="0 0 250 450">
+
           <Defs>
             <LinearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-              <Stop offset="0%" style={{ stopColor: selectedColor, stopOpacity: 1 }} />
-              <Stop offset="100%" style={{ stopColor: selectedColor, stopOpacity: 1 }} />
+              <Stop offset="0%" stopColor={selectedColor} stopOpacity="1" />
+              <Stop offset="100%" stopColor={selectedColor} stopOpacity="1" />
             </LinearGradient>
           </Defs>
 
-          {/* Stick */}
-          <Rect
-            x="115"
-            y="190"
-            width="20"
-            height="150"
-            rx="10"
-            fill="burlywood"
-          />
-
-          {/* Candy (Lollipop) */}
+          {/* Lollipop Circle */}
           <Circle
             cx="125"
-            cy="100"
-            r="80"
-            fill="url(#grad1)" // Applying gradient color
-            stroke="black" // Black border
-            strokeWidth="2" // Thin border
+            cy="120"
+            r="90"
+            fill="url(#grad1)"
+            stroke="black"
+            strokeWidth="2"
+          />
+
+          {/* Stick */}
+          <Rect
+            x="112"
+            y="230"
+            width="26"
+            height="180"
+            rx="13"
+            fill="burlywood"
           />
         </Svg>
       </View>
+
+      {/* Color Palette */}
+      <View style={styles.paletteContainer}>
+  {/* 3 Horizontal Rows with 4 colors each */}
+  {[0, 1, 2].map((rowIndex) => (
+    <View key={rowIndex} style={styles.colorRow}>
+      {COLORS.slice(rowIndex * 4, rowIndex * 4 + 4).map((color) => (
+        <TouchableOpacity
+          key={color}
+          onPress={() => handleColorSelect(color)}
+          style={[
+            styles.colorCircle,
+            {
+              backgroundColor: color,
+              borderWidth: selectedColor === color ? 3 : 1,
+              borderColor: selectedColor === color ? '#EF3349' : '#ccc',
+            },
+          ]}
+        />
+      ))}
+    </View>
+  ))}
+</View>
+
+
+      {/* Gradient Background Bottom */}
+      <View style={styles.gradientBottom} />
     </SafeAreaView>
   );
 }
@@ -77,30 +104,72 @@ export default function Color() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingTop: 40,
+    backgroundColor: '#FFFDF8',
   },
   heading: {
-    fontSize: 24,
+    fontSize: 26,
     textAlign: 'center',
-    marginBottom: 20,
-    fontWeight: '600',
-  },
-  palette: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    marginBottom: 20,
-    paddingHorizontal: 10,
-  },
-  colorBox: {
-    width: 40,
-    height: 40,
-    margin: 8,
-    borderRadius: 8,
-    borderColor: '#000',
+    marginTop: 50,
+    marginBottom: 22,
+    fontWeight: '700',
+    color: '#000',
+    fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
   },
   svgArea: {
     alignItems: 'center',
+    marginTop: -20,
+    marginBottom: 120,
+  },
+paletteContainer: {
+  alignSelf: 'center',
+  backgroundColor: '#FFF3F5',
+  borderRadius: 25,
+  paddingVertical: 20,
+  paddingHorizontal: 10,
+  width: width * 0.94,
+  elevation: 6,
+  shadowColor: '#000',
+  shadowOpacity: 0.1,
+  shadowOffset: { width: 0, height: 2 },
+  shadowRadius: 6,
+  marginBottom: 30,
+  marginTop:-120,
+ // ✅ ensures 3 full rows
+},
+
+colorRow: {
+  flexDirection: 'row',
+  justifyContent: 'center',
+  marginBottom: 15,
+},
+  colorCircle: {
+    width: 62,
+    height: 62,
+    borderRadius: 31,
+    marginHorizontal: 8,
+  },
+  gradientTop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: height * 0.2,
+    borderBottomLeftRadius: 100,
+    borderBottomRightRadius: 100,
+    backgroundColor: '#FFC1CC',
+    opacity: 0.3,
+    zIndex: -1,
+  },
+  gradientBottom: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: height * 0.18,
+    borderTopLeftRadius: 100,
+    borderTopRightRadius: 100,
+    backgroundColor: '#A0F0DC',
+    opacity: 0.3,
+    zIndex: -1,
   },
 });

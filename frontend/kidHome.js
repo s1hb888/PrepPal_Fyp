@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,143 +8,295 @@ import {
   FlatList,
   Dimensions,
   TouchableOpacity,
+  TextInput,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Image,
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import LottieView from 'lottie-react-native';
+import YoutubePlayer from 'react-native-youtube-iframe';
+import axios from 'axios';
+import { API_BASE_URL } from './config';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const KidHome = ({ navigation }) => {
+  const [videos, setVideos] = useState([]);
+  const playerRef = useRef();
+
+  useEffect(() => {
+    fetchLatestVideo();
+  }, []);
+
+  const fetchLatestVideo = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/api/videos/get-videos`);
+      const fetchedVideos = res.data.map((vid) => ({
+        ...vid,
+        videoId: extractYouTubeVideoID(vid.url),
+      }));
+      setVideos(fetchedVideos);
+    } catch (err) {
+      console.error('Fetch video error:', err);
+    }
+  };
+
+  const extractYouTubeVideoID = (url) => {
+    const regex = /(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)([\w-]{11})/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  };
+
   const cardData = [
     { id: '1', title: 'Academic Learning', icon: 'book', screen: 'Courses' },
     { id: '2', title: 'Learn GK', icon: 'lightbulb-o', screen: 'GeneralKnowledge' },
-    { id: '3', title: 'Assessment', icon: 'edit', screen: 'Assessments' },
-    { id: '4', title: 'Videos', icon: 'video-camera', screen: 'PersonsScreen' },
+    { id: '3', title: 'Assessment', icon: 'pencil-square-o', screen: 'Assessments' },
+    { id: '4', title: 'Rewards', icon: 'gift', screen: 'Rewards' },
   ];
 
-  const renderCardItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={() => navigation.navigate(item.screen)}
-    >
-      <FontAwesome name={item.icon} size={40} color="#EF3349" />
-      <Text style={styles.cardText}>{item.title}</Text>
+  const getCardGradient = (index) => {
+    const gradients = [
+      ['#FFC1CC', '#FFB6C1'], // Pink
+      ['#A0F0DC', '#7BE7CE'], // Mint
+      ['#FFE680', '#FFD54F'], // Yellow
+    ];
+    return gradients[index % gradients.length];
+  };
+
+  const renderCardItem = ({ item, index }) => (
+    <TouchableOpacity onPress={() => navigation.navigate(item.screen)}>
+      <LinearGradient
+        colors={getCardGradient(index)}
+        style={styles.card}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <FontAwesome name={item.icon} size={28} color="#EF3349" />
+        <Text style={styles.cardText}>{item.title}</Text>
+      </LinearGradient>
     </TouchableOpacity>
   );
 
+  const latestVideo = videos.length > 0 ? videos[0] : null;
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.appBar}>
-        <Text style={styles.appBarTitle}>Welcome To PrepPal</Text>
-      </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={{ flex: 1 }}
+      >
+        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+          <LinearGradient colors={['#FFC1CC', '#FFB6C1']} style={styles.topHeader}>
+            <View style={styles.headerContent}>
+              <Image
+                source={{ uri: 'https://cdn.creazilla.com/cliparts/7769836/child-girl-reading-book-clipart-xl.png' }}
+                style={styles.kidImage}
+              />
+              <Text style={styles.helloKiddo}>
+                Hello, <Text style={styles.kiddo}>Kiddo!</Text>
+              </Text>
+            </View>
+          </LinearGradient>
 
-      <ScrollView style={styles.container}>
-        <View style={styles.animatedCard}>
-          <LottieView
-            source={require('../assets/animations/Kid.json')}
-            autoPlay
-            loop
-            style={styles.KidAnimation}
-          />
-        </View>
+          <View style={styles.whiteCurve}>
+            <View style={styles.searchWrapper}>
+              <TextInput
+                placeholder="Search here..."
+                placeholderTextColor="black"
+                style={styles.searchInput}
+              />
+              <FontAwesome name="search" size={18} color="#EF3349" style={styles.searchIcon} />
 
-        <Text style={styles.sectionTitle}>Explore and Learn</Text>
-        <FlatList
-          data={cardData}
-          renderItem={renderCardItem}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          columnWrapperStyle={styles.row}
-          scrollEnabled={false}
-        />
+            </View>
 
-        <LottieView
-          source={require('../assets/animations/animation1.json')}
-          autoPlay
-          loop
-          style={styles.bottomAnimation}
-        />
-      </ScrollView>
+            <Text style={[styles.sectionTitle, { color: 'black' }]}>Start Learning</Text>
+
+            <LinearGradient
+              colors={['#A0F0DC', '#7BE7CE']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.videoGradientBorder}
+            >
+              <View style={styles.videoContainer}>
+                {latestVideo ? (
+                  <YoutubePlayer
+                    ref={playerRef}
+                    height={200}
+                    play={false}
+                    videoId={latestVideo.videoId}
+                  />
+                ) : (
+                  <ActivityIndicator size="large" color="#2BCB9A" />
+                )}
+
+                <TouchableOpacity onPress={() => navigation.navigate('WatchVideoScreen')}>
+  <LinearGradient
+    colors={['rgb(255, 230, 128)', 'rgb(255, 213, 79)']} // ✅ Yellow gradient in RGB
+    start={{ x: 0, y: 0 }}
+    end={{ x: 1, y: 1 }}
+    style={styles.watchMoreButton}
+  >
+    <FontAwesome
+      name="video-camera"
+      size={16}
+      color="#EF3349" // ✅ Red icon
+      style={{ marginRight: 6 }}
+    />
+    <Text style={styles.watchMoreText}>WATCH MORE</Text>
+  </LinearGradient>
+</TouchableOpacity>
+
+
+              </View>
+            </LinearGradient>
+
+            <Text style={[styles.sectionTitle, { color: 'black' }]}>Explore</Text>
+
+            <FlatList
+              data={cardData}
+              renderItem={renderCardItem}
+              keyExtractor={(item) => item.id}
+              scrollEnabled={false}
+              numColumns={2}
+              columnWrapperStyle={styles.cardRow}
+              contentContainerStyle={{ paddingBottom: 50 }}
+            />
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
 
 const windowWidth = Dimensions.get('window').width;
-const cardWidth = (windowWidth - 40) / 2 - 10;
+const cardWidth = (windowWidth - 48) / 2;
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  appBar: {
-    backgroundColor: '#EF3349',
-    paddingVertical: 30,
+  safeArea: { flex: 1, backgroundColor: '#fff' },
+  container: { backgroundColor: '#fff' },
+
+  topHeader: {
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    paddingVertical: 50,
     paddingHorizontal: 20,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  appBarTitle: {
-    color: '#fff',
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#f9f9f9',
-  },
-  animatedCard: {
-    backgroundColor: '#2BCB9A',
-    borderRadius: 20,
+    alignItems: 'flex-start',
     overflow: 'hidden',
-    marginBottom: 20,
+  },
+
+  whiteCurve: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    marginTop: -40,
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    paddingBottom: 8,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+  },
+
+  headerContent: { flexDirection: 'row', alignItems: 'center' },
+  kidImage: { width: 90, height: 110, marginRight: 12 },
+
+  helloKiddo: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+
+  kiddo: {
+    fontStyle: 'italic',
+    fontWeight: 'bold',
+    color: '#EF3349',
+  },
+
+  searchWrapper: {
+    position: 'relative',
+    marginBottom: 10,
+  },
+
+  searchInput: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    paddingHorizontal: 40,
+    paddingVertical: 10,
+    fontSize: 14,
+    borderWidth: 1.5,
+    borderColor: 'rgb(160,240,220)', // ✅ Mint
+    color: 'black', // ✅ Black text
+  },
+
+  searchIcon: {
+    position: 'absolute',
+    top: 12,
+    left: 15,
+  },
+
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 6,
+    marginTop: 4,
+    color: 'black', // ✅ Black for "Start Learning" & "Explore"
+  },
+
+  videoGradientBorder: {
+    borderRadius: 14,
+    padding: 2,
+    marginBottom: 10,
+  },
+
+  videoContainer: {
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: '#fff',
+    borderWidth: 2,
+    borderColor: 'rgb(160,240,220)', // ✅ Mint border
+  },
+
+  watchMoreButton: {
+    flexDirection: 'row',
+    padding: 10,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 10,
-    height: 160,
   },
-  KidAnimation: {
-    width: windowWidth - 120,
-    height: 180,
+
+  watchMoreText: {
+    color: '#000',
+    fontWeight: '600',
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    color: '#333',
-  },
-  row: {
+
+  cardRow: {
     justifyContent: 'space-between',
-    marginBottom: 15,
+    marginBottom: 20,
   },
+
   card: {
     width: cardWidth,
-    height: cardWidth,
-    borderRadius: 10,
-    padding: 15,
+    height: 100,
+    borderRadius: 20,
+    padding: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFCF25',
+    elevation: 3,
     shadowColor: '#000',
     shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3,
-    borderLeftWidth: 6,
-    borderLeftColor: '#2BCB9A',
+    shadowRadius: 4,
   },
+
   cardText: {
-    fontSize: 16,
     marginTop: 10,
-    color: '#333',
+    color: '#000',
+    fontWeight: 'bold',
+    fontSize: 14,
     textAlign: 'center',
   },
-  bottomAnimation: {
-    width: windowWidth - 40,
-    height: 130,
-    alignSelf: 'center',
-    marginTop: 10,
-  },
 });
+
 
 export default KidHome;

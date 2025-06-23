@@ -105,7 +105,7 @@ const Onboarding = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 20,
@@ -129,13 +129,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#2d2d2d',
+    color: '#000', // Black text
     textAlign: 'center',
     marginBottom: 16,
   },
   description: {
     fontSize: 16,
-    color: '#666666',
+    color: '#000', // Black text
     textAlign: 'center',
     lineHeight: 24,
   },
@@ -150,60 +150,65 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     marginHorizontal: 4,
-    color:'#2BCB9A',
   },
   activeIndicator: {
     width: 20,
-    backgroundColor: '#2BCB9A',
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgb(160,240,220)', // Mint
   },
   inactiveIndicator: {
-    backgroundColor: '#dddddd',
+    backgroundColor: 'rgb(160,240,220)', // Light yellow
+    height: 8,
+    borderRadius: 4,
   },
   buttonContainer: {
     width: '100%',
   },
   getStartedButton: {
-    backgroundColor: '#EDB900',
+    backgroundColor: 'rgb(255, 213, 79)', // Bright yellow
     paddingVertical: 16,
     borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
   },
   getStartedButtonText: {
-    color: 'white',
+    color: '#000',
     fontSize: 16,
     fontWeight: 'bold',
   },
   primaryButton: {
-    backgroundColor: '#EDB900',
-    paddingVertical: 16,
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1, 
-  },
-  primaryButtonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold', 
-  },
-  secondaryButton: {
+    backgroundColor: 'rgb(255, 213, 79)', // Same yellow for both buttons
     paddingVertical: 16,
     borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
-    borderWidth: 1,
-    borderColor: '#dddddd', 
+    marginLeft: 8,
+  },
+  primaryButtonText: {
+    color: '#000',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  secondaryButton: {
+    backgroundColor: 'rgb(255, 213, 79)', // Same yellow as Next
+    paddingVertical: 16,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    marginRight: 8,
   },
   secondaryButtonText: {
-    color: '#666666',
+    color: '#000',
     fontSize: 16,
+    fontWeight: 'bold',
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '100%',  
+    width: '100%',
   },
 });
 

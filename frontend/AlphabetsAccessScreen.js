@@ -24,17 +24,31 @@ const AlphabetAccessScreen = () => {
   }, []);
 
   const fetchAlphabets = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/alphabets`);
-      setAlphabets(response.data);
-    } catch (error) {
-      console.error('Error fetching alphabets:', error);
-      Alert.alert('Error', 'Could not load alphabets');
-    } finally {
+  try {
+    setLoading(true);
+    
+    const token = await AsyncStorage.getItem('token');
+    if (!token) {
+      Alert.alert('Token Missing', 'Please log in again.');
       setLoading(false);
+      return;
     }
-  };
+
+    const response = await axios.get(`${API_BASE_URL}/api/access/alphabets`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    setAlphabets(response.data);
+  } catch (error) {
+    console.error('Error fetching alphabets:', error.response?.data || error.message);
+    Alert.alert('Error', 'Could not load alphabets');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const toggleSelect = (itemId) => {
     setSelectedIds((prev) =>
@@ -121,73 +135,86 @@ const AlphabetAccessScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#fff' },
+  container: { flex: 1, padding: 16, backgroundColor: '#FFFFFF' },
+
   title: {
     fontSize: 22,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 10,
-    color: '#333',
+    marginTop:30,
+    marginBottom: 15,
+    color: '#000', // black
   },
+
   infoBox: {
-    backgroundColor: '#e6f7f3',
+    backgroundColor: '#A0F0DC', // mint
     borderLeftWidth: 5,
-    borderLeftColor: '#2BCB9A',
+    borderLeftColor: '#EF3349', // red
     padding: 12,
     marginBottom: 16,
     borderRadius: 8,
   },
+
   infoText: {
     fontSize: 14,
-    color: '#333',
+    color: '#000', // black
   },
+
   grid: {
     paddingBottom: 100,
   },
+
   card: {
     flex: 1,
     margin: 8,
     padding: 12,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#fff',
     borderRadius: 12,
     alignItems: 'center',
     borderWidth: 2,
     borderColor: '#eee',
     elevation: 2,
   },
+
   cardSelected: {
-    borderColor: '#2BCB9A',
-    backgroundColor: '#e1f8f2',
+    borderColor: '#EF3349', // red
+    backgroundColor: '#A0F0DC', // mint
   },
+
   image: {
     width: 100,
     height: 100,
     marginBottom: 10,
   },
+
   alphabetText: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#000', // black
   },
+
   wordText: {
     fontSize: 14,
-    color: '#555',
+    color: '#000', // black
   },
+
   saveButton: {
     position: 'absolute',
     bottom: 20,
     alignSelf: 'center',
-    backgroundColor: '#2BCB9A',
+    backgroundColor: '#EF3349', // red
     paddingVertical: 14,
     paddingHorizontal: 30,
     borderRadius: 30,
     elevation: 3,
   },
+
   saveButtonText: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
   },
+
   loaderContainer: {
     flex: 1,
     justifyContent: 'center',

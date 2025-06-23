@@ -4,7 +4,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import VowelScreen from './frontend/VowelsScreen';
 import BodypartsScreen from './frontend/BodypartsScreen';
 import ShapeLearning from './frontend/ShapeLearning';
-import FruitScreen from './frontend/FruitScreen'; // ✅ Add this line
+import FruitScreen from './frontend/FruitScreen'; 
+// ✅ Add this line
 
 import Splash from './frontend/Splash';
 import Onboarding from './frontend/Onboarding';
@@ -33,6 +34,8 @@ import NumberAccessScreen from './frontend/NumberAccessScreen';
 import UrduAccessScreen from './frontend/UrduAccessScreen';
 import AlphabetsAccessScreen from './frontend/AlphabetsAccessScreen';
 import AccessManagement from './frontend/AccessManagement';
+import WatchVideoScreen from './frontend/WatchVideosScreen';
+
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -68,6 +71,7 @@ export default function App() {
         <Stack.Screen name="UrduAccessScreen" component={UrduAccessScreen} />
         <Stack.Screen name="AlphabetsAccessScreen" component={AlphabetsAccessScreen} />
         <Stack.Screen name="AccessManagement" component={AccessManagement} />
+        <Stack.Screen name="WatchVideoScreen" component={WatchVideoScreen} options={{ title: 'Watch Videos' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

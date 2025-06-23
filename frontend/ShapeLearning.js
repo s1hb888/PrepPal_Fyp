@@ -16,7 +16,7 @@ import { Svg, Polygon } from 'react-native-svg';
 
 const screenWidth = Dimensions.get('window').width;
 
-const colorPalette = ['#EF3349', '#2BCB9A', '#FFCF25'];
+const colorPalette = ['#EF3349', 'rgb(160,240,220)', '#FFCF25'];
 
 const shapes = [
   { name: 'Circle', type: 'circle' },
@@ -61,7 +61,6 @@ export default function ShapeLearning({ navigation }) {
   const renderShape = (shape, color, size = shapeSize) => {
     let adjustedSize = size;
 
-    // Reduce sizes for specific shapes
     if (['circle', 'square', 'diamond', 'octagon', 'triangle'].includes(shape.type)) {
       adjustedSize = size * 0.8;
     }
@@ -148,19 +147,17 @@ export default function ShapeLearning({ navigation }) {
           <Ionicons name="arrow-back-circle" size={36} color="#FFF" />
         </TouchableOpacity>
         <Text style={styles.headerText}>{selectedShape.name}</Text>
-        <View style={{ width: 36 }} /> {/* Balance header layout */}
+        <View style={{ width: 36 }} />
       </View>
 
       {/* Main Body */}
       <View style={styles.landscapeBody}>
-        {/* Selected Shape Display */}
         <View style={styles.selectedContainer}>
           <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
             {renderShape(selectedShape, '#FFCF25', 180)}
           </Animated.View>
         </View>
 
-        {/* Shape List Horizontal Scroll at Bottom */}
         <View style={styles.bottomScrollContainer}>
           <ScrollView
             horizontal
@@ -196,13 +193,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#2BCB9A',
+    backgroundColor: 'rgb(160,240,220)',
     paddingHorizontal: 20,
     paddingVertical: 10,
     paddingTop: StatusBar.currentHeight || 40,
   },
   headerText: {
-    color: '#FFF',
     fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
@@ -238,7 +234,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: '#2BCB9A',
+    borderColor: 'rgb(160,240,220)',
     alignItems: 'center',
     justifyContent: 'center',
     width: 70,

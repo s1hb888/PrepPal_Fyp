@@ -1,9 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { View, Image, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import {
+  View,
+  Image,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Animated,
+  Dimensions,
+} from 'react-native';
 import axios from 'axios';
 import * as Speech from 'expo-speech';
 import { Audio } from 'expo-av';
+import { LinearGradient } from 'expo-linear-gradient';
 import API_BASE_URL from './config';
+
+const { width, height } = Dimensions.get('window');
+
+const colorGradients = [
+  ['#FFE680', '#FFD54F'], // yellow
+  ['#FFC1CC', '#FFB6C1'], // pink
+  ['#A0F0DC', '#7BE7CE'], // mint
+];
 
 const VegetableScreen = () => {
   const [vegetables, setVegetables] = useState([]);
@@ -13,21 +30,18 @@ const VegetableScreen = () => {
   const [animationStarted, setAnimationStarted] = useState(false);
   const [buzzerSound, setBuzzerSound] = useState(null);
 
-  // Animation values for moving the selected vegetable image
   const translateX = new Animated.Value(0);
   const translateY = new Animated.Value(0);
 
   useEffect(() => {
-    axios.get(`${API_BASE_URL}/api/vegetables`)
-      .then(res => {
-        setVegetables(res.data);
-        generateNewSet(res.data);
-      });
+    axios.get(`${API_BASE_URL}/api/vegetables`).then(res => {
+      setVegetables(res.data);
+      generateNewSet(res.data);
+    });
 
-    // Load buzzer sound
     const loadBuzzer = async () => {
       const { sound } = await Audio.Sound.createAsync(
-        require('../assets/sounds/buzzer.mp3') // Path to buzzer sound file
+        require('../assets/sounds/buzzer.mp3')
       );
       setBuzzerSound(sound);
     };
@@ -42,17 +56,12 @@ const VegetableScreen = () => {
   }, []);
 
   const generateNewSet = (allVegetables) => {
-    if (allVegetables.length < 3) return; // not enough vegetables to continue
-
-    // Pick one random vegetable to be the shadow
+    if (allVegetables.length < 3) return;
     const shadow = allVegetables[Math.floor(Math.random() * allVegetables.length)];
-
-    // Get 2 more random vegetables that are NOT the shadow
     const otherVegetables = allVegetables.filter(v => v.word !== shadow.word);
     const shuffled = otherVegetables.sort(() => 0.5 - Math.random()).slice(0, 2);
-
-    // Add shadow vegetable to the display set, then shuffle
     const newSet = [...shuffled, shadow].sort(() => 0.5 - Math.random());
+
     setDisplayVegetables(newSet);
     setCurrentShadowVegetable(shadow);
   };
@@ -61,7 +70,7 @@ const VegetableScreen = () => {
     if (vegetable.word === currentShadowVegetable.word) {
       setSelectedVegetable(vegetable);
       Speech.speak(vegetable.sound_text);
-      animateImageToShadow(vegetable);
+      animateImageToShadow();
 
       const updatedList = vegetables.filter(v => v.word !== vegetable.word);
       setTimeout(() => {
@@ -73,41 +82,25 @@ const VegetableScreen = () => {
         } else {
           Speech.speak("Well done! You matched all the vegetables.");
           setTimeout(() => {
-            axios.get(`${API_BASE_URL}/api/vegetables`)
-              .then(res => {
-                setVegetables(res.data);
-                generateNewSet(res.data);
-              });
+            axios.get(`${API_BASE_URL}/api/vegetables`).then(res => {
+              setVegetables(res.data);
+              generateNewSet(res.data);
+            });
           }, 3000);
         }
       }, 3000);
     } else {
-      // Play buzzer sound when the wrong vegetable is selected
       if (buzzerSound) {
         buzzerSound.replayAsync();
       }
-
       setSelectedVegetable(null);
     }
   };
 
-  const animateImageToShadow = (vegetable) => {
+  const animateImageToShadow = () => {
     setAnimationStarted(true);
-
-    // Assuming the shadow image's position is (x: 0, y: 0) for simplicity.
-    // Adjust the target position if needed based on your layout
-    const targetX = 0; // You can adjust this based on your shadow's position
-    const targetY = 0; // Same for the Y position
-
-    Animated.spring(translateX, {
-      toValue: targetX,
-      useNativeDriver: true,
-    }).start();
-
-    Animated.spring(translateY, {
-      toValue: targetY,
-      useNativeDriver: true,
-    }).start();
+    Animated.spring(translateX, { toValue: 0, useNativeDriver: true }).start();
+    Animated.spring(translateY, { toValue: 0, useNativeDriver: true }).start();
   };
 
   return (
@@ -118,8 +111,6 @@ const VegetableScreen = () => {
         {currentShadowVegetable && (
           <Image source={{ uri: currentShadowVegetable.image_url }} style={styles.shadowImage} />
         )}
-
-        {/* Animated image of the selected vegetable */}
         {selectedVegetable && selectedVegetable.word === currentShadowVegetable.word && animationStarted && (
           <Animated.Image
             source={{ uri: selectedVegetable.image_url }}
@@ -128,55 +119,63 @@ const VegetableScreen = () => {
                 { translateX: translateX },
                 { translateY: translateY }
               ]
-            }]}/>
+            }]}
+          />
         )}
       </View>
 
       <View style={styles.row}>
-        {displayVegetables.map((vegetable, index) => (
-          <TouchableOpacity key={index} onPress={() => handleSelect(vegetable)} style={styles.vegetableContainer}>
-            <Image source={{ uri: vegetable.image_url }} style={styles.vegetableImage} />
-            <Text style={styles.vegetableName}>{vegetable.word}</Text>
-          </TouchableOpacity>
-        ))}
+        {displayVegetables.map((veg, index) => {
+          const gradient = colorGradients[index % colorGradients.length];
+          return (
+            <TouchableOpacity key={index} onPress={() => handleSelect(veg)} style={styles.vegetableContainer}>
+              <LinearGradient colors={gradient} style={styles.vegetableCard}>
+                <Image source={{ uri: veg.image_url }} style={styles.vegetableImage} />
+                <Text style={styles.vegetableName}>{veg.word}</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#fff' },
+  container: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 50,
+    backgroundColor: '#FFFDF8',
+  },
 
   heading: {
-    fontSize: 25,
+    fontSize: 28,
     fontWeight: '700',
-    marginBottom: 20,
+    marginBottom: 15,
     textAlign: 'center',
-    color: '#EF3349',
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-    fontFamily: 'serif',
   },
 
   shadowContainer: {
-    height: 320,
+    height: 250,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 20,
     position: 'relative',
+    zIndex: 1,
   },
 
   shadowImage: {
-    width: 220,
-    height: 220,
-    opacity: 0.3,
-    position: 'absolute',
+    width: 180,
+    height: 180,
+    opacity: 0.2,
     resizeMode: 'contain',
+    position: 'absolute',
   },
 
   selectedImage: {
-    width: 220,
-    height: 220,
+    width: 180,
+    height: 180,
     resizeMode: 'contain',
     position: 'absolute',
   },
@@ -184,31 +183,41 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-around',
-    marginBottom: 20,
+    justifyContent: 'space-evenly',
+    marginTop: 10,
   },
 
   vegetableContainer: {
-    alignItems: 'center',
     marginBottom: 20,
   },
 
+  vegetableCard: {
+    width: 130,
+    height: 150,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 4 },
+  },
+
   vegetableImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 10,
+    width: 85,
+    height: 85,
     resizeMode: 'contain',
+    marginBottom: 10,
   },
 
   vegetableName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-    color: '#2BCB9A',
+    color: 'black',
     textAlign: 'center',
-    fontFamily: 'Arial',
   },
 });
 
 export default VegetableScreen;
-
