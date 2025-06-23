@@ -26,17 +26,30 @@ const NumberAccessScreen = () => {
   }, []);
 
   const fetchNumbers = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get(`${API_BASE_URL}/numbers`);
-      setNumbers(response.data);
-    } catch (error) {
-      console.error('Error fetching numbers:', error);
-      Alert.alert('Error', 'Could not load numbers');
-    } finally {
-      setLoading(false);
+  try {
+    setLoading(true);
+
+    const token = await AsyncStorage.getItem('token');
+    if (!token) {
+      Alert.alert('Error', 'Token not found. Please log in again.');
+      return;
     }
-  };
+
+    const response = await axios.get(`${API_BASE_URL}/api/access/numbers`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    setNumbers(response.data);
+  } catch (error) {
+    console.error('Error fetching numbers:', error);
+    Alert.alert('Error', 'Could not load numbers');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const toggleSelect = (itemId) => {
     setSelectedIds((prev) =>
@@ -123,25 +136,30 @@ const NumberAccessScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#fff' },
+  container: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: '#FFFFFF', // white background
+  },
   title: {
     fontSize: 22,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 10,
-    color: '#333',
+    marginTop:30,
+    marginBottom: 15,
+    color: '#000', // black text
   },
   infoBox: {
-    backgroundColor: '#e6f7f3',
+    backgroundColor: '#A0F0DC', // mint
     borderLeftWidth: 5,
-    borderLeftColor: '#2BCB9A',
+    borderLeftColor: '#EF3349', // red
     padding: 12,
     marginBottom: 16,
     borderRadius: 8,
   },
   infoText: {
     fontSize: 14,
-    color: '#333',
+    color: '#000', // black text
   },
   grid: {
     paddingBottom: 100,
@@ -150,7 +168,7 @@ const styles = StyleSheet.create({
     flex: 1,
     margin: 8,
     padding: 12,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#fff',
     borderRadius: 12,
     alignItems: 'center',
     borderWidth: 2,
@@ -158,8 +176,8 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   cardSelected: {
-    borderColor: '#2BCB9A',
-    backgroundColor: '#e1f8f2',
+    borderColor: '#EF3349', // red
+    backgroundColor: '#A0F0DC', // mint
   },
   image: {
     width: 100,
@@ -167,19 +185,19 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   numberText: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#000', // black
   },
   wordText: {
     fontSize: 14,
-    color: '#555',
+    color: '#000', // black
   },
   saveButton: {
     position: 'absolute',
     bottom: 20,
     alignSelf: 'center',
-    backgroundColor: '#2BCB9A',
+    backgroundColor: '#EF3349', // red
     paddingVertical: 14,
     paddingHorizontal: 30,
     borderRadius: 30,

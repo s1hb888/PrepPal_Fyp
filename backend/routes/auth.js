@@ -74,7 +74,6 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Login Route
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -91,6 +90,10 @@ router.post('/login', async (req, res) => {
 
     if (!user) {
       return res.status(400).json({ message: 'This email is not registered. Please create an account.' });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({ message: 'Your account has been deactivated. Please contact support.' });
     }
 
     const isMatch = await user.matchPassword(password);

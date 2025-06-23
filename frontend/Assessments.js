@@ -10,6 +10,7 @@ import {
   UIManager,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { LinearGradient } from 'expo-linear-gradient';
 
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
@@ -19,9 +20,8 @@ if (Platform.OS === 'android') {
 const categories = [
   {
     id: '1',
-    title: 'AI Generated',
-    icon: 'robot',
-    color: '#FFCF25',
+    title: 'Academic Courses',
+    icon: 'school',
     assessments: [
       { id: '1-1', title: 'English', icon: 'alphabet-latin' },
       { id: '1-2', title: 'Urdu', icon: 'alpha-u-box' },
@@ -30,9 +30,8 @@ const categories = [
   },
   {
     id: '2',
-    title: 'Basic Concepts',
-    icon: 'book-open-page-variant',
-    color: '#FFCF25',
+    title: 'General Knowledge',
+    icon: 'earth',
     assessments: [
       { id: '2-1', title: 'Fruits', icon: 'fruit-cherries' },
       { id: '2-2', title: 'Vegetables', icon: 'carrot' },
@@ -47,45 +46,56 @@ const categories = [
 const Assessments = () => {
   const [expandedMenu, setExpandedMenu] = useState(null);
 
-  const toggleMenu = (id) => {
+  const toggleMenu = id => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setExpandedMenu(expandedMenu === id ? null : id);
+    setExpandedMenu(prev => (prev === id ? null : id));
   };
 
-  const renderSubItem = (item) => (
+  const renderSubItem = item => (
     <TouchableOpacity
       key={item.id}
       style={styles.subMenuItem}
-      onPress={() => alert(`${item.title} selected`)}>
-      <Icon name={item.icon} size={22} color="#555" />
+      onPress={() => alert(`${item.title} selected`)}
+    >
+      <Icon name={item.icon} size={22} color="#EF3349" />
       <Text style={styles.subMenuText}>{item.title}</Text>
     </TouchableOpacity>
   );
 
-  const renderItem = ({ item }) => (
-    <View style={styles.menuContainer}>
-      <TouchableOpacity
-        style={[styles.menuItem, { backgroundColor: item.color }]}
-        onPress={() => toggleMenu(item.id)}>
-        <Icon name={item.icon} size={26} color="#EF3349" />
-        <Text style={styles.menuText}>{item.title}</Text>
-        <Icon
-          name={expandedMenu === item.id ? 'chevron-up' : 'chevron-down'}
-          size={22}
-          color="#EF3349"
-          style={{ marginLeft: 'auto' }}
-        />
-      </TouchableOpacity>
-      {expandedMenu === item.id && item.assessments.map(renderSubItem)}
-    </View>
-  );
+  const renderItem = ({ item }) => {
+    const isGK = item.title === 'General Knowledge';
+    return (
+      <View style={styles.menuContainer}>
+        <TouchableOpacity onPress={() => toggleMenu(item.id)}>
+          <LinearGradient
+            colors={isGK ? ['#A0F0DC', '#7BE7CE'] : ['#FFC1CC', '#FFB6C1']}
+            style={styles.menuItem}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
+            <Icon name={item.icon} size={26} color="#EF3349" />
+            <Text style={styles.menuText}>{item.title}</Text>
+            <Icon
+              name={expandedMenu === item.id ? 'chevron-up' : 'chevron-down'}
+              size={22}
+              color="#EF3349"
+              style={{ marginLeft: 'auto' }}
+            />
+          </LinearGradient>
+        </TouchableOpacity>
+        {expandedMenu === item.id && item.assessments.map(renderSubItem)}
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Assessments</Text>
+      <Text style={styles.title}>
+        <Icon name="medal" size={28} color="#FFCF25" /> Challenge Zone
+      </Text>
       <FlatList
         data={categories}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 20 }}
@@ -98,51 +108,53 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fefefe',
+    backgroundColor: '#fff',
   },
   title: {
     paddingTop: 40,
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: 'bold',
-    marginBottom: 40,
+    marginBottom: 30,
     textAlign: 'center',
-    color: '#444',
+    color: '#EF3349',
   },
   menuContainer: {
     marginBottom: 16,
     borderRadius: 14,
     overflow: 'hidden',
-    elevation: 3,
+    elevation: 4,
     backgroundColor: '#fff',
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 16,
-    borderTopLeftRadius: 14,
-    borderTopRightRadius: 14,
+    justifyContent: 'space-between',
   },
   menuText: {
     fontSize: 20,
     fontWeight: 'bold',
+    color: '#000',
     marginLeft: 16,
-    color: '#EF3349',
+    flex: 1,
   },
   subMenuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 14,
-    backgroundColor: '#2BCB9A',
+    backgroundColor: '#E0F7F2',
     borderTopWidth: 1,
-    borderTopColor: '#ddd',
+    borderTopColor: '#ccc',
     paddingLeft: 24,
   },
   subMenuText: {
     marginLeft: 12,
     fontSize: 16,
-    color: '#333',
+    color: '#000',
+    fontWeight: '600',
   },
 });
 
 export default Assessments;
+
 

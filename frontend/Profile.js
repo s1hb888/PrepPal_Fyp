@@ -197,180 +197,70 @@ const ProfileScreen = ({ navigation }) => {
     setImagePreview(editedImage.uri);
   };
 
-  return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View style={styles.profileInfo}>
-        <TouchableOpacity onPress={() => setShowImageOptions(true)} style={styles.imageWrapper}>
-          {image ? (
-            <Image source={{ uri: image }} style={styles.profileImage} />
-          ) : (
-            <View style={styles.profileImage} />
-          )}
-          <View style={styles.editIconWrapper}>
-            <Feather name="edit-2" size={16} color="#fff" />
-          </View>
+return (
+  <View style={styles.fixedContainer}>
+    <View style={styles.profileInfo}>
+      <TouchableOpacity onPress={() => setShowImageOptions(true)} style={styles.imageWrapper}>
+        {image ? (
+          <Image source={{ uri: image }} style={styles.profileImage} />
+        ) : (
+          <View style={styles.profileImage} />
+        )}
+        <View style={styles.editIconWrapper}>
+          <Feather name="edit-2" size={16} color="#fff" />
+        </View>
+      </TouchableOpacity>
+    </View>
+
+    <View style={styles.formContainer}>
+      <Text style={styles.label}>Email</Text>
+      <TextInput value={email} editable={false} style={styles.input} />
+
+      <View style={styles.passwordContainer}>
+        <TextInput
+          placeholder="Enter new password (optional)"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={!showPassword}
+          style={styles.passwordInput}
+        />
+        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+          <Feather name={showPassword ? 'eye' : 'eye-off'} size={20} color="#EF3349" />
         </TouchableOpacity>
       </View>
 
-      {/* Image Picker Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={showImageOptions}
-        onRequestClose={() => setShowImageOptions(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalHeader}>Choose Image</Text>
+      <Text style={styles.label}>Kid's Name</Text>
+      <TextInput
+        placeholder="Enter kid's name"
+        value={kidName}
+        onChangeText={setKidName}
+        style={styles.input}
+      />
 
-            <TouchableOpacity
-              style={[styles.modalButton, { backgroundColor: '#2BCB9A', marginBottom: 10 }]}
-              onPress={async () => {
-                const result = await ImagePicker.launchImageLibraryAsync({
-                  allowsEditing: true,
-                  aspect: [1, 1],
-                  quality: 0.5,
-                });
-                if (!result.canceled) {
-                  setImagePreview(result.assets[0].uri);
-                  setShowImageOptions(false);
-                  setModalVisible(true);
-                }
-              }}
-            >
-              <Text style={styles.buttonText}>Choose from Gallery</Text>
-            </TouchableOpacity>
+      <Text style={styles.label}>Kid's Age</Text>
+      <TextInput
+        placeholder="Enter kid's age"
+        value={kidAge}
+        onChangeText={setKidAge}
+        keyboardType="numeric"
+        style={styles.input}
+      />
 
-            <TouchableOpacity
-              style={[styles.modalButton, { backgroundColor: '#2BCB9A', marginBottom: 20 }]}
-              onPress={async () => {
-                const result = await ImagePicker.launchCameraAsync({
-                  allowsEditing: true,
-                  aspect: [1, 1],
-                  quality: 0.5,
-                });
-                if (!result.canceled) {
-                  setImagePreview(result.assets[0].uri);
-                  setShowImageOptions(false);
-                  setModalVisible(true);
-                }
-              }}
-            >
-              <Text style={styles.buttonText}>Take Picture</Text>
-            </TouchableOpacity>
+      <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
+  <Feather name="save" size={20} color="#000" style={{ marginRight: 8 }} />
+  <Text style={[styles.buttonText, { color: '#000' }]}>Save Changes</Text>
+</TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.modalButton, { backgroundColor: '#EF3349' }]}
-              onPress={() => setShowImageOptions(false)}
-            >
-              <Text style={styles.buttonText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
 
-      {/* Preview Modal */}
-      {imagePreview && isModalVisible && (
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={isModalVisible}
-          onRequestClose={() => setModalVisible(false)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalHeader}>Preview</Text>
-              <Image
-                source={{ uri: imagePreview }}
-                style={{
-                  width: 200,
-                  height: 200,
-                  borderRadius: 100,
-                  alignSelf: 'center',
-                  marginBottom: 20,
-                }}
-              />
 
-              <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 20 }}>
-                <TouchableOpacity onPress={rotateImage} style={styles.modalButton}>
-                  <Text style={styles.buttonText}>Rotate</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={flipImageHorizontal} style={styles.modalButton}>
-                  <Text style={styles.buttonText}>Flip H</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={flipImageVertical} style={styles.modalButton}>
-                  <Text style={styles.buttonText}>Flip V</Text>
-                </TouchableOpacity>
-              </View>
+      <TouchableOpacity onPress={handleDeleteAccount} style={styles.deleteButton}>
+  <MaterialIcons name="delete" size={20} color="#000" style={{ marginRight: 8 }} />
+  <Text style={[styles.buttonText, { color: '#000' }]}>Delete Account</Text>
+</TouchableOpacity>
 
-              <TouchableOpacity
-                onPress={() => {
-                  setImage(imagePreview);
-                  handleUploadImage(imagePreview);
-                  setModalVisible(false);
-                }}
-                style={{
-                  backgroundColor: '#2BCB9A',
-                  paddingVertical: 12,
-                  paddingHorizontal: 30,
-                  borderRadius: 50,
-                  alignSelf: 'center',
-                }}
-              >
-                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 18 }}>✓ Done</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
-      )}
-
-      {/* Form */}
-      <View style={styles.formContainer}>
-        <Text style={styles.label}>Email</Text>
-        <TextInput value={email} editable={false} style={styles.input} />
-
-        <View style={styles.passwordContainer}>
-          <TextInput
-            placeholder="Enter new password (optional)"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!showPassword}
-            style={styles.passwordInput}
-          />
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-            <Feather name={showPassword ? 'eye' : 'eye-off'} size={20} color="#999" />
-          </TouchableOpacity>
-        </View>
-
-        <Text style={styles.label}>Kid's Name</Text>
-        <TextInput
-          placeholder="Enter kid's name"
-          value={kidName}
-          onChangeText={setKidName}
-          style={styles.input}
-        />
-
-        <Text style={styles.label}>Kid's Age</Text>
-        <TextInput
-          placeholder="Enter kid's age"
-          value={kidAge}
-          onChangeText={setKidAge}
-          keyboardType="numeric"
-          style={styles.input}
-        />
-
-        <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
-          <Feather name="save" size={20} color="#fff" style={{ marginRight: 8 }} />
-          <Text style={styles.buttonText}>Save Changes</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={handleDeleteAccount} style={styles.deleteButton}>
-          <MaterialIcons name="delete" size={20} color="#fff" style={{ marginRight: 8 }} />
-          <Text style={styles.buttonText}>Delete Account</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
-  );
+    </View>
+  </View>
+);
 };
 
 const styles = StyleSheet.create({
@@ -382,19 +272,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 90,
   },
-  profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 4,
-    borderColor: '#2BCB9A',
-    backgroundColor: '#ddd',
-  },
+profileImage: {
+  width: 100,
+  height: 100,
+  borderRadius: 50,
+  borderWidth: 4,
+  borderColor: 'rgb(160,240,220)', 
+  backgroundColor: '#ddd',
+},
+
   formContainer: {
     padding: 20,
   },
   label: {
-    color: '#2BCB9A',
+    color: '#000', // changed from green to black
     marginBottom: 8,
     fontWeight: '600',
   },
@@ -406,16 +297,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     marginBottom: 15,
     fontSize: 16,
+    color: '#000', // ensure text is black
   },
-  saveButton: {
-    backgroundColor: '#2BCB9A',
-    padding: 15,
-    borderRadius: 12,
-    marginBottom: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+saveButton: {
+  backgroundColor: 'rgb(160,240,220)', // ✅ Mint green background
+  padding: 15,
+  borderRadius: 12,
+  marginBottom: 15,
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+
+
   deleteButton: {
     backgroundColor: '#EF3349',
     padding: 15,
@@ -425,42 +319,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   buttonText: {
-    color: '#fff',
     fontWeight: 'bold',
     fontSize: 18,
-  },
-  imageWrapper: {
-    position: 'relative',
-    backgroundColor: '#E6F7F2',
-    borderRadius: 60,
-    padding: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
   },
   editIconWrapper: {
     position: 'absolute',
     bottom: 0,
     right: 0,
-    backgroundColor: '#2BCB9A',
+    backgroundColor: '#EF3349', // red icon for consistency
     borderRadius: 12,
     padding: 5,
     borderWidth: 1,
     borderColor: '#fff',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
-    width: '80%',
   },
   modalHeader: {
     fontSize: 20,
@@ -470,7 +340,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   modalButton: {
-    backgroundColor: '#FFCF25',
+    backgroundColor: '#FFCF25', // yellow like home
     padding: 10,
     marginVertical: 10,
     borderRadius: 8,
@@ -489,7 +359,24 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     fontSize: 16,
+    color: '#000', // ensure text input is black
   },
+  fixedContainer: {
+  flex: 1,
+  backgroundColor: '#fff',
+  paddingTop: 40, // bring things slightly up
+  paddingHorizontal: 20,
+  justifyContent: 'flex-start',
+},
+formContainer: {
+  paddingTop: 10, // less spacing
+},
+profileInfo: {
+  alignItems: 'center',
+  marginTop: 30, // 👈 smaller top margin
+},
+
 });
+
 
 export default ProfileScreen;

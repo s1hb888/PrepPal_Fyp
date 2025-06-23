@@ -1,9 +1,26 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Image, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import {
+  View,
+  Image,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Animated,
+  Dimensions,
+} from 'react-native';
 import axios from 'axios';
 import * as Speech from 'expo-speech';
 import { Audio } from 'expo-av';
+import { LinearGradient } from 'expo-linear-gradient';
 import API_BASE_URL from './config';
+
+const { width, height } = Dimensions.get('window');
+
+const colorGradients = [
+  ['#FFE680', '#FFD54F'], // yellow
+  ['#FFC1CC', '#FFB6C1'], // pink
+  ['#A0F0DC', '#7BE7CE'], // mint
+];
 
 const FruitScreen = () => {
   const [fruits, setFruits] = useState([]);
@@ -12,14 +29,14 @@ const FruitScreen = () => {
   const [selectedFruit, setSelectedFruit] = useState(null);
   const [animationStarted, setAnimationStarted] = useState(false);
 
-  const buzzerSound = useRef(null); // useRef to persist across re-renders
+  const buzzerSound = useRef(null);
   const translateX = new Animated.Value(0);
   const translateY = new Animated.Value(0);
 
   useEffect(() => {
     const loadBuzzer = async () => {
       const { sound } = await Audio.Sound.createAsync(
-        require('../assets/sounds/buzzer.mp3')  // Make sure this file exists
+        require('../assets/sounds/buzzer.mp3')
       );
       buzzerSound.current = sound;
     };
@@ -32,7 +49,6 @@ const FruitScreen = () => {
       });
 
     return () => {
-      // Unload sound on component unmount
       if (buzzerSound.current) {
         buzzerSound.current.unloadAsync();
       }
@@ -77,24 +93,16 @@ const FruitScreen = () => {
       }, 3000);
     } else {
       if (buzzerSound.current) {
-        await buzzerSound.current.replayAsync(); // Replay sound even if already loaded
+        await buzzerSound.current.replayAsync();
       }
       setSelectedFruit(null);
     }
   };
 
-  const animateImageToShadow = (fruit) => {
+  const animateImageToShadow = () => {
     setAnimationStarted(true);
-
-    Animated.spring(translateX, {
-      toValue: 0,
-      useNativeDriver: true,
-    }).start();
-
-    Animated.spring(translateY, {
-      toValue: 0,
-      useNativeDriver: true,
-    }).start();
+    Animated.spring(translateX, { toValue: 0, useNativeDriver: true }).start();
+    Animated.spring(translateY, { toValue: 0, useNativeDriver: true }).start();
   };
 
   return (
@@ -120,50 +128,58 @@ const FruitScreen = () => {
       </View>
 
       <View style={styles.row}>
-        {displayFruits.map((fruit, index) => (
-          <TouchableOpacity key={index} onPress={() => handleSelect(fruit)} style={styles.fruitContainer}>
-            <Image source={{ uri: fruit.image_url }} style={styles.fruitImage} />
-            <Text style={styles.fruitName}>{fruit.word}</Text>
-          </TouchableOpacity>
-        ))}
+        {displayFruits.map((fruit, index) => {
+          const gradientColors = colorGradients[index % colorGradients.length];
+          return (
+            <TouchableOpacity key={index} onPress={() => handleSelect(fruit)} style={styles.fruitContainer}>
+              <LinearGradient colors={gradientColors} style={styles.fruitCard}>
+                <Image source={{ uri: fruit.image_url }} style={styles.fruitImage} />
+                <Text style={styles.fruitName}>{fruit.word}</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#fff' },
+  container: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 50,
+    backgroundColor: '#FFFDF8',
+  },
 
   heading: {
-    fontSize: 25,
+    fontSize: 28,
     fontWeight: '700',
-    marginBottom: 20,
+    marginBottom: 15,
+    marginTop:40,
     textAlign: 'center',
-    color: '#EF3349',
-    letterSpacing: 2,
-    textTransform: 'uppercase',
-    fontFamily: 'serif',
   },
 
   shadowContainer: {
-    height: 320,
+    height: 250,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 20,
     position: 'relative',
+    zIndex: 1,
   },
 
   shadowImage: {
-    width: 220,
-    height: 220,
-    opacity: 0.3,
-    position: 'absolute',
+    width: 180,
+    height: 180,
+    opacity: 0.2,
     resizeMode: 'contain',
+    position: 'absolute',
   },
 
   selectedImage: {
-    width: 220,
-    height: 220,
+    width: 180,
+    height: 180,
     resizeMode: 'contain',
     position: 'absolute',
   },
@@ -171,30 +187,43 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-around',
-    marginBottom: 20,
+    justifyContent: 'space-evenly',
+    zIndex: 1,
+    marginTop: 10,
   },
 
   fruitContainer: {
-    alignItems: 'center',
     marginBottom: 20,
   },
 
+  fruitCard: {
+    width: 130,
+    height: 150,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 4 },
+  },
+
   fruitImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 10,
+    width: 85,
+    height: 85,
     resizeMode: 'contain',
+    marginBottom: 10,
   },
 
   fruitName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-    color: '#2BCB9A',
+    color: 'black',
     textAlign: 'center',
-    fontFamily: 'Arial',
   },
 });
 
 export default FruitScreen;
+

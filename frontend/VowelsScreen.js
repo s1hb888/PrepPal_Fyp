@@ -1,11 +1,30 @@
+// VowelsScreen.js
+
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator, Dimensions } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  Dimensions,
+  Platform,
+} from 'react-native';
 import * as Speech from 'expo-speech';
 import axios from 'axios';
-import LottieView from 'lottie-react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { LinearGradient } from 'expo-linear-gradient';
 import API_BASE_URL from './config';
 
 const { width } = Dimensions.get('window');
+const circleSize = width * 0.42;
+
+const borderGradients = [
+  ['#FFC1CC', '#FFB6C1'], // pink
+  ['#A0F0DC', '#7BE7CE'], // mint
+  ['#FFE680', '#FFD54F'], // yellow
+];
 
 const VowelsScreen = () => {
   const [vowels, setVowels] = useState([]);
@@ -13,12 +32,13 @@ const VowelsScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    axios.get(`${API_BASE_URL}/api/vowels`)
-      .then(response => {
+    axios
+      .get(`${API_BASE_URL}/api/vowels`)
+      .then((response) => {
         setVowels(response.data);
         setIsLoading(false);
       })
-      .catch(err => console.error(err));
+      .catch((err) => console.error(err));
   }, []);
 
   const speakVowel = (text, index) => {
@@ -30,50 +50,48 @@ const VowelsScreen = () => {
     });
   };
 
-  if (isLoading) return <ActivityIndicator size="large" color="#2BCB9A" />;
+  if (isLoading)
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#EF3349" />
+      </View>
+    );
 
   return (
     <View style={styles.container}>
-      {/* 🌞 Sun Animation + Heading */}
-      <View style={styles.topHeader}>
-        <LottieView
-          source={require('../assets/animations/animation2.json')}
-          autoPlay
-          loop
-          style={styles.sunAnimation}
-        />
-        <Text style={styles.headingText}>Tap the Vowel!</Text>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Let's Learn Vowels!</Text>
       </View>
 
-      {/* Vowel Buttons with colorful backgrounds */}
+      {/* Vowel Circles */}
       <View style={styles.vowelContainer}>
         {vowels.map((vowel, index) => {
-          const colors = ['#EF3349', '#2BCB9A', '#FFCF25'];
-          const backgroundColor = colors[index % colors.length];
-
+          const gradientColors = borderGradients[index % borderGradients.length];
+          const isActive = activeIndex === index;
           return (
             <TouchableOpacity
-              key={index}
-              style={[
-                styles.box,
-                { backgroundColor },
-                activeIndex === index && styles.activeBox
-              ]}
+              key={vowel.id}
               onPress={() => speakVowel(vowel.sound_text, index)}
+              activeOpacity={0.85}
+              style={styles.circleWrapper}
             >
-              <Image source={{ uri: vowel.image_url }} style={styles.image} />
+              <LinearGradient
+                colors={gradientColors}
+                style={[
+                  styles.circle,
+                  isActive && { transform: [{ scale: 1.08 }] },
+                ]}
+              >
+                <Image source={{ uri: vowel.image_url }} style={styles.image} />
+                <View style={styles.soundWrapper}>
+                  <Ionicons name="volume-high" size={26} color="#EF3349" />
+                </View>
+              </LinearGradient>
             </TouchableOpacity>
           );
         })}
       </View>
-
-      {/* 🌈 Rainbow Animation */}
-      <LottieView
-        source={require('../assets/animations/animation1.json')}
-        autoPlay
-        loop
-        style={styles.rainbowAnimation}
-      />
     </View>
   );
 };
@@ -83,55 +101,67 @@ export default VowelsScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
-    justifyContent: 'space-between',
+    backgroundColor: '#FFFDF8',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
   },
-  topHeader: {
-    flexDirection: 'row',
+  header: {
+    marginTop: 60,
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 30,
-    paddingHorizontal: 20,
-    alignSelf: 'flex-start',
+    zIndex: 1,
   },
-  sunAnimation: {
-    width: 90,
-    height: 90,
-    marginRight: 10,
-  },
-  headingText: {
-    fontSize: 26,
+  headerTitle: {
+    fontSize: 30,
     fontWeight: 'bold',
-    color: '#2BCB9A',
+    fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
   },
   vowelContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'center',
-    paddingVertical: 20,
+    justifyContent: 'space-evenly',
+    paddingTop: 40,
+    paddingHorizontal: 16,
+    zIndex: 1,
   },
-  box: {
-    width: 140,
-    height: 140,
-    margin: 10,
-    padding: 10,
-    borderRadius: 30,
+  circleWrapper: {
+    width: '49%', // Ensures 2 per line with spacing
+  alignItems: 'center',
+  marginBottom: 36, // Increase vertical spacing
+  },
+  circle: {
+    width: circleSize,
+    height: circleSize,
+    borderRadius: circleSize / 2,
+    backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  activeBox: {
-    borderColor: '#EF3349',
-    borderWidth: 4,
-    transform: [{ scale: 1.1 }],
+    padding: 14,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 6,
   },
   image: {
-    width: 110,
-    height: 110,
+    width: 85,
+    height: 85,
     resizeMode: 'contain',
+    marginBottom: 14,
   },
-  rainbowAnimation: {
-    width: width,
-    height: 130,
-    marginBottom: 10,
+  soundWrapper: {
+    backgroundColor: '#fff',
+    padding: 6,
+    borderRadius: 20,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    marginTop: -10,
   },
 });
+

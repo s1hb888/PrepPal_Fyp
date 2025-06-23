@@ -16,7 +16,7 @@ const AccessManagement = ({ navigation }) => {
             activeOpacity={0.8}
           >
             <View style={styles.card}>
-              <Icon name={item.icon} size={60} color="#2BCB9A" style={styles.icon} />
+              <Icon name={item.icon} size={60} color="#EF3349" style={styles.icon} />
               <View style={styles.textContainer}>
                 <Text style={styles.cardTitle}>{item.label}</Text>
                 <Text style={styles.cardSubtitle}>Tap to manage</Text>
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   },
   topArea: {
     paddingVertical: 30,
-    backgroundColor: '#2BCB9A',
+    backgroundColor: '#A0F0DC', // Mint
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 25,
     alignItems: 'center',
@@ -50,14 +50,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#000', // Black text
   },
   scrollContent: {
     padding: 16,
   },
   card: {
     flexDirection: 'row',
-    backgroundColor: '#e6f7f3',
+    backgroundColor: '#A0F0DC', // MINT background
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
@@ -77,13 +77,14 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#2BCB9A',
+    color: '#000', // Black text
   },
   cardSubtitle: {
     fontSize: 14,
-    color: '#000',
+    color: '#000', // Black text
     marginTop: 4,
   },
 });
 
 export default AccessManagement;
+
