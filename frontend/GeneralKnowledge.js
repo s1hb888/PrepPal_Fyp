@@ -14,56 +14,56 @@ const subjects = [
     id: '1',
     name: 'Vowels',
     icon: require('../assets/vowel.png'),
-    color: ['#FFC1CC', '#FFB6C1'], // pink
+    color: ['#FFC1CC', '#FFB6C1'],
     screen: 'VowelScreen',
   },
   {
     id: '2',
     name: 'Fruits',
     icon: require('../assets/fruits.png'),
-    color: ['#A0F0DC', '#7BE7CE'], // mint
+    color: ['#A0F0DC', '#7BE7CE'],
     screen: 'FruitScreen',
   },
   {
     id: '3',
     name: 'Vegetables',
     icon: require('../assets/vegetable.png'),
-    color: ['#FFE680', '#FFD54F'], // yellow
+    color: ['#FFE680', '#FFD54F'],
     screen: 'VegetableScreen',
   },
   {
     id: '4',
     name: 'Colors',
     icon: require('../assets/color.png'),
-    color: ['#FFC1CC', '#FFB6C1'], // pink
+    color: ['#FFC1CC', '#FFB6C1'],
     screen: 'Color',
   },
   {
     id: '5',
     name: 'Body Parts',
     icon: require('../assets/human-organs.png'),
-    color: ['#A0F0DC', '#7BE7CE'], // mint
+    color: ['#A0F0DC', '#7BE7CE'],
     screen: 'BodypartsScreen',
   },
   {
     id: '6',
     name: 'Shapes',
     icon: require('../assets/shapes.png'),
-    color: ['#FFE680', '#FFD54F'], // yellow
+    color: ['#FFE680', '#FFD54F'],
     screen: 'ShapeLearning',
   },
   {
     id: '7',
     name: 'Counting',
     icon: require('../assets/numbers.png'),
-    color: ['#FFC1CC', '#FFB6C1'], // pink
+    color: ['#FFC1CC', '#FFB6C1'],
     screen: 'CountingScreen',
   },
   {
     id: '8',
     name: 'Islamic Studies',
     icon: require('../assets/islamic.png'),
-    color: ['#A0F0DC', '#7BE7CE'], // mint
+    color: ['#A0F0DC', '#7BE7CE'],
     screen: 'IslamicScreen',
   },
 ];

@@ -1,14 +1,4 @@
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Alert,
-  ScrollView,
-  Image,
-  StyleSheet,
-  Modal,
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, Image, StyleSheet, Modal } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
@@ -16,6 +6,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import API_BASE_URL from './config';
+
 
 const ProfileScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -27,7 +18,6 @@ const ProfileScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [showImageOptions, setShowImageOptions] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -61,8 +51,6 @@ const ProfileScreen = ({ navigation }) => {
     return regex.test(pwd);
   };
 
-  const validateKidName = (name) => /^[A-Za-z ]+$/.test(name.trim());
-
   const handleUploadImage = async (imageUri) => {
     const formData = new FormData();
     formData.append('profileImage', {
@@ -81,10 +69,11 @@ const ProfileScreen = ({ navigation }) => {
       });
 
       if (response.data.success) {
-        setImage(`${response.data.imageUrl}?t=${Date.now()}`);
-        fetchProfile();
+        setImage(`${response.data.imageUrl}?t=${Date.now()}`); // bust cache
+        fetchProfile(); // refresh other details if needed
         Alert.alert('Success', 'Profile image updated successfully');
       }
+      
     } catch (error) {
       console.error('Upload error:', error.response?.data || error.message);
       Alert.alert('Error', 'Image upload failed');
@@ -93,17 +82,7 @@ const ProfileScreen = ({ navigation }) => {
 
   const handleSave = async () => {
     if (!kidName || !kidAge) {
-      Alert.alert('Error', 'Please enter your kid’s name and age.');
-      return;
-    }
-
-    if (!validateKidName(kidName)) {
-      Alert.alert('Error', 'Kid’s name should contain only alphabets and spaces.');
-      return;
-    }
-
-    if (kidAge < 3 || kidAge > 5) {
-      Alert.alert('Error', 'Kid’s age must be between 3 and 5 years.');
+      Alert.alert('Error', "Please enter your kid’s name and age.");
       return;
     }
 
@@ -197,119 +176,236 @@ const ProfileScreen = ({ navigation }) => {
     setImagePreview(editedImage.uri);
   };
 
-return (
-  <View style={styles.fixedContainer}>
-    <View style={styles.profileInfo}>
-      <TouchableOpacity onPress={() => setShowImageOptions(true)} style={styles.imageWrapper}>
-        {image ? (
-          <Image source={{ uri: image }} style={styles.profileImage} />
-        ) : (
-          <View style={styles.profileImage} />
-        )}
-        <View style={styles.editIconWrapper}>
-          <Feather name="edit-2" size={16} color="#fff" />
+  return (
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.profileInfo}>
+        <TouchableOpacity onPress={() => setShowImageOptions(true)} style={styles.imageWrapper}>
+          {image ? (
+            <Image source={{ uri: image }} style={styles.profileImage} />
+          ) : (
+            <View style={styles.profileImage} />
+          )}
+          <View style={styles.editIconWrapper}>
+            <Feather name="edit-2" size={16}  />
+          </View>
+        </TouchableOpacity>
+      </View>
+
+      {/* Image Selection Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showImageOptions}
+        onRequestClose={() => setShowImageOptions(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalHeader}>Choose Image</Text>
+
+            <TouchableOpacity
+              style={[styles.modalButton, { marginBottom: 10 }]}
+              onPress={async () => {
+                const result = await ImagePicker.launchImageLibraryAsync({
+                  allowsEditing: true,
+                  aspect: [1, 1],
+                  quality: 0.5,
+                });
+                if (!result.canceled) {
+                  setImagePreview(result.assets[0].uri);
+                  setShowImageOptions(false);
+                  setModalVisible(true);
+                }
+              }}
+            >
+              <Text style={styles.buttonText}>Choose from Gallery</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.modalButton, { marginBottom: 20 }]}
+              onPress={async () => {
+                const result = await ImagePicker.launchCameraAsync({
+                  allowsEditing: true,
+                  aspect: [1, 1],
+                  quality: 0.5,
+                });
+                if (!result.canceled) {
+                  setImagePreview(result.assets[0].uri);
+                  setShowImageOptions(false);
+                  setModalVisible(true);
+                }
+              }}
+            >
+              <Text style={styles.buttonText}>Take Picture</Text>
+            </TouchableOpacity>
+
+          <TouchableOpacity
+  style={[styles.modalButton, { backgroundColor: '#FFCF25' }]}
+  onPress={() => setShowImageOptions(false)}
+>
+  <Text style={styles.modalButtonText}>Cancel</Text>
+</TouchableOpacity>
+
+          </View>
         </View>
-      </TouchableOpacity>
+      </Modal>
+
+{imagePreview && isModalVisible && (
+  <Modal
+    animationType="slide"
+    transparent={true}
+    visible={isModalVisible}
+    onRequestClose={() => setModalVisible(false)}
+  >
+    <View style={styles.previewModalContainer}>
+      <View style={styles.previewModalContent}>
+        <Text style={styles.modalHeader}>Preview</Text>
+
+        <Image
+          source={{ uri: imagePreview }}
+          style={{
+            width: 200,
+            height: 200,
+            borderRadius: 100,
+            alignSelf: 'center',
+            marginBottom: 20,
+          }}
+        />
+
+        <TouchableOpacity onPress={rotateImage} style={styles.modalButton}>
+          <Text style={styles.modalButtonText}>Rotate</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={flipImageHorizontal} style={styles.modalButton}>
+          <Text style={styles.modalButtonText}>Flip Horizontal</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={flipImageVertical} style={styles.modalButton}>
+          <Text style={styles.modalButtonText}>Flip Vertical</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => {
+            setImage(imagePreview);
+            handleUploadImage(imagePreview);
+            setModalVisible(false);
+          }}
+          style={styles.doneButton}
+        >
+          <Text style={styles.modalButtonText}>✓ Done</Text>
+        </TouchableOpacity>
+      </View>
     </View>
+  </Modal>
+)}
 
-    <View style={styles.formContainer}>
-      <Text style={styles.label}>Email</Text>
-      <TextInput value={email} editable={false} style={styles.input} />
 
-      <View style={styles.passwordContainer}>
+      {/* Form */}
+      <View style={styles.formContainer}>
+        <Text style={styles.label}>Email</Text>
+        <TextInput value={email} editable={false} style={styles.input} />
+
+        <Text style={styles.label}>Password</Text>
         <TextInput
           placeholder="Enter new password (optional)"
           value={password}
           onChangeText={setPassword}
-          secureTextEntry={!showPassword}
-          style={styles.passwordInput}
+          secureTextEntry
+          style={styles.input}
         />
-        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-          <Feather name={showPassword ? 'eye' : 'eye-off'} size={20} color="#EF3349" />
+
+        <Text style={styles.label}>Kid's Name</Text>
+        <TextInput
+          placeholder="Enter kid's name"
+          value={kidName}
+          onChangeText={setKidName}
+          style={styles.input}
+        />
+
+        <Text style={styles.label}>Kid's Age</Text>
+        <TextInput
+          placeholder="Enter kid's age"
+          value={kidAge}
+          onChangeText={setKidAge}
+          keyboardType="numeric"
+          style={styles.input}
+        />
+
+        <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
+          <Feather name="save" size={20} style={{ marginRight: 8 }} />
+          <Text style={styles.buttonText}>Save Changes</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={handleDeleteAccount} style={styles.deleteButton}>
+          <MaterialIcons name="delete" size={20} style={{ marginRight: 8 }} />
+          <Text style={styles.buttonText}>Delete Account</Text>
         </TouchableOpacity>
       </View>
-
-      <Text style={styles.label}>Kid's Name</Text>
-      <TextInput
-        placeholder="Enter kid's name"
-        value={kidName}
-        onChangeText={setKidName}
-        style={styles.input}
-      />
-
-      <Text style={styles.label}>Kid's Age</Text>
-      <TextInput
-        placeholder="Enter kid's age"
-        value={kidAge}
-        onChangeText={setKidAge}
-        keyboardType="numeric"
-        style={styles.input}
-      />
-
-      <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
-  <Feather name="save" size={20} color="#000" style={{ marginRight: 8 }} />
-  <Text style={[styles.buttonText, { color: '#000' }]}>Save Changes</Text>
-</TouchableOpacity>
-
-
-
-      <TouchableOpacity onPress={handleDeleteAccount} style={styles.deleteButton}>
-  <MaterialIcons name="delete" size={20} color="#000" style={{ marginRight: 8 }} />
-  <Text style={[styles.buttonText, { color: '#000' }]}>Delete Account</Text>
-</TouchableOpacity>
-
-    </View>
-  </View>
-);
+    </ScrollView>
+  );
 };
+
 
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     backgroundColor: '#fff',
+    paddingBottom: 40,
   },
   profileInfo: {
     alignItems: 'center',
-    marginTop: 90,
+    marginTop: 40,
+    marginBottom: 20,
   },
-profileImage: {
-  width: 100,
-  height: 100,
-  borderRadius: 50,
-  borderWidth: 4,
-  borderColor: 'rgb(160,240,220)', 
-  backgroundColor: '#ddd',
-},
-
+  imageWrapper: {
+    position: 'relative',
+  },
+  profileImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 4,
+    borderColor: 'rgb(160,240,220)', 
+    backgroundColor: '#ddd',
+  },
+  editIconWrapper: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#EF3349',
+    borderRadius: 12,
+    padding: 5,
+    borderWidth: 2,
+    borderColor: '#fff',
+  },
   formContainer: {
-    padding: 20,
+    paddingHorizontal: 20,
   },
   label: {
-    color: '#000', // changed from green to black
-    marginBottom: 8,
+    color: '#000',
+    marginBottom: 6,
     fontWeight: '600',
+    fontSize: 16,
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 8,
     paddingVertical: 10,
+    marginTop:-2,
     paddingHorizontal: 12,
     marginBottom: 15,
     fontSize: 16,
-    color: '#000', // ensure text is black
+    color: '#000',
   },
-saveButton: {
-  backgroundColor: 'rgb(160,240,220)', // ✅ Mint green background
-  padding: 15,
-  borderRadius: 12,
-  marginBottom: 15,
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'center',
-},
-
-
+  saveButton: {
+    backgroundColor: 'rgb(160,240,220)',
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   deleteButton: {
     backgroundColor: '#EF3349',
     padding: 15,
@@ -317,20 +413,23 @@ saveButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop:-6,
   },
   buttonText: {
     fontWeight: 'bold',
     fontSize: 18,
   },
-  editIconWrapper: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    backgroundColor: '#EF3349', // red icon for consistency
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    paddingHorizontal: 20,
+  },
+  modalContent: {
+    backgroundColor: '#fff',
     borderRadius: 12,
-    padding: 5,
-    borderWidth: 1,
-    borderColor: '#fff',
+    padding: 20,
+    alignItems: 'center',
   },
   modalHeader: {
     fontSize: 20,
@@ -339,41 +438,37 @@ saveButton: {
     marginBottom: 20,
     textAlign: 'center',
   },
-  modalButton: {
-    backgroundColor: '#FFCF25', // yellow like home
-    padding: 10,
-    marginVertical: 10,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    marginBottom: 15,
-  },
-  passwordInput: {
-    flex: 1,
-    paddingVertical: 10,
-    fontSize: 16,
-    color: '#000', // ensure text input is black
-  },
-  fixedContainer: {
-  flex: 1,
-  backgroundColor: '#fff',
-  paddingTop: 40, // bring things slightly up
-  paddingHorizontal: 20,
-  justifyContent: 'flex-start',
-},
-formContainer: {
-  paddingTop: 10, // less spacing
-},
-profileInfo: {
+modalButton: {
+  backgroundColor: 'rgb(160,240,220)', // Mint green
+  padding: 12,
+  marginVertical: 6,
+  borderRadius: 8,
+  width: '100%',
   alignItems: 'center',
-  marginTop: 30, // 👈 smaller top margin
+},
+previewModalContainer: {
+  flex: 1,
+  justifyContent: 'center', // 👈 center vertically
+  alignItems: 'center',     // 👈 center horizontally
+  backgroundColor: 'rgba(0,0,0,0.4)',
+},
+
+previewModalContent: {
+  backgroundColor: '#fff',
+  width: '85%',               // 👈 smaller width
+  padding: 20,
+  borderRadius: 20,           // 👈 uniform rounded corners
+  alignItems: 'center',
+},
+
+
+doneButton: {
+  backgroundColor: 'rgb(160,240,220)',
+  paddingVertical: 12,
+  paddingHorizontal: 30,
+  borderRadius: 50,
+  alignSelf: 'center',
+  marginTop: 15,
 },
 
 });

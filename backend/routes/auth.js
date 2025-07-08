@@ -9,6 +9,7 @@ const verifyToken = require('../middleware/authMiddleware');
 const Alphabet = require('../models/Alphabet');
 const Number = require('../models/Number');
 const Urdu = require('../models/Urdu');
+const ScreenTime = require('../models/ScreenTime');
 
 
 // Registration Route
@@ -74,45 +75,161 @@ router.post('/register', async (req, res) => {
   }
 });
 
+
+
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, role } = req.body;
 
-  if (!email) {
-    return res.status(400).json({ message: 'Email is required. Please enter your registered email address.' });
-  }
-
-  if (!password) {
-    return res.status(400).json({ message: 'Password is required. Please enter your password.' });
-  }
+  if (!email || !password)
+    return res.status(400).json({ message: 'Email and password are required.' });
 
   try {
     const user = await User.findOne({ email });
 
-    if (!user) {
-      return res.status(400).json({ message: 'This email is not registered. Please create an account.' });
-    }
+    if (!user)
+      return res.status(400).json({ message: 'This email is not registered.' });
 
-    if (!user.isActive) {
-      return res.status(403).json({ message: 'Your account has been deactivated. Please contact support.' });
-    }
+    if (!user.isActive)
+      return res.status(403).json({ message: 'Account is deactivated.' });
 
     const isMatch = await user.matchPassword(password);
+    if (!isMatch)
+      return res.status(400).json({ message: 'Invalid email or password.' });
 
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid email or password. Please try again.' });
-    }
-
+    // ✅ Allow login, regardless of selected role
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
 
-    res.status(200).json({ message: 'Login successful.', token, role: user.role });
+    // ✅ Only apply screen time if user selected 'kid' mode
+    if (role === 'kid') {
+      const today = new Date().toDateString();
+      let screenTime = await ScreenTime.findOne({ userId: user._id });
+
+      if (!screenTime) {
+        // Optional: Initialize if not found
+        screenTime = await ScreenTime.create({
+          userId: user._id,
+          dailyUsageLimit: 3,
+          totalDailyTime: 15,
+          usageCountToday: 0,
+          totalUsedTimeToday: 0,
+          isLocked: false
+        });
+      }
+
+      const {
+        dailyUsageLimit,
+        totalDailyTime,
+        usageCountToday = 0,
+        totalUsedTimeToday = 0,
+        lastReset,
+        lastSessionEndTime,
+        nextSessionGap = 5, // in minutes
+        sessionStartTime
+      } = screenTime;
+
+      // Reset on new day
+      if (!lastReset || new Date(lastReset).toDateString() !== today) {
+        screenTime.usageCountToday = 0;
+        screenTime.totalUsedTimeToday = 0;
+        screenTime.lastReset = new Date();
+      }
+
+      // Limit check
+      if (usageCountToday >= dailyUsageLimit || totalUsedTimeToday >= totalDailyTime) {
+        return res.status(403).json({
+          message: 'Daily screen time limit reached or exceeded. Try again tomorrow.',
+          lock: true
+        });
+      }
+
+      // Cooldown check
+      if (lastSessionEndTime) {
+        const nextAllowedTime = new Date(lastSessionEndTime).getTime() + nextSessionGap * 60000;
+        if (Date.now() < nextAllowedTime) {
+          const waitMinutes = Math.ceil((nextAllowedTime - Date.now()) / 60000);
+          return res.status(403).json({
+            message: `Next session will start in ${waitMinutes} minute(s). Please try again later.`,
+            lock: true
+          });
+        }
+      }
+
+      // End previous session
+      if (sessionStartTime) {
+        screenTime.lastSessionEndTime = new Date();
+      }
+
+      // Start new session
+      screenTime.sessionStartTime = Date.now();
+      screenTime.isLocked = false;
+      screenTime.usageCountToday += 1;
+      await screenTime.save();
+    }
+
+res.status(200).json({
+  message: 'Login successful.',
+  token,
+  role, // 👈 return the selected role
+  user: {
+    _id: user._id,
+    email: user.email,
+    role, // 👈 override DB role with selected role
+    kidName: user.kidName,
+    kidAge: user.kidAge,
+    isActive: user.isActive
+  }
+});
+
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 });
+
+
+
+
+// -----------------------------------------------------------------------------
+// POST /api/auth/logout
+// -----------------------------------------------------------------------------
+// • For parents → nothing special, we just confirm the token is valid.
+// • For kids   → we close the running screen‑time session and update totals.
+// -----------------------------------------------------------------------------
+router.post('/logout', verifyToken, async (req, res) => {
+  try {
+    const { id: userId, role } = req.user;
+
+    // ───────────────────────────────────────────────────────────────────────────
+    // If the user is in kid mode, end the screen‑time session cleanly
+    // ───────────────────────────────────────────────────────────────────────────
+    if (role === 'kid') {
+      const screenTime = await ScreenTime.findOne({ userId });
+      if (screenTime && screenTime.sessionStartTime) {
+        const elapsedMinutes = Math.ceil(
+          (Date.now() - screenTime.sessionStartTime) / 60000
+        );
+
+        screenTime.totalUsedTimeToday += elapsedMinutes;
+        screenTime.lastSessionEndTime = new Date();
+        screenTime.sessionStartTime = null;
+        await screenTime.save();
+      }
+    }
+
+    // If you keep a token blacklist, insert token here (optional)
+    // e.g. await BlacklistToken.create({ token: req.token });
+
+    return res.json({ message: 'Logged out successfully.' });
+  } catch (err) {
+    console.error('Logout error:', err);
+    return res.status(500).json({ message: 'Server error during logout.' });
+  }
+});
+
 
 
 // Update Numbers Access
@@ -135,6 +252,7 @@ router.put('/update/numbers/access', verifyToken, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 // Update Urdu Access
 router.put('/update/urdu/access', verifyToken, async (req, res) => {

@@ -1,5 +1,3 @@
-// VowelsScreen.js
-
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -38,7 +36,10 @@ const VowelsScreen = () => {
         setVowels(response.data);
         setIsLoading(false);
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error('❌ Vowel fetch error:', err);
+        setIsLoading(false);
+      });
   }, []);
 
   const speakVowel = (text, index) => {
@@ -50,25 +51,25 @@ const VowelsScreen = () => {
     });
   };
 
-  if (isLoading)
+  if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#EF3349" />
       </View>
     );
+  }
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Let's Learn Vowels!</Text>
       </View>
 
-      {/* Vowel Circles */}
       <View style={styles.vowelContainer}>
         {vowels.map((vowel, index) => {
           const gradientColors = borderGradients[index % borderGradients.length];
           const isActive = activeIndex === index;
+
           return (
             <TouchableOpacity
               key={vowel.id}
@@ -128,9 +129,9 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   circleWrapper: {
-    width: '49%', // Ensures 2 per line with spacing
-  alignItems: 'center',
-  marginBottom: 36, // Increase vertical spacing
+    width: '49%',
+    alignItems: 'center',
+    marginBottom: 36,
   },
   circle: {
     width: circleSize,
@@ -164,4 +165,3 @@ const styles = StyleSheet.create({
     marginTop: -10,
   },
 });
-
