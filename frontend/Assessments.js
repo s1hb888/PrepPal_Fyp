@@ -8,9 +8,15 @@ import {
   LayoutAnimation,
   Platform,
   UIManager,
+  ActivityIndicator,
+  Alert,
+  ScrollView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { LinearGradient } from 'expo-linear-gradient';
+import API_BASE_URL from './config';
+import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
@@ -45,22 +51,60 @@ const categories = [
 
 const Assessments = () => {
   const [expandedMenu, setExpandedMenu] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const navigation = useNavigation();
 
-  const toggleMenu = id => {
+  const toggleMenu = (id) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setExpandedMenu(prev => (prev === id ? null : id));
+    setExpandedMenu((prev) => (prev === id ? null : id));
   };
 
-  const renderSubItem = item => (
-    <TouchableOpacity
-      key={item.id}
-      style={styles.subMenuItem}
-      onPress={() => alert(`${item.title} selected`)}
-    >
-      <Icon name={item.icon} size={22} color="#EF3349" />
-      <Text style={styles.subMenuText}>{item.title}</Text>
-    </TouchableOpacity>
-  );
+  const handleSubjectQuiz = async (subject) => {
+    try {
+      setLoading(true);
+      const response = await axios.post(`${API_BASE_URL}/api/quiz/generate`, {
+        subject,
+      });
+
+      const { quizText } = response.data;
+
+      if (!quizText || !Array.isArray(quizText)) {
+        Alert.alert('Error', 'No quiz generated from Gemini.');
+        return;
+      }
+
+      Alert.alert('✅ Success', `${subject} quiz generated!`);
+
+      navigation.navigate('QuizScreen', {
+        subject,
+        quizText,
+      });
+    } catch (error) {
+      Alert.alert('Error', 'Failed to generate quiz. Check your API or internet.');
+      console.error('❌ Quiz API error:', error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderSubItem = (item, parentTitle) => {
+    const isAcademic = parentTitle === 'Academic Courses';
+
+    return (
+      <TouchableOpacity
+        key={item.id}
+        style={styles.subMenuItem}
+        onPress={() =>
+          isAcademic
+            ? handleSubjectQuiz(item.title)
+            : Alert.alert('Coming Soon', `${item.title} quizzes not available yet`)
+        }
+      >
+        <Icon name={item.icon} size={22} color="#EF3349" />
+        <Text style={styles.subMenuText}>{item.title}</Text>
+      </TouchableOpacity>
+    );
+  };
 
   const renderItem = ({ item }) => {
     const isGK = item.title === 'General Knowledge';
@@ -83,7 +127,8 @@ const Assessments = () => {
             />
           </LinearGradient>
         </TouchableOpacity>
-        {expandedMenu === item.id && item.assessments.map(renderSubItem)}
+        {expandedMenu === item.id &&
+          item.assessments.map((subItem) => renderSubItem(subItem, item.title))}
       </View>
     );
   };
@@ -93,9 +138,19 @@ const Assessments = () => {
       <Text style={styles.title}>
         <Icon name="medal" size={28} color="#FFCF25" /> Challenge Zone
       </Text>
+
+      {loading && (
+        <View style={{ alignItems: 'center', marginVertical: 10 }}>
+          <ActivityIndicator size="large" color="#EF3349" />
+          <Text style={{ marginTop: 10, color: '#EF3349', fontWeight: '600' }}>
+            Generating Quiz...
+          </Text>
+        </View>
+      )}
+
       <FlatList
         data={categories}
-        keyExtractor={item => item.id}
+        keyExtractor={(item) => item.id}
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 20 }}
@@ -156,5 +211,3 @@ const styles = StyleSheet.create({
 });
 
 export default Assessments;
-
-

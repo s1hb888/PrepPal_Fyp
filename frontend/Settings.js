@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,40 +6,89 @@ import {
   StyleSheet,
   Switch,
   ScrollView,
+  Alert,
+  useColorScheme,
+  Platform,
+  PermissionsAndroid,
+  Linking,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const Settings = () => {
-  const [darkMode, setDarkMode] = React.useState(false);
-  const [voiceEnabled, setVoiceEnabled] = React.useState(false);
+const MINT = 'rgb(160,240,220)';
+const RED  = '#EF3349';
 
+const Settings = () => {
+  const systemScheme = useColorScheme();
+  const [darkMode, setDarkMode] = useState(systemScheme === 'dark');
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+
+  /************ MICROPHONE PERMISSION (no external lib) *************/
+  const askMicPermission = async () => {
+    if (Platform.OS === 'android') {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+        {
+          title: 'Microphone Permission',
+          message: 'PrepPal needs microphone access for voice recognition.',
+          buttonPositive: 'Allow',
+          buttonNegative: 'Deny',
+        },
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    }
+    // iOS – open settings prompt
+    Alert.alert(
+      'Microphone Permission',
+      'Please enable microphone access for PrepPal in Settings > Privacy > Microphone.',
+      [
+        { text: 'Open Settings', onPress: () => Linking.openURL('app-settings:') },
+        { text: 'OK' },
+      ],
+    );
+    return false;
+  };
+
+  /************ COMPONENTS *************/
   const SectionHeader = ({ title }) => (
-    <Text style={styles.sectionHeader}>{title}</Text>
+    <Text style={[styles.sectionHeader, darkMode && { color: '#fff' }]}>{title}</Text>
   );
 
   const SettingItem = ({ icon, label, onPress, isSwitch, switchValue, onSwitch }) => (
     <TouchableOpacity
-      style={styles.settingItem}
+      style={[styles.settingItem, darkMode && { backgroundColor: '#222' }]}
       onPress={onPress}
       activeOpacity={onPress ? 0.7 : 1}
     >
       <View style={styles.row}>
-        <Icon name={icon} size={24} color="#EF3349" />
-        <Text style={styles.itemText}>{label}</Text>
+        <Icon name={icon} size={24} color={RED} />
+        <Text style={[styles.itemText, darkMode && { color: '#fff' }]}>{label}</Text>
       </View>
       {isSwitch ? (
-        <Switch value={switchValue} onValueChange={onSwitch} />
+        <Switch
+          value={switchValue}
+          onValueChange={onSwitch}
+          thumbColor={switchValue ? MINT : '#f4f3f4'}
+          trackColor={{ false: '#ccc', true: MINT }}
+        />
       ) : (
-        <Icon name="chevron-right" size={22} color="#EF3349" />
+        <Icon name="chevron-right" size={22} color={RED} />
       )}
     </TouchableOpacity>
   );
 
+  /************ HANDLERS *************/
+  const toggleVoice = async () => {
+    if (!voiceEnabled) {
+      const ok = await askMicPermission();
+      if (!ok) return;
+    }
+    setVoiceEnabled(!voiceEnabled);
+  };
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* Mint Header */}
+    <ScrollView contentContainerStyle={[styles.container, darkMode && { backgroundColor: '#111' }] }>
       <View style={styles.header}>
-        <Text style={styles.title}>Settings</Text>
+        <Text style={[styles.title, darkMode && { color: '#fff' }]}>Settings</Text>
       </View>
 
       <View style={styles.body}>
@@ -47,14 +96,14 @@ const Settings = () => {
         <SettingItem
           icon="account-circle-outline"
           label="Manage Profile"
-          onPress={() => alert('Edit Profile')}
+          onPress={() => Alert.alert('Profile', 'Edit Profile pressed')}
         />
 
         <SectionHeader title="App Preferences" />
         <SettingItem
           icon="bell-outline"
           label="Manage Notifications"
-          onPress={() => alert('Manage Notifications')}
+          onPress={() => Alert.alert('Notifications', 'Manage Notifications pressed')}
         />
         <SettingItem
           icon="theme-light-dark"
@@ -68,37 +117,28 @@ const Settings = () => {
           label="Enable Voice Recognition"
           isSwitch
           switchValue={voiceEnabled}
-          onSwitch={() => setVoiceEnabled(!voiceEnabled)}
+          onSwitch={toggleVoice}
         />
       </View>
     </ScrollView>
   );
 };
 
+/************ STYLES *************/
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#fff',
-    flexGrow: 1,
-  },
+  container: { backgroundColor: '#fff', flexGrow: 1 },
   header: {
-    backgroundColor: 'rgb(160,240,220)',
+    backgroundColor: MINT,
     paddingVertical: 40,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
     alignItems: 'center',
   },
-  title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#000',
-    marginTop: -6,
-  },
-  body: {
-    padding: 20,
-  },
+  title: { fontSize: 26, fontWeight: 'bold', color: '#000' },
+  body: { padding: 20 },
   sectionHeader: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
     marginTop: 25,
     marginBottom: 10,
@@ -120,16 +160,8 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  itemText: {
-    fontSize: 16,
-    fontWeight: '500',
-    marginLeft: 14,
-    color: '#000',
-  },
+  row: { flexDirection: 'row', alignItems: 'center' },
+  itemText: { fontSize: 16, fontWeight: '500', marginLeft: 14, color: '#000' },
 });
 
 export default Settings;

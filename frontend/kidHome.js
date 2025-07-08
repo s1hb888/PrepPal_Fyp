@@ -6,13 +6,13 @@ import {
   ScrollView,
   SafeAreaView,
   FlatList,
-  Dimensions,
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   Image,
+  Dimensions,
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import YoutubePlayer from 'react-native-youtube-iframe';
@@ -23,6 +23,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 const KidHome = ({ navigation }) => {
   const [videos, setVideos] = useState([]);
   const playerRef = useRef();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchLatestVideo();
@@ -38,6 +39,8 @@ const KidHome = ({ navigation }) => {
       setVideos(fetchedVideos);
     } catch (err) {
       console.error('Fetch video error:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -56,9 +59,9 @@ const KidHome = ({ navigation }) => {
 
   const getCardGradient = (index) => {
     const gradients = [
-      ['#FFC1CC', '#FFB6C1'], // Pink
-      ['#A0F0DC', '#7BE7CE'], // Mint
-      ['#FFE680', '#FFD54F'], // Yellow
+      ['#FFC1CC', '#FFB6C1'],
+      ['#A0F0DC', '#7BE7CE'],
+      ['#FFE680', '#FFD54F'],
     ];
     return gradients[index % gradients.length];
   };
@@ -79,6 +82,14 @@ const KidHome = ({ navigation }) => {
 
   const latestVideo = videos.length > 0 ? videos[0] : null;
 
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#EF3349" />
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <KeyboardAvoidingView
@@ -89,7 +100,9 @@ const KidHome = ({ navigation }) => {
           <LinearGradient colors={['#FFC1CC', '#FFB6C1']} style={styles.topHeader}>
             <View style={styles.headerContent}>
               <Image
-                source={{ uri: 'https://cdn.creazilla.com/cliparts/7769836/child-girl-reading-book-clipart-xl.png' }}
+                source={{
+                  uri: 'https://cdn.creazilla.com/cliparts/7769836/child-girl-reading-book-clipart-xl.png',
+                }}
                 style={styles.kidImage}
               />
               <Text style={styles.helloKiddo}>
@@ -106,10 +119,9 @@ const KidHome = ({ navigation }) => {
                 style={styles.searchInput}
               />
               <FontAwesome name="search" size={18} color="#EF3349" style={styles.searchIcon} />
-
             </View>
 
-            <Text style={[styles.sectionTitle, { color: 'black' }]}>Start Learning</Text>
+            <Text style={styles.sectionTitle}>Start Learning</Text>
 
             <LinearGradient
               colors={['#A0F0DC', '#7BE7CE']}
@@ -119,38 +131,26 @@ const KidHome = ({ navigation }) => {
             >
               <View style={styles.videoContainer}>
                 {latestVideo ? (
-                  <YoutubePlayer
-                    ref={playerRef}
-                    height={200}
-                    play={false}
-                    videoId={latestVideo.videoId}
-                  />
+                  <YoutubePlayer ref={playerRef} height={200} play={false} videoId={latestVideo.videoId} />
                 ) : (
                   <ActivityIndicator size="large" color="#2BCB9A" />
                 )}
 
                 <TouchableOpacity onPress={() => navigation.navigate('WatchVideoScreen')}>
-  <LinearGradient
-    colors={['rgb(255, 230, 128)', 'rgb(255, 213, 79)']} // ✅ Yellow gradient in RGB
-    start={{ x: 0, y: 0 }}
-    end={{ x: 1, y: 1 }}
-    style={styles.watchMoreButton}
-  >
-    <FontAwesome
-      name="video-camera"
-      size={16}
-      color="#EF3349" // ✅ Red icon
-      style={{ marginRight: 6 }}
-    />
-    <Text style={styles.watchMoreText}>WATCH MORE</Text>
-  </LinearGradient>
-</TouchableOpacity>
-
-
+                  <LinearGradient
+                    colors={['rgb(255, 230, 128)', 'rgb(255, 213, 79)']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.watchMoreButton}
+                  >
+                    <FontAwesome name="video-camera" size={16} color="#EF3349" style={{ marginRight: 6 }} />
+                    <Text style={styles.watchMoreText}>WATCH MORE</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
               </View>
             </LinearGradient>
 
-            <Text style={[styles.sectionTitle, { color: 'black' }]}>Explore</Text>
+            <Text style={styles.sectionTitle}>Explore</Text>
 
             <FlatList
               data={cardData}
@@ -174,7 +174,6 @@ const cardWidth = (windowWidth - 48) / 2;
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#fff' },
   container: { backgroundColor: '#fff' },
-
   topHeader: {
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
@@ -183,7 +182,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     overflow: 'hidden',
   },
-
   whiteCurve: {
     backgroundColor: '#fff',
     borderTopLeftRadius: 40,
@@ -197,27 +195,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 8,
   },
-
   headerContent: { flexDirection: 'row', alignItems: 'center' },
   kidImage: { width: 90, height: 110, marginRight: 12 },
-
-  helloKiddo: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-
-  kiddo: {
-    fontStyle: 'italic',
-    fontWeight: 'bold',
-    color: '#EF3349',
-  },
-
-  searchWrapper: {
-    position: 'relative',
-    marginBottom: 10,
-  },
-
+  helloKiddo: { fontSize: 28, fontWeight: 'bold', color: '#000' },
+  kiddo: { fontStyle: 'italic', fontWeight: 'bold', color: '#EF3349' },
+  searchWrapper: { position: 'relative', marginBottom: 10 },
   searchInput: {
     backgroundColor: '#fff',
     borderRadius: 20,
@@ -225,38 +207,25 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     fontSize: 14,
     borderWidth: 1.5,
-    borderColor: 'rgb(160,240,220)', // ✅ Mint
-    color: 'black', // ✅ Black text
+    borderColor: 'rgb(160,240,220)',
+    color: 'black',
   },
-
-  searchIcon: {
-    position: 'absolute',
-    top: 12,
-    left: 15,
-  },
-
+  searchIcon: { position: 'absolute', top: 12, left: 15 },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 6,
     marginTop: 4,
-    color: 'black', // ✅ Black for "Start Learning" & "Explore"
+    color: 'black',
   },
-
-  videoGradientBorder: {
-    borderRadius: 14,
-    padding: 2,
-    marginBottom: 10,
-  },
-
+  videoGradientBorder: { borderRadius: 14, padding: 2, marginBottom: 10 },
   videoContainer: {
     borderRadius: 12,
     overflow: 'hidden',
     backgroundColor: '#fff',
     borderWidth: 2,
-    borderColor: 'rgb(160,240,220)', // ✅ Mint border
+    borderColor: 'rgb(160,240,220)',
   },
-
   watchMoreButton: {
     flexDirection: 'row',
     padding: 10,
@@ -265,17 +234,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-
-  watchMoreText: {
-    color: '#000',
-    fontWeight: '600',
-  },
-
+  watchMoreText: { color: '#000', fontWeight: '600' },
   cardRow: {
     justifyContent: 'space-between',
     marginBottom: 20,
   },
-
   card: {
     width: cardWidth,
     height: 100,
@@ -288,7 +251,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
-
   cardText: {
     marginTop: 10,
     color: '#000',
@@ -296,7 +258,39 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorModal: {
+    backgroundColor: '#fff',
+    padding: 25,
+    borderRadius: 20,
+    alignItems: 'center',
+    width: '80%',
+  },
+  errorTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 12,
+    color: '#EF3349',
+  },
+  errorTextModal: {
+    fontSize: 14,
+    color: '#000',
+    textAlign: 'center',
+    marginVertical: 10,
+  },
+  dismissButton: {
+    backgroundColor: '#EF3349',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginTop: 10,
+  },
+  dismissText: { color: '#fff', fontWeight: 'bold' },
 });
-
 
 export default KidHome;

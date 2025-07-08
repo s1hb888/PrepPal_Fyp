@@ -18,7 +18,9 @@ const Alphabet = require('./models/Alphabet');
 const Urdu = require('./models/Urdu');
 const Number = require('./models/Number');
 const videoRoutes = require('./routes/videoRoutes'); 
-
+const screenTimeRoutes = require('./routes/screenTime');
+const notificationRoutes = require('./routes/notification');
+const quizRoutes = require('./routes/quiz');
  //  BodyPart model added
 
 // DB Config
@@ -48,8 +50,9 @@ app.use('/api/bodyparts', bodyPartRoute); // Body parts route used
 app.use('/api/fruits', fruitRoutes); 
 app.use('/api/vegetables', vegetableRoutes); 
 app.use('/api', authRoutes);
-
-
+app.use('/api/screen-time', screenTimeRoutes);
+app.use('/api/notifications', notificationRoutes); // ✅ correct
+app.use('/api/quiz', quizRoutes);
 // Start the server
 const port = process.env.PORT || 5000;
 app.listen(port, '0.0.0.0', () => {
