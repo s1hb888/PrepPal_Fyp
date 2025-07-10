@@ -44,21 +44,29 @@ export const SessionProvider = ({ children, navigationRef, includedScreens = [] 
     }
   };
 
-  const enforceLockUI = () => {
+const enforceLockUI = () => {
+  const currentRoute = navigationRef.current?.getCurrentRoute()?.name;
+  if (!currentRoute) return;
+
+  // ✅ Show modal ONLY if current screen is in includedScreens
+  if (includedScreens.includes(currentRoute)) {
     if (!lockVisible) {
       setLockVisible(true);
       console.log('[🔒 Lock Modal SHOWN]');
       AsyncStorage.setItem('isLocked', 'true');
     }
-  };
+  } else {
+    console.log(`[🚫 Lock modal blocked on screen: ${currentRoute}]`);
+  }
+};
 
-  const clearLockUI = () => {
-    if (lockVisible) {
-      setLockVisible(false);
-      console.log('[🔓 Lock Modal CLEARED]');
-      AsyncStorage.setItem('isLocked', 'false');
-    }
-  };
+const clearLockUI = () => {
+  if (lockVisible) {
+    setLockVisible(false);
+    AsyncStorage.setItem('isLocked', 'false');
+    console.log('[🔓 Lock Modal CLEARED]');
+  }
+};
 
   /* ───────── start new session ───────── */
   const startKidSession = useCallback(async () => {
@@ -212,7 +220,7 @@ useEffect(() => {
   {children}
 
   {/* 🔒 Show lock modal ONLY for kid role */}
-  {lockVisible && (
+  {lockVisible && includedScreens.includes(navigationRef.current?.getCurrentRoute()?.name) && (
     <Modal transparent visible animationType="fade">
       <View style={styles.overlay}>
         <View style={styles.card}>
