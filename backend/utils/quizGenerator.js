@@ -6,14 +6,19 @@ const generateQuiz = async (subject) => {
 
   switch (subject.toLowerCase()) {
     case 'english':
-      prompt = `Generate 10 multiple-choice questions for kids aged 4 to 5 on English alphabets. 
-Focus on:
-- identifying alphabet letters,
-- completing missing letters in the sequence (like A _ C),
-- choosing the correct alphabet for a picture (like Apple = A).
+      prompt = `Generate 10 multiple-choice questions for kids aged 4 to 5 learning English alphabets.
 
-Each question must have 4 options and one correct answer.
-Format as:
+Focus on:
+- Identifying individual letters
+- Completing missing letters in a sequence (like A _ C)
+- Matching letters with pictures (e.g., Apple = A)
+
+Each question should:
+- Be simple
+- Mention visuals where relevant (e.g., "Picture of Apple")
+- Use one correct answer and 4 options
+
+Format:
 Q: Question text?
 a) Option A
 b) Option B
@@ -24,15 +29,19 @@ Answer: a) Option A`;
 
     case 'math':
     case 'maths':
-      prompt = `Generate 10 basic math multiple-choice questions for kids aged 4 to 5.
-Include:
-- counting objects shown in visuals (mention visuals),
-- identifying numbers,
-- choosing what comes next (1, 2, __),
-- comparing groups (e.g., which has more items).
+      prompt = `Generate 10 basic math multiple-choice questions for preschool kids aged 4 to 5.
 
-Each question must have 4 options and one correct answer.
-Format as:
+Include:
+- Counting objects shown in visuals (e.g., "Image showing 3 apples")
+- Identifying numbers (1 to 10)
+- Completing sequences (e.g., 1, 2, __)
+- Comparing quantities (e.g., which group has more)
+
+Each question must:
+- Clearly mention the visual if needed
+- Have 4 options and 1 correct answer
+
+Format:
 Q: Question text?
 a) Option A
 b) Option B
@@ -42,16 +51,20 @@ Answer: a) Option A`;
       break;
 
     case 'urdu':
-      prompt = `Generate 10 multiple-choice questions for kids aged 4 to 5 on Urdu alphabets (Huroof-e-Tahaji).
-Include:
-- identifying letters like 'Alif', 'Bay', 'Pay'
-- completing sequences (e.g., Alif, ___, Pay)
-- selecting correct letter for a picture (e.g., Aam = Alif)
+      prompt = `Generate 10 multiple-choice questions for kids aged 4 to 5 learning Urdu alphabets (Huroof-e-Tahaji).
 
-Use Roman Urdu if necessary for understanding.
-Each question must have 4 options and one correct answer.
-Format as:
-Q: Question text?
+Focus on:
+- Recognizing Urdu letters like الف، ب، پ
+- Completing letter sequences (e.g., الف، ___، پ)
+- Matching Urdu letters with images (e.g., آم = الف)
+
+Instructions:
+- Write the questions and options using **actual Urdu script**, not Roman Urdu
+- Keep the language age-appropriate
+- Each question must have 4 options and 1 correct answer
+
+Format:
+Q: سوال کا متن؟
 a) Option A
 b) Option B
 c) Option C
@@ -60,9 +73,9 @@ Answer: a) Option A`;
       break;
 
     default:
-      prompt = `Generate 10 multiple-choice questions for kids aged 4 to 5 on the subject "${subject}". 
-Each question must have 4 options and clearly indicate the correct answer. 
-Format as:
+      prompt = `Generate 10 multiple-choice questions for kids aged 4 to 5 on the subject "${subject}". Each question must have 4 options and 1 correct answer.
+
+Format:
 Q: Question text?
 a) Option A
 b) Option B
@@ -112,4 +125,3 @@ Answer: a) Option A`;
 };
 
 module.exports = generateQuiz;
-

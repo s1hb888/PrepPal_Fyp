@@ -11,11 +11,12 @@ const notificationSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
-  type: {
-    type: String,
-    enum: ['session_end', 'daily_limit', 'background_exit', 'other'],  // ✅ added
-    default: 'other',
-  },
+ type: {
+  type: String,
+  enum: ['session_end', 'daily_limit', 'background_exit', 'early_exit', 'other'],
+  default: 'other',
+},
+
   seen: {
     type: Boolean,
     default: false,

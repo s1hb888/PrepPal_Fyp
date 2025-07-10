@@ -19,15 +19,33 @@ import YoutubePlayer from 'react-native-youtube-iframe';
 import axios from 'axios';
 import { API_BASE_URL } from './config';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const KidHome = ({ navigation }) => {
   const [videos, setVideos] = useState([]);
   const playerRef = useRef();
   const [loading, setLoading] = useState(true);
+  const [kidName, setKidName] = useState('');
+
 
   useEffect(() => {
     fetchLatestVideo();
+    fetchProfile();
   }, []);
+
+  const fetchProfile = async () => {
+  try {
+    const token = await AsyncStorage.getItem('token');
+    const res = await axios.get(`${API_BASE_URL}/api/profile`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    setKidName(res.data.kidName || '');
+  } catch (err) {
+    console.error('Fetch profile error:', err);
+  }
+};
 
   const fetchLatestVideo = async () => {
     try {
@@ -106,8 +124,9 @@ const KidHome = ({ navigation }) => {
                 style={styles.kidImage}
               />
               <Text style={styles.helloKiddo}>
-                Hello, <Text style={styles.kiddo}>Kiddo!</Text>
-              </Text>
+  Hello, <Text style={styles.kiddo}>{kidName || 'Kiddo'}!</Text>
+</Text>
+
             </View>
           </LinearGradient>
 

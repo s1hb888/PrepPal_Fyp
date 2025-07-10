@@ -151,9 +151,16 @@ export const SessionProvider = ({ children, navigationRef, includedScreens = [] 
   };
 
   /* ───────── lifecycle ───────── */
-  useEffect(() => {
-    startKidSession();                          // app launch
-  }, []);
+ useEffect(() => {
+  (async () => {
+    const stored = await AsyncStorage.getItem('user');
+    const user = JSON.parse(stored || '{}');
+    if (user?.role === 'kid') {
+      startKidSession();
+    }
+  })();
+}, []);
+
 
 useEffect(() => {
   const sub = AppState.addEventListener('change', async (nextAppState) => {
@@ -165,7 +172,10 @@ useEffect(() => {
       try {
         const stored = await AsyncStorage.getItem('user');
         const user = JSON.parse(stored || '{}');
-        if (user?.role === 'kid') {
+        if (user?.role === 'kid') {{
+  stopPollingRef.current = false;
+  startKidSession();
+}
           console.log('[📴 App going to background – notifying backend]');
           await axios.post(`${API_BASE_URL}/api/notifications/app-background`,{
             userId: user._id,
@@ -198,25 +208,28 @@ useEffect(() => {
 
   /* ───────── render ───────── */
   return (
-    <SessionContext.Provider value={{ startKidSession }}>
-      {children}
+<SessionContext.Provider value={{ startKidSession }}>
+  {children}
 
-      <Modal transparent visible={lockVisible} animationType="fade">
-        <View style={styles.overlay}>
-          <View style={styles.card}>
-            <View style={styles.iconWrap}>
-              <Ionicons name="lock-closed-outline" size={80} color="#fff" />
-            </View>
-            <Text style={styles.title}>Time’s Up!</Text>
-            <Text style={styles.msg}>You can use the app again when it unlocks.</Text>
-            <TouchableOpacity style={styles.btn} onPress={backToLogin}>
-              <Ionicons name="exit-outline" size={22} color="#fff" />
-              <Text style={styles.btnTxt}>Back to Login</Text>
-            </TouchableOpacity>
+  {/* 🔒 Show lock modal ONLY for kid role */}
+  {lockVisible && (
+    <Modal transparent visible animationType="fade">
+      <View style={styles.overlay}>
+        <View style={styles.card}>
+          <View style={styles.iconWrap}>
+            <Ionicons name="lock-closed-outline" size={80} color="#fff" />
           </View>
+          <Text style={styles.title}>Time’s Up!</Text>
+          <Text style={styles.msg}>You can use the app again when it unlocks.</Text>
+          <TouchableOpacity style={styles.btn} onPress={backToLogin}>
+            <Ionicons name="exit-outline" size={22} color="#fff" />
+            <Text style={styles.btnTxt}>Back to Login</Text>
+          </TouchableOpacity>
         </View>
-      </Modal>
-    </SessionContext.Provider>
+      </View>
+    </Modal>
+  )}
+</SessionContext.Provider>
   );
 };
 

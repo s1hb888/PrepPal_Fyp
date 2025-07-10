@@ -76,19 +76,19 @@ router.post('/start-session', async (req, res) => {
 });
 
 /* ───────── SAVE / UPDATE SETTINGS ───────── */
+// ✅ Save route update with try-catch inside notification
 router.post('/save', async (req, res) => {
   try {
     const { userId } = req.body;
     if (!isValidId(userId))
       return res.status(400).json({ success: false, error: 'Invalid userId' });
 
-    const data = {
-      dailyUsageLimit:   num(req.body.dailyUsageLimit),
-      sessionDuration:   num(req.body.sessionDuration),
-      totalDailyTime:    num(req.body.totalDailyTime),
-      notificationsEnabled: !!req.body.notificationsEnabled,
-      nextSessionGap:    num(req.body.nextSessionGap),
-    };
+    const data = {};
+    if (req.body.dailyUsageLimit !== undefined) data.dailyUsageLimit = num(req.body.dailyUsageLimit);
+    if (req.body.sessionDuration !== undefined) data.sessionDuration = num(req.body.sessionDuration);
+    if (req.body.totalDailyTime !== undefined) data.totalDailyTime = num(req.body.totalDailyTime);
+    if (req.body.notificationsEnabled !== undefined) data.notificationsEnabled = !!req.body.notificationsEnabled;
+    if (req.body.nextSessionGap !== undefined) data.nextSessionGap = num(req.body.nextSessionGap);
 
     const rec = await ScreenTime.findOneAndUpdate(
       { userId },
@@ -104,11 +104,14 @@ router.post('/save', async (req, res) => {
       { new: true, upsert: true }
     );
 
-    res.json({ success: true, data: rec });
+
+    return res.json({ success: true, data: rec });
+
   } catch (e) {
-    res.status(500).json({ success: false, error: e.message });
+    return res.status(500).json({ success: false, error: e.message });
   }
 });
+
 
 /* ───────── GET STATUS ───────── */
 router.get('/:userId', async (req, res) => {
@@ -176,14 +179,6 @@ router.post('/lock-session', async (req, res) => {
 
     await rec.save();
 
-    if (rec.notificationsEnabled) {
-      const msg =
-        num(rec.totalDailyTime) > 0 && rec.totalUsedTimeToday >= num(rec.totalDailyTime)
-          ? `Daily limit reached (${rec.totalUsedTimeToday}/${rec.totalDailyTime} min). App locked.`
-          : `Session ended. Used ${minutesUsed} min. Total today: ${rec.totalUsedTimeToday} min.`;
-
-      await Notification.create({ userId, message: msg });
-    }
 
     res.json({ success: true, locked: true, message: 'Session locked' });
   } catch (e) {

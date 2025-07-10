@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const moment = require('moment');
 const Notification = require('../models/Notification');
 const ScreenTime = require('../models/ScreenTime');
-const User = require('../models/User'); // ⬅️ Required to fetch kidName
+const User = require('../models/User');
 
 const router = express.Router();
 
@@ -56,13 +56,19 @@ router.post('/app-background', async (req, res) => {
     const parent = await User.findById(userId);
     const kidName = parent?.kidName || 'Kid';
 
-    const msg = `App was sent to background with ${human(left)} left in the session. Used ${human(used)}.`;
+const recCheck = await ScreenTime.findOne({ userId });
+if (!recCheck || recCheck.notificationsEnabled === false) {
+  return res.json({ success: true, skipped: true, reason: 'Notifications disabled' });
+}
 
-    await Notification.create({
-      userId,
-      message: msg,
-      type: 'background_exit',
-    });
+const msg = `App was closed early: used ${human(used)} of ${human(rec.sessionDuration)}.`;
+
+
+await Notification.create({
+  userId,
+  message: msg,
+  type: 'early_exit',
+});
 
     res.json({ success: true, locked: true });
   } catch (e) {
