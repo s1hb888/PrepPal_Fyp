@@ -61,14 +61,17 @@ if (!recCheck || recCheck.notificationsEnabled === false) {
   return res.json({ success: true, skipped: true, reason: 'Notifications disabled' });
 }
 
-const msg = `App was closed early: used ${human(used)} of ${human(rec.sessionDuration)}.`;
+const msg = `App was sent to background: used ${human(used)} of ${human(rec.sessionDuration)}.`;
 
+// Check if enough of session was used (e.g., less than 50%) to still call it early exit
+const isEarly = used < Math.floor(rec.sessionDuration * 0.6); // tweakable threshold
 
 await Notification.create({
   userId,
   message: msg,
-  type: 'early_exit',
+  type: isEarly ? 'early_exit' : 'background_exit',
 });
+
 
     res.json({ success: true, locked: true });
   } catch (e) {

@@ -13,7 +13,7 @@ import Profile from './frontend/Profile';
 import Home from './frontend/Home';
 
 /* KID SCREENS */
-import KidHome from './frontend/KidHome';
+import KidHome from './frontend/kidHome';
 import Courses from './frontend/Courses';
 import LearningMenu from './frontend/LearningMenu';
 import AcademicLearning from './frontend/AcademicLearning';
