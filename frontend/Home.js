@@ -25,9 +25,43 @@ const Home = ({ navigation }) => {
   const [activeNote, setActiveNote] = useState(null);
   const progressPercent = 0.68;
 
-  useEffect(() => {
-    if (selectedTab === 'Notifications') fetchNotifications();
-  }, [selectedTab]);
+useEffect(() => {
+  if (selectedTab === 'Notifications') {
+    fetchNotificationsAndMarkRead();
+  }
+}, [selectedTab]);
+
+const fetchNotificationsAndMarkRead = async () => {
+  try {
+    const userData = await AsyncStorage.getItem('user');
+    if (!userData) return;
+    const { _id, role } = JSON.parse(userData);
+    if (role !== 'parent') return;
+
+    // 1. Fetch notifications first
+    const res = await fetch(`${API_BASE_URL}/api/notifications/${_id}`);
+    const json = await res.json();
+    if (json.success) {
+      setNotifications(json.data);
+    }
+
+    // 2. Then mark all as seen
+    await fetch(`${API_BASE_URL}/api/notifications/mark-all-read/${_id}`, {
+      method: 'PATCH',
+    });
+
+    // 3. Optional: refresh UI again with updated seen flags
+    const resUpdated = await fetch(`${API_BASE_URL}/api/notifications/${_id}`);
+    const updatedJson = await resUpdated.json();
+    if (updatedJson.success) {
+      setNotifications(updatedJson.data);
+    }
+
+  } catch (err) {
+    console.error('Error loading/marking notifications:', err);
+  }
+};
+
 
 const handleLogout = async () => {
   try {
@@ -74,27 +108,39 @@ console.log('successfully logged out');
       const res = await fetch(`${API_BASE_URL}/api/notifications/${_id}`);
       const json = await res.json();
       if (json.success) {
-        setNotifications(json.data.map(n => ({ ...n, seen: n.seen || false })));
+        setNotifications(json.data);
       }
     } catch (err) {
       console.error('Error fetching notifications:', err);
     }
   };
 
-  const openNotification = async note => {
-    setActiveNote(note);
-    setModalVisible(true);
-    if (!note.seen) {
-      try {
-        await fetch(`${API_BASE_URL}/api/notifications/mark-read/${note._id}`, {
-          method: 'PATCH',
-        });
-      } catch {}
+const openNotification = async note => {
+  setActiveNote(note);
+  setModalVisible(true);
+console.log('Opened notification:', note);
+
+  if (!note.seen) {
+    try {
+      await fetch(`${API_BASE_URL}/api/notifications/mark-read/${note._id}`, {
+        method: 'PATCH',
+      });
+
+      // Update local state instantly (optional)
       setNotifications(prev =>
-        prev.map(n => (n._id === note._id ? { ...n, seen: true } : n))
+        prev.map(n =>
+          n._id === note._id ? { ...n, seen: true } : n
+        )
       );
+
+      // OR: re-fetch latest notifications properly
+      await fetchNotifications();
+    } catch (err) {
+      console.error('Error marking as seen:', err);
     }
-  };
+  }
+};
+
 
   const clearAll = async () => {
     const userData = await AsyncStorage.getItem('user');
@@ -125,16 +171,20 @@ console.log('successfully logged out');
               ) : (
                 <ScrollView style={{ width: '100%' }}>
                   {notifications.map(note => (
-                    <View key={note._id} style={[styles.noteCardNew, note.seen ? styles.read : styles.unread]}>
-                      <View style={styles.noteStripeNew} />
-                      <View style={styles.noteContentNew}>
-                        <Text style={styles.noteMsgNew}>{note.message}</Text>
-                      </View>
-                      <TouchableOpacity style={styles.noteCloseBtnNew} onPress={() => deleteNotification(note._id)}>
-                        <Feather name="minus-circle" size={16} color="#EF3349" />
-                      </TouchableOpacity>
-                    </View>
-                  ))}
+  <TouchableOpacity
+    key={note._id}
+    onPress={() => openNotification(note)}
+    style={[styles.noteCardNew, note.seen ? styles.read : styles.unread]}
+  >
+    <View style={styles.noteStripeNew} />
+    <View style={styles.noteContentNew}>
+      <Text style={styles.noteMsgNew}>{note.message}</Text>
+    </View>
+    <TouchableOpacity style={styles.noteCloseBtnNew} onPress={() => deleteNotification(note._id)}>
+      <Feather name="minus-circle" size={16} color="#EF3349" />
+    </TouchableOpacity>
+  </TouchableOpacity>
+))}
                 </ScrollView>
               )}
             </View>
@@ -222,6 +272,24 @@ console.log('successfully logged out');
       </Modal>
 
       {renderTabContent()}
+
+      <Modal
+  transparent
+  visible={modalVisible}
+  animationType="fade"
+  onRequestClose={() => setModalVisible(false)}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContent}>
+      <Text style={styles.modalTitle}>Notification</Text>
+      <Text style={styles.modalMessage}>{activeNote?.message}</Text>
+      <TouchableOpacity style={styles.modalBtn} onPress={() => setModalVisible(false)}>
+        <Text style={styles.modalBtnText}>Close</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+
 
       <View style={styles.bottomBar}>
         {[{tab: 'Home', icon: 'home'}, {tab: 'Profile', icon: 'user'}, {tab: 'Settings', icon: 'settings'}, {tab: 'Notifications', icon: 'bell'}].map(({tab, icon}) => (

@@ -49,9 +49,6 @@ router.post('/app-background', async (req, res) => {
 
     await rec.save();
 
-    if (await alreadySentToday(userId, 'background_exit')) {
-      return res.json({ success: true, dup: true });
-    }
 
     const parent = await User.findById(userId);
     const kidName = parent?.kidName || 'Kid';
@@ -88,9 +85,6 @@ router.post('/notify-parent', async (req, res) => {
       return res.status(400).json({ success: false, msg: 'Bad request data' });
     }
 
-    if (await alreadySentToday(userId, 'early_exit')) {
-      return res.json({ success: true, dup: true });
-    }
 
     const parent = await User.findById(userId);
     const kidName = parent?.kidName || 'Kid';
@@ -129,8 +123,18 @@ router.patch('/mark-read/:id', async (req, res) => {
     const { id } = req.params;
     if (!isId(id)) return res.status(400).json({ success: false });
 
-    await Notification.findByIdAndUpdate(id, { seen: true });
-    res.json({ success: true });
+    const updated = await Notification.findByIdAndUpdate(
+  id,
+  { seen: true },
+  { new: true, runValidators: true }
+);
+
+if (!updated) {
+  return res.status(404).json({ success: false, msg: 'Notification not found' });
+}
+
+res.json({ success: true, updated });
+
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -148,5 +152,20 @@ router.delete('/clear/:userId', async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
+
+/* ───── Mark All Notifications as Seen ───── */
+router.patch('/mark-all-read/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    if (!isId(userId)) return res.status(400).json({ success: false });
+
+    await Notification.updateMany({ userId, seen: false }, { seen: true });
+
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 
 module.exports = router;
