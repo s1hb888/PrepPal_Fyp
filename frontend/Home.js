@@ -27,9 +27,14 @@ const Home = ({ navigation }) => {
 
 useEffect(() => {
   if (selectedTab === 'Notifications') {
-    fetchNotificationsAndMarkRead();
+    const timeout = setTimeout(() => {
+      fetchNotificationsAndMarkRead();
+    }, 100); // Give a short delay to ensure UI is mounted
+
+    return () => clearTimeout(timeout); // cleanup
   }
 }, [selectedTab]);
+
 
 const fetchNotificationsAndMarkRead = async () => {
   try {
