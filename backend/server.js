@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const path = require('path');
-require('dotenv').config(); // Load environment variables
+require('dotenv').config(); 
 
 // Routes
 const authRoutes = require('./routes/auth');
@@ -17,11 +17,16 @@ const vegetableRoutes = require('./routes/vegetable');
 const Alphabet = require('./models/Alphabet');
 const Urdu = require('./models/Urdu');
 const Number = require('./models/Number');
+const Video = require('./models/Video');
+
+
 const videoRoutes = require('./routes/videoRoutes'); 
 const screenTimeRoutes = require('./routes/screenTime');
 const notificationRoutes = require('./routes/notification');
 const quizRoutes = require('./routes/quiz');
- //  BodyPart model added
+const duaRoutes = require('./routes/duas');
+const worshipRoute = require('./routes/worship');
+const beliefsRoute = require('./routes/beliefs');
 
 // DB Config
 
@@ -46,13 +51,16 @@ app.use('/api/videos', videoRoutes);
 app.use('/api', authRoutes);
 app.use('/api', profileRoutes);
 app.use('/api/vowels', vowelRoutes);
-app.use('/api/bodyparts', bodyPartRoute); // Body parts route used
+app.use('/api/bodyparts', bodyPartRoute); 
 app.use('/api/fruits', fruitRoutes); 
 app.use('/api/vegetables', vegetableRoutes); 
 app.use('/api', authRoutes);
 app.use('/api/screen-time', screenTimeRoutes);
-app.use('/api/notifications', notificationRoutes); // ✅ correct
+app.use('/api/notifications', notificationRoutes); 
 app.use('/api/quiz', quizRoutes);
+app.use('/api/duas', duaRoutes);
+app.use('/api/worship', worshipRoute);
+app.use('/api/beliefs', beliefsRoute);
 // Start the server
 const port = process.env.PORT || 5000;
 app.listen(port, '0.0.0.0', () => {

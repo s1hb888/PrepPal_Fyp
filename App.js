@@ -31,6 +31,8 @@ import FruitScreen from './frontend/FruitScreen';
 import VegetableScreen from './frontend/VegetableScreen';
 import Color from './frontend/Color';
 import WatchVideoScreen from './frontend/WatchVideosScreen';
+import LearnIslamicStudies from './frontend/LearnIslamicStudies'; 
+import BasicBeliefsScreen from './frontend/BasicBeliefsScreen';
 
 /* PARENT / SHARED */
 import Settings from './frontend/Settings';
@@ -40,6 +42,8 @@ import UrduAccessScreen from './frontend/UrduAccessScreen';
 import AlphabetsAccessScreen from './frontend/AlphabetsAccessScreen';
 import AccessManagement from './frontend/AccessManagement';
 import ScreenTimeControl from './frontend/ScreenTimeControl';
+import DuaScreen from './frontend/DuaScreen';
+import WorshipPracticeScreen from './frontend/WorshipPracticeScreen';
 
 const Stack = createStackNavigator();
 
@@ -63,6 +67,10 @@ const includedScreens = [
   'VegetableScreen',
   'Color',
   'WatchVideoScreen',
+  'LearnIslamicStudies',
+  'DuaScreen',
+  'WorshipPracticeScreen',
+  'BasicBeliefsScreen',
 ];
 
 
@@ -118,7 +126,12 @@ export default function App() {
           <Stack.Screen name="FruitScreen" component={FruitScreen} />
           <Stack.Screen name="VegetableScreen" component={VegetableScreen} />
           <Stack.Screen name="Color" component={Color} />
+          <Stack.Screen name="IslamicScreen" component={LearnIslamicStudies}/>
           <Stack.Screen name="WatchVideoScreen" component={WatchVideoScreen} />
+          <Stack.Screen name="DuaScreen" component={DuaScreen} />
+          <Stack.Screen name="WorshipPracticeScreen" component={WorshipPracticeScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="BasicBeliefsScreen" component={BasicBeliefsScreen} />
+
         </Stack.Navigator>
       </NavigationContainer>
     </SessionProvider>

@@ -43,7 +43,7 @@ const WatchVideoScreen = () => {
 
   const fetchVideos = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/api/videos/get-videos`);
+      const res = await axios.get(`${API_BASE_URL}/api/videos`);
       const fetchedVideos = res.data.map((vid) => {
         const videoId = extractYouTubeVideoID(vid.url);
         const thumbnail = videoId
