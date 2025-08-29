@@ -19,18 +19,27 @@ const userSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  city: {
+    type: String,
+    required: true,
+  },
+  area: {
+    type: String,
+    required: true,
+  },
   role: {
     type: String,
     enum: ['parent', 'kid'],
     required: true,
   },
   profileImage: {
-    type: String, 
+    type: String,
   },
   isActive: {
     type: Boolean,
     default: true, // new users will be active by default
-  }
+  },
+  token: { type: String }
 });
 
 // Encrypt password before saving

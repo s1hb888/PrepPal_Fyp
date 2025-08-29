@@ -19,7 +19,7 @@ const Urdu = require('./models/Urdu');
 const Number = require('./models/Number');
 const Video = require('./models/Video');
 
-
+const feedbackRoutes = require('./routes/feedbackRoutes');
 const videoRoutes = require('./routes/videoRoutes'); 
 const screenTimeRoutes = require('./routes/screenTime');
 const notificationRoutes = require('./routes/notification');
@@ -61,6 +61,9 @@ app.use('/api/quiz', quizRoutes);
 app.use('/api/duas', duaRoutes);
 app.use('/api/worship', worshipRoute);
 app.use('/api/beliefs', beliefsRoute);
+app.use('/api/feedback', feedbackRoutes);
+
+
 // Start the server
 const port = process.env.PORT || 5000;
 app.listen(port, '0.0.0.0', () => {

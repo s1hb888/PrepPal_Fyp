@@ -13,14 +13,14 @@ const ScreenTime = require('../models/ScreenTime');
 
 
 // Registration Route
+// Registration Route
 router.post('/register', async (req, res) => {
-  const { email, password, kidName, kidAge, role } = req.body;
+  const { email, password, kidName, kidAge, role, city, area } = req.body;
 
   // Validate input fields
-  if (!email || !password || !kidName || !kidAge) {
+  if (!email || !password || !kidName || !kidAge || !city || !area) {
     return res.status(400).json({ message: 'All fields are required.' });
   }
-  
 
   // Validate Email Format
   const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
@@ -46,6 +46,8 @@ router.post('/register', async (req, res) => {
       password,
       kidName,
       kidAge,
+      city,
+      area,
       role: userRole,
     });
 
@@ -74,9 +76,6 @@ router.post('/register', async (req, res) => {
     return res.status(500).json({ message: 'Server error, please try again later.' });
   }
 });
-
-
-
 router.post('/login', async (req, res) => {
   const { email, password, role } = req.body;
 
@@ -96,20 +95,24 @@ router.post('/login', async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ message: 'Invalid email or password.' });
 
-    // ✅ Allow login, regardless of selected role
+    // Generate JWT token
     const token = jwt.sign(
       { id: user._id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
 
-    // ✅ Only apply screen time if user selected 'kid' mode
+    // Save token in user document
+    user.token = token;
+    await user.save();
+
+    // Only apply screen time if user selected 'kid' mode
     if (role === 'kid') {
       const today = new Date().toDateString();
       let screenTime = await ScreenTime.findOne({ userId: user._id });
 
       if (!screenTime) {
-        // Optional: Initialize if not found
+        // Initialize if not found
         screenTime = await ScreenTime.create({
           userId: user._id,
           dailyUsageLimit: 3,
@@ -170,42 +173,34 @@ router.post('/login', async (req, res) => {
       await screenTime.save();
     }
 
-res.status(200).json({
-  message: 'Login successful.',
-  token,
-  role, // 👈 return the selected role
-  user: {
-    _id: user._id,
-    email: user.email,
-    role, // 👈 override DB role with selected role
-    kidName: user.kidName,
-    kidAge: user.kidAge,
-    isActive: user.isActive
-  }
-});
-
+    // Send response
+    res.status(200).json({
+      message: 'Login successful.',
+      token,
+      role, // return the selected role
+      user: {
+        _id: user._id,
+        email: user.email,
+        role, // override DB role with selected role
+        kidName: user.kidName,
+        kidAge: user.kidAge,
+        isActive: user.isActive
+      }
+    });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Server error, please try again later.' });
   }
 });
 
-
-
-
 // -----------------------------------------------------------------------------
 // POST /api/auth/logout
-// -----------------------------------------------------------------------------
-// • For parents → nothing special, we just confirm the token is valid.
-// • For kids   → we close the running screen‑time session and update totals.
 // -----------------------------------------------------------------------------
 router.post('/logout', verifyToken, async (req, res) => {
   try {
     const { id: userId, role } = req.user;
 
-    // ───────────────────────────────────────────────────────────────────────────
-    // If the user is in kid mode, end the screen‑time session cleanly
-    // ───────────────────────────────────────────────────────────────────────────
+    // End kid screen-time session
     if (role === 'kid') {
       const screenTime = await ScreenTime.findOne({ userId });
       if (screenTime && screenTime.sessionStartTime) {
@@ -220,8 +215,12 @@ router.post('/logout', verifyToken, async (req, res) => {
       }
     }
 
-    // If you keep a token blacklist, insert token here (optional)
-    // e.g. await BlacklistToken.create({ token: req.token });
+    // Clear token in user document
+    const user = await User.findById(userId);
+    if (user) {
+      user.token = null;
+      await user.save();
+    }
 
     return res.json({ message: 'Logged out successfully.' });
   } catch (err) {
@@ -229,7 +228,6 @@ router.post('/logout', verifyToken, async (req, res) => {
     return res.status(500).json({ message: 'Server error during logout.' });
   }
 });
-
 
 
 // Update Numbers Access

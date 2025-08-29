@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,130 +7,122 @@ import {
   SafeAreaView,
   Dimensions,
   Platform,
-} from 'react-native';
-import Svg, { Circle, Rect, Defs, LinearGradient, Stop } from 'react-native-svg';
-import * as Speech from 'expo-speech';
+} from "react-native";
+import Svg, { Circle, Rect, Defs, LinearGradient, Stop } from "react-native-svg";
+import * as Speech from "expo-speech";
 
-const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 
 const COLORS = [
-  'red', 'green', 'black', 'white',
-  'blue', 'yellow', 'orange', 'pink',
-  'navy', 'brown', 'purple', 'gray',
+  { name: "Red", hex: "#EF3349" },
+  { name: "Green", hex: "#2BCB9A" },
+  { name: "Yellow", hex: "#FFCF25" },
+  { name: "Blue", hex: "#4287F5" },
+  { name: "Pink", hex: "#FF77AA" },
+  { name: "Purple", hex: "#8B5CF6" },
+  { name: "Orange", hex: "#FF7A00" },
+  { name: "Gray", hex: "#9CA3AF" },
+  { name: "Brown", hex: "#8B4513" },
+  { name: "Black", hex: "#000000" },
+  { name: "White", hex: "#FFFFFF" },
+  { name: "Navy", hex: "#001F54" },
 ];
 
 export default function ColorScreen() {
-  const [selectedColor, setSelectedColor] = useState('red');
+  const [selectedColor, setSelectedColor] = useState(COLORS[0]);
 
-  const handleColorSelect = (color) => {
-    setSelectedColor(color);
-    Speech.speak(color);
+  const handleColorSelect = (colorObj) => {
+    setSelectedColor(colorObj);
+    Speech.speak(colorObj.name);
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.gradientTop} />
       <Text style={styles.heading}>🎨 Pick a Color & Make Your Lollipop Pop!</Text>
 
+      {/* SVG Lollipop */}
       <View style={styles.svgArea}>
         <Svg height="385" width="245" viewBox="0 0 250 450">
           <Defs>
-            <LinearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-              <Stop offset="0%" stopColor={selectedColor} stopOpacity="1" />
-              <Stop offset="100%" stopColor={selectedColor} stopOpacity="1" />
+            <LinearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <Stop offset="0%" stopColor={selectedColor.hex} stopOpacity="1" />
+              <Stop offset="100%" stopColor={selectedColor.hex} stopOpacity="1" />
             </LinearGradient>
           </Defs>
-          <Circle cx="125" cy="120" r="90" fill="url(#grad1)" stroke="black" strokeWidth="2" />
-          <Rect x="112" y="230" width="26" height="180" rx="13" fill="burlywood" />
+          {/* Lollipop head */}
+          <Circle
+            cx="125"
+            cy="120"
+            r="90"
+            fill="url(#grad)"
+            stroke="black"
+            strokeWidth="2"
+          />
+          {/* Stick */}
+          <Rect
+            x="112"
+            y="230"
+            width="26"
+            height="180"
+            rx="13"
+            fill="burlywood"
+          />
         </Svg>
+        <Text style={styles.selectedName}>{selectedColor.name}</Text>
       </View>
 
+      {/* Palette */}
       <View style={styles.paletteContainer}>
-        {[0, 1, 2].map((rowIndex) => (
-          <View key={rowIndex} style={styles.colorRow}>
-            {COLORS.slice(rowIndex * 4, rowIndex * 4 + 4).map((color) => (
-              <TouchableOpacity
-                key={color}
-                onPress={() => handleColorSelect(color)}
-                style={[
-                  styles.colorCircle,
-                  {
-                    backgroundColor: color,
-                    borderWidth: selectedColor === color ? 3 : 1,
-                    borderColor: selectedColor === color ? '#EF3349' : '#ccc',
-                  },
-                ]}
-              />
-            ))}
-          </View>
+        {COLORS.map((color) => (
+          <TouchableOpacity
+            key={color.name}
+            onPress={() => handleColorSelect(color)}
+            style={[
+              styles.colorCircle,
+              {
+                backgroundColor: color.hex,
+                borderWidth: selectedColor.hex === color.hex ? 3 : 1,
+                borderColor:
+                  selectedColor.hex === color.hex ? "#EF3349" : "#ccc",
+              },
+            ]}
+          />
         ))}
       </View>
-
-      <View style={styles.gradientBottom} />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFFDF8' },
+  container: { flex: 1, backgroundColor: "#FFFDF8" },
   heading: {
-    fontSize: 26,
-    textAlign: 'center',
-    marginTop: 50,
-    marginBottom: 22,
-    fontWeight: '700',
-    color: '#000',
-    fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
+    fontSize: 24,
+    textAlign: "center",
+    marginTop: 40,
+    marginBottom: 10,
+    fontWeight: "700",
+    color: "#000",
+    fontFamily: Platform.OS === "ios" ? "Georgia" : "serif",
   },
-  svgArea: { alignItems: 'center', marginTop: -20, marginBottom: 120 },
+  svgArea: {
+    alignItems: "center",
+    marginVertical: 20,
+  },
+  selectedName: {
+    marginTop: 8,
+    fontSize: 18,
+    fontWeight: "700",
+  },
   paletteContainer: {
-    alignSelf: 'center',
-    backgroundColor: '#FFF3F5',
-    borderRadius: 25,
-    paddingVertical: 20,
-    paddingHorizontal: 10,
-    width: width * 0.94,
-    elevation: 6,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
-    marginBottom: 30,
-    marginTop: -120,
-  },
-  colorRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 15,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    marginTop: 20,
   },
   colorCircle: {
-    width: 62,
-    height: 62,
-    borderRadius: 31,
-    marginHorizontal: 8,
-  },
-  gradientTop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: height * 0.2,
-    borderBottomLeftRadius: 100,
-    borderBottomRightRadius: 100,
-    backgroundColor: '#FFC1CC',
-    opacity: 0.3,
-    zIndex: -1,
-  },
-  gradientBottom: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: height * 0.18,
-    borderTopLeftRadius: 100,
-    borderTopRightRadius: 100,
-    backgroundColor: '#A0F0DC',
-    opacity: 0.3,
-    zIndex: -1,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    margin: 8,
   },
 });

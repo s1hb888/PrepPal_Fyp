@@ -11,6 +11,7 @@ import Registration from './frontend/Registration';
 import Login from './frontend/Login';
 import Profile from './frontend/Profile';
 import Home from './frontend/Home';
+import RatingScreen from './frontend/RatingScreen';
 
 /* KID SCREENS */
 import KidHome from './frontend/kidHome';
@@ -100,6 +101,7 @@ export default function App() {
           {/* parent */}
           <Stack.Screen name="Profile" component={Profile} />
           <Stack.Screen name="Home" component={Home} />
+           <Stack.Screen name="Rating" component={RatingScreen} />
           <Stack.Screen name="Settings" component={Settings} />
           <Stack.Screen name="AboutUs" component={AboutUs} />
           <Stack.Screen name="NumberAccessScreen" component={NumberAccessScreen} />
