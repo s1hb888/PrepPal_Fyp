@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
   topHeader: {
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
-    paddingVertical: 30,
+    paddingVertical: 40,
     paddingHorizontal: 20,
     alignItems: 'flex-start',
     overflow: 'hidden',
