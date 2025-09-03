@@ -16,9 +16,9 @@ const RED = '#EF3349';
 const MINT = '#2BCB9A';
 
 const gradientColors = [
-  ['#FFC1CC', '#FFB6C1'], // pink
-  ['#A0F0DC', '#7BE7CE'], // mint
-  ['#FFE680', '#FFD54F'], // yellow
+  ['#FFC1CC', '#FFB6C1'],
+  ['#A0F0DC', '#7BE7CE'], 
+  ['#FFE680', '#FFD54F'], 
 ];
 
 const categories = [
