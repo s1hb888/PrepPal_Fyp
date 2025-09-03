@@ -7,13 +7,15 @@ import {
   Image,
   ScrollView,
   ActivityIndicator,
+  Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Speech from 'expo-speech';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { API_BASE_URL } from './config';
 
-const MINT = 'rgb(160,240,220)'; 
+const { width } = Dimensions.get('window');
 
 const DuaScreen = () => {
   const [duas, setDuas] = useState([]);
@@ -49,7 +51,7 @@ const DuaScreen = () => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={MINT} />
+        <ActivityIndicator size="large" color={'#EF3349'} />
       </View>
     );
   }
@@ -58,10 +60,7 @@ const DuaScreen = () => {
   if (selectedDua) {
     return (
       <View style={styles.detailWrapper}>
-        <LinearGradient
-          colors={['#fff', '#fefefe']}
-          style={styles.detailContainer}
-        >
+        <LinearGradient colors={['#fff', '#fefefe']} style={styles.detailContainer}>
           <View style={styles.headerRow}>
             <TouchableOpacity
               onPress={() => setSelectedDua(null)}
@@ -74,28 +73,27 @@ const DuaScreen = () => {
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false}>
-            <Image
-              source={{ uri: selectedDua.image_url }}
-              style={styles.imageLarge}
-            />
+            <View style={styles.imageContainer}>
+              <Image source={{ uri: selectedDua.image_url }} style={styles.imageLarge} />
+            </View>
             <Text style={styles.arabic}>{selectedDua.dua}</Text>
             <Text style={styles.translation}>{selectedDua.translation}</Text>
 
             <View style={styles.audioControls}>
               <TouchableOpacity
-                style={[styles.audioBtn, { backgroundColor: MINT }]}
-                onPress={() => playSpeech(selectedDua.sound_dua, 'ar')}
+                style={styles.audioBtn}
+                onPress={() => playSpeech(selectedDua.dua, 'ar')}
               >
-                <Ionicons name="volume-high" size={22} color="#EF3349" />
-                <Text style={styles.audioText}>Arabic</Text>
+                <Ionicons name="volume-high-outline" size={22} color="#EF3349" />
+                <Text style={styles.audioBtnText}>Arabic</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.audioBtn, { backgroundColor: MINT }]}
-                onPress={() => playSpeech(selectedDua.sound_translation, 'en')}
+                style={styles.audioBtn}
+                onPress={() => playSpeech(selectedDua.translation, 'en')}
               >
-                <Ionicons name="earth" size={22} color="#EF3349" />
-                <Text style={styles.audioText}>Translation</Text>
+                <MaterialIcons name="language" size={22} color="#EF3349" />
+                <Text style={styles.audioBtnText}>Translation</Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -107,46 +105,53 @@ const DuaScreen = () => {
   // --- LIST VIEW ---
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Learn Daily Duas</Text>
-      <ScrollView
-        style={styles.listContainer}
-        showsVerticalScrollIndicator={false}
-      >
-        {duas.map((item, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.cardWrapper}
-            onPress={() => setSelectedDua(item)}
-          >
-            <LinearGradient
-              colors={
-                index % 3 === 0
-                  ? ['#FFC1CC', '#FFB6C1']
-                  : index % 3 === 1
-                  ? ['#A0F0DC', '#7BE7CE']
-                  : ['#FFE680', '#FFD54F']
-              }
-              style={styles.card}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-            >
-              <Image source={{ uri: item.image_url }} style={styles.icon} />
-              <Text
-                style={styles.cardText}
-                numberOfLines={2}
-                ellipsizeMode="tail"
+      <LinearGradient colors={['#FFC1CC', '#FFB6C1']} style={styles.headerCard}>
+        <View style={styles.headerContent}>
+          <Image source={require('../assets/dua.png')} style={styles.headerIcon} />
+          <View>
+            <Text style={styles.headerTitle}>Daily Duas</Text>
+            {/* ✅ Shorter subtitle line */}
+            <Text style={styles.headerSubtitle} numberOfLines={1}>
+              Practice daily Duas.
+            </Text>
+          </View>
+        </View>
+      </LinearGradient>
+
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.gridContainer}>
+          {duas.map((item, index) => {
+            const gradientColors =
+              index % 3 === 0
+                ? ['#FFC1CC', '#FFB6C1'] // pink
+                : index % 3 === 1
+                ? ['#A0F0DC', '#7BE7CE'] // mint
+                : ['#FFE680', '#FFD54F']; // yellow
+
+            return (
+              <TouchableOpacity
+                key={index}
+                style={styles.gridItemWrapper}
+                onPress={() => setSelectedDua(item)}
               >
-                {item.dua_name}
-              </Text>
-              <Ionicons
-                name="chevron-forward"
-                size={22}
-                color="#EF3349"
-                style={styles.arrowIcon}
-              />
-            </LinearGradient>
-          </TouchableOpacity>
-        ))}
+                <LinearGradient
+                  colors={gradientColors}
+                  style={styles.gridCard}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <Image source={{ uri: item.image_url }} style={styles.gridIcon} />
+                  <Text style={styles.gridCardText}>{item.dua_name}</Text>
+
+                  <View style={styles.learnButton}>
+                    <Ionicons name="play-circle-outline" size={20} color="#EF3349" />
+                    <Text style={styles.learnText}>Learn Dua</Text>
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </ScrollView>
     </View>
   );
@@ -155,135 +160,104 @@ const DuaScreen = () => {
 export default DuaScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fefefe',
-    paddingTop: 50,
-    paddingHorizontal: 16,
-  },
-  heading: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#EF3349',
-    textAlign: 'center',
-    marginBottom: 25,
-  },
-  listContainer: {
-    flex: 1,
-  },
-  detailWrapper: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  detailContainer: {
-    flex: 1,
-    paddingTop: 60,
-    paddingHorizontal: 16,
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
-    elevation: 6,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-  },
-  headerRow: {
-    flexDirection: 'column',
+  container: { flex: 1, backgroundColor: '#fefefe', paddingTop: 40 },
+  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+
+  // HEADER
+  headerCard: {
+    margin: 15,
+    borderRadius: 20,
+    padding: 20,
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    justifyContent: 'space-between',
+    elevation: 4,
   },
+  headerContent: { flexDirection: 'row', alignItems: 'center' },
+  headerIcon: { width: 40, height: 40, resizeMode: 'contain', marginRight: 10 },
+  headerTitle: { fontSize: 22, fontWeight: 'bold', color: '#000' },
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#000',
+    marginTop: 4,
+    width: 220, // ✅ makes line shorter
+  },
+  duaCount: { flexDirection: 'row', alignItems: 'center' },
+  duaCountText: { fontSize: 18, color: '#000', marginLeft: 6, fontWeight: 'bold' },
+
+  // GRID
+  gridContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 12,
+  },
+  gridItemWrapper: { width: '48%', marginBottom: 20 },
+  gridCard: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    padding: 15,
+    height: 200,
+    elevation: 4,
+  },
+  gridIcon: { width: 90, height: 90, marginBottom: 10, resizeMode: 'contain' },
+  gridCardText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  learnButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    borderRadius: 15,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
+  learnText: { color: '#000', fontSize: 14, marginLeft: 5, fontWeight: 'bold' },
+
+  // DETAIL
+  detailWrapper: { flex: 1, backgroundColor: '#fff' },
+  detailContainer: { flex: 1, paddingTop: 50, paddingHorizontal: 16 },
+  headerRow: { flexDirection: 'column', alignItems: 'center', marginBottom: 20 },
   backBtnWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
     marginBottom: 15,
   },
-  backButton: {
-    fontSize: 18,
-    color: '#EF3349',
-    marginLeft: 5,
-  },
-  cardWrapper: {
-    marginBottom: 16,
-    borderRadius: 18,
-  },
-  card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 18,
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-  },
-  icon: {
-    width: 60,
-    height: 60,
-    marginRight: 14,
-    resizeMode: 'contain',
-  },
-  arrowIcon: {
-    marginLeft: 'auto',
-  },
-  cardText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000',
-    flex: 1,
-    flexWrap: 'wrap',
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#000',
-    textAlign: 'center',
-  },
+  backButton: { fontSize: 18, color: '#EF3349', marginLeft: 5 },
+  title: { fontSize: 24, fontWeight: 'bold', color: '#000', marginTop: 8 },
+  imageContainer: { width: '100%', alignItems: 'center', justifyContent: 'center' },
+  imageLarge: { width, height: 320, resizeMode: 'contain', marginVertical: 14 },
   arabic: {
-    fontSize: 30,
-    fontFamily: 'serif',
+    fontSize: 28,
     fontWeight: '600',
-    color: '#000',
     textAlign: 'center',
-    marginVertical: 15,
-    lineHeight: 40,
+    marginVertical: 10,
+    lineHeight: 38,
+    color: '#000',
   },
   translation: {
     fontSize: 18,
     fontStyle: 'italic',
-    color: '#000',
     textAlign: 'center',
     marginBottom: 20,
     lineHeight: 28,
-    paddingHorizontal: 10,
+    color: '#444',
   },
-  imageLarge: {
-    width: '100%',
-    height: 280,
-    resizeMode: 'contain',
-    marginVertical: 14,
-  },
-  audioControls: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 12,
-    marginBottom: 20,
-  },
+  audioControls: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 30 },
   audioBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 22,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderRadius: 12,
+    // ✅ Mint gradient for buttons
+    backgroundColor: '#7BE7CE',
   },
-  audioText: {
-    color: '#000', // Black text
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginLeft: 8,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  audioBtnText: { color: '#000', fontWeight: 'bold', fontSize: 16, marginLeft: 8 },
 });
