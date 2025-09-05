@@ -26,7 +26,8 @@ const notificationRoutes = require('./routes/notification');
 const quizRoutes = require('./routes/quiz');
 const duaRoutes = require('./routes/duas');
 const worshipRoute = require('./routes/worship');
-const beliefsRoute = require('./routes/beliefs');
+const basicQuestionsRoute = require('./routes/basicQuestions');
+
 
 // DB Config
 
@@ -60,7 +61,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/quiz', quizRoutes);
 app.use('/api/duas', duaRoutes);
 app.use('/api/worship', worshipRoute);
-app.use('/api/beliefs', beliefsRoute);
+app.use('/api/basic-questions', basicQuestionsRoute);
 app.use('/api/feedback', feedbackRoutes);
 
 

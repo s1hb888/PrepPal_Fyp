@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  ScrollView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -17,20 +18,15 @@ const MINT = '#2BCB9A';
 
 const gradientColors = [
   ['#FFC1CC', '#FFB6C1'],
-  ['#A0F0DC', '#7BE7CE'], 
-  ['#FFE680', '#FFD54F'], 
+  ['#A0F0DC', '#7BE7CE'],
+  ['#FFE680', '#FFD54F'],
 ];
 
 const categories = [
   {
     name: 'Basic Identity & Beliefs',
     image: require('../assets/beliefs.png'),
-    screen: 'BasicBeliefsScreen',
-  },
-  {
-    name: 'Worship & Practice',
-    image: require('../assets/worship.png'),
-    screen: 'WorshipPracticeScreen',
+    screen: 'BasicQuestionsScreen',
   },
   {
     name: 'Duas',
@@ -41,7 +37,7 @@ const categories = [
 
 export default function LearnIslamicStudies({ navigation }) {
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
+    <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
       <Image source={require('../assets/islamic banner.png')} style={styles.islamicImage} />
       <Image source={require('../assets/curvy_text.png')} style={styles.curvyTextImage} />
       <Text style={styles.subHeading}>Bright minds, blessed hearts!</Text>
@@ -65,59 +61,65 @@ export default function LearnIslamicStudies({ navigation }) {
           </TouchableOpacity>
         ))}
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
   islamicImage: {
     width: '100%',
-    height: 150,
+    height: 190,
     resizeMode: 'contain',
-    marginTop: 30,
+    marginTop: 40,
   },
   curvyTextImage: {
     width: '100%',
-    height: 90,
+    height: 80,
     resizeMode: 'contain',
-    marginTop: 0,
+    marginTop: 20,
   },
   subHeading: {
     fontSize: 18,
     textAlign: 'center',
     color: TEXT,
-    marginBottom: 10,
+    marginBottom: 30,
     fontWeight: '600',
   },
   categoryContainer: {
     paddingHorizontal: 20,
     flex: 1,
-    justifyContent: 'space-evenly',
+    justifyContent: 'space-between',
   },
   cardWrapper: {
-    marginBottom: 6,
+    marginBottom: 15,
+    alignItems: 'center',
   },
   categoryButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 20,
-    paddingVertical: 18,
-    paddingHorizontal: 10,
-    minHeight: 100,
+    borderRadius: 25,
+    width: width * 0.85,
+    minHeight: 150, 
+    paddingVertical: 20,
+    paddingHorizontal: 15,
     shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 4,
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 6,
   },
   icon: {
-    width: 55,
-    height: 55,
-    marginBottom: 10,
+    width: 90, 
+    height: 90,
+    marginBottom: 12,
     resizeMode: 'contain',
   },
   cardText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 17,
+    fontWeight: '700',
     color: TEXT,
     textAlign: 'center',
   },

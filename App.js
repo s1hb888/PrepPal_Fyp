@@ -33,7 +33,7 @@ import VegetableScreen from './frontend/VegetableScreen';
 import Color from './frontend/Color';
 import WatchVideoScreen from './frontend/WatchVideosScreen';
 import LearnIslamicStudies from './frontend/LearnIslamicStudies'; 
-import BasicBeliefsScreen from './frontend/BasicBeliefsScreen';
+import BasicQuestionsScreen from './frontend/BasicQuestionsScreen';
 
 /* PARENT / SHARED */
 import Settings from './frontend/Settings';
@@ -71,7 +71,7 @@ const includedScreens = [
   'LearnIslamicStudies',
   'DuaScreen',
   'WorshipPracticeScreen',
-  'BasicBeliefsScreen',
+  'BasicQuestionsScreen',
 ];
 
 
@@ -132,7 +132,7 @@ export default function App() {
           <Stack.Screen name="WatchVideoScreen" component={WatchVideoScreen} />
           <Stack.Screen name="DuaScreen" component={DuaScreen} />
           <Stack.Screen name="WorshipPracticeScreen" component={WorshipPracticeScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="BasicBeliefsScreen" component={BasicBeliefsScreen} />
+          <Stack.Screen name="BasicQuestionsScreen" component={BasicQuestionsScreen} />
 
         </Stack.Navigator>
       </NavigationContainer>
