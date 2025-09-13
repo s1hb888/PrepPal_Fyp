@@ -4,9 +4,11 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { SessionProvider } from './SessionContext';
 
+
 /* ------------- Screens ------------- */
 import Splash from './frontend/Splash';
 import Onboarding from './frontend/Onboarding';
+import QuizScreen from './frontend/QuizScreen';
 import Registration from './frontend/Registration';
 import Login from './frontend/Login';
 import Profile from './frontend/Profile';
@@ -14,7 +16,7 @@ import Home from './frontend/Home';
 import RatingScreen from './frontend/RatingScreen';
 
 /* KID SCREENS */
-import KidHome from './frontend/kidHome';
+import KidHome from './frontend/KidHome';
 import Courses from './frontend/Courses';
 import LearningMenu from './frontend/LearningMenu';
 import AcademicLearning from './frontend/AcademicLearning';
@@ -133,7 +135,7 @@ export default function App() {
           <Stack.Screen name="DuaScreen" component={DuaScreen} />
           <Stack.Screen name="WorshipPracticeScreen" component={WorshipPracticeScreen} options={{ headerShown: false }} />
           <Stack.Screen name="BasicQuestionsScreen" component={BasicQuestionsScreen} />
-
+          <Stack.Screen name="QuizScreen" component={QuizScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </SessionProvider>

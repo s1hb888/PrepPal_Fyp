@@ -1,127 +1,88 @@
-const axios = require('axios');
-require('dotenv').config();
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const generateQuiz = async (subject) => {
-  let prompt;
+const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
+if (!apiKey) {
+  throw new Error("Missing Gemini API key. Set EXPO_PUBLIC_GEMINI_API_KEY in your .env file.");
+}
 
-  switch (subject.toLowerCase()) {
-    case 'english':
-      prompt = `Generate 10 multiple-choice questions for kids aged 4 to 5 learning English alphabets.
+const genAI = new GoogleGenerativeAI(apiKey);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-Focus on:
-- Identifying individual letters
-- Completing missing letters in a sequence (like A _ C)
-- Matching letters with pictures (e.g., Apple = A)
+/**
+ * Build subject-specific prompt for quiz generation
+ */
+function buildPromptFor(subject) {
+  const baseInstruction = `
+You are an assistant that MUST return only a JSON array (no extra text) containing 10 multiple-choice questions suitable for preschool kids (age 4-5).
+Return EXACTLY an array of objects. Each object must have:
+- "question": short simple text-only question
+- "options": an array of 4 short option strings (order randomized)
+- "correctAnswer": the exact option text. It must be IDENTICAL to one of the strings in "options" (character-for-character, no extra words).
 
-Each question should:
-- Be simple
-- Mention visuals where relevant (e.g., "Picture of Apple")
-- Use one correct answer and 4 options
+Important:
+- Do NOT include any picture-based or image-based questions.
+- Do NOT add explanations, commentary, or any text outside the JSON array.
+- Output must be valid JSON only.
+`;
 
-Format:
-Q: Question text?
-a) Option A
-b) Option B
-c) Option C
-d) Option D
-Answer: a) Option A`;
-      break;
-
-    case 'math':
-    case 'maths':
-      prompt = `Generate 10 basic math multiple-choice questions for preschool kids aged 4 to 5.
-
-Include:
-- Counting objects shown in visuals (e.g., "Image showing 3 apples")
-- Identifying numbers (1 to 10)
-- Completing sequences (e.g., 1, 2, __)
-- Comparing quantities (e.g., which group has more)
-
-Each question must:
-- Clearly mention the visual if needed
-- Have 4 options and 1 correct answer
-
-Format:
-Q: Question text?
-a) Option A
-b) Option B
-c) Option C
-d) Option D
-Answer: a) Option A`;
-      break;
-
-    case 'urdu':
-      prompt = `Generate 10 multiple-choice questions for kids aged 4 to 5 learning Urdu alphabets (Huroof-e-Tahaji).
-
-Focus on:
-- Recognizing Urdu letters like الف، ب، پ
-- Completing letter sequences (e.g., الف، ___، پ)
-- Matching Urdu letters with images (e.g., آم = الف)
-
-Instructions:
-- Write the questions and options using **actual Urdu script**, not Roman Urdu
-- Keep the language age-appropriate
-- Each question must have 4 options and 1 correct answer
-
-Format:
-Q: سوال کا متن؟
-a) Option A
-b) Option B
-c) Option C
-d) Option D
-Answer: a) Option A`;
-      break;
-
-    default:
-      prompt = `Generate 10 multiple-choice questions for kids aged 4 to 5 on the subject "${subject}". Each question must have 4 options and 1 correct answer.
-
-Format:
-Q: Question text?
-a) Option A
-b) Option B
-c) Option C
-d) Option D
-Answer: a) Option A`;
+  if (/^english$/i.test(subject)) {
+    return baseInstruction + `
+Language: English.
+Restrict strictly to CAPITAL letters A to Z only.
+Make questions about:
+- Identifying letters ("Which is the letter B?")
+- Sequence before/after ("What comes after C?")
+- Missing letters ("A _ C")
+`;
+  } else if (/^urdu$/i.test(subject)) {
+    return baseInstruction + `
+Language: Urdu (use actual Urdu script, not Roman Urdu).
+Restrict strictly to letters from ا to ی only.
+Make questions about:
+- Identifying letters ("یہ کون سا حرف ہے؟")
+- Sequence before/after ("ب کے بعد کون آتا ہے؟")
+- Missing letters ("ا _ ت")
+`;
+  } else if (/^(math|maths)$/i.test(subject)) {
+    return baseInstruction + `
+Language: English (numbers are universal).
+Restrict strictly to numbers 1 through 10 only.
+Make questions about:
+- Identifying numbers 1-10
+- Before/after in sequence ("What comes before 7?")
+- Fill in missing number ("1, 2, _ , 4")
+- Comparing small numbers up to 10 ("Which is bigger: 3 or 5?")
+`;
+  } else {
+    return baseInstruction + `Language: English. Subject: ${subject}.`;
   }
+}
+
+/**
+ * Generate quiz based on subject
+ */
+export async function generateQuiz(subject) {
+  const prompt = buildPromptFor(subject);
 
   try {
-    const response = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        contents: [{ parts: [{ text: prompt }] }],
-      }
-    );
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    let text = response.text();
 
-    const rawText = response.data.candidates[0].content.parts[0].text;
+    // clean JSON (remove ```json ... ``` wrappers if Gemini adds them)
+    text = text.replace(/```json|```/g, "").trim();
 
-    const lines = rawText.split('\n').filter((line) => line.trim() !== '');
-
-    const questions = [];
-    let current = null;
-
-    lines.forEach((line) => {
-      if (line.startsWith('Q:')) {
-        if (current) questions.push(current);
-        current = {
-          question: line.replace('Q:', '').trim(),
-          options: [],
-          correctAnswer: '',
-        };
-      } else if (/^[a-d]\)/i.test(line)) {
-        current?.options.push(line.replace(/^[a-d]\)\s*/, '').trim());
-      } else if (line.toLowerCase().startsWith('answer:')) {
-        const ans = line.replace('Answer:', '').trim();
-        current.correctAnswer = ans.replace(/^[a-d]\)\s*/, '');
-      }
-    });
-
-    if (current) questions.push(current);
-
-    return questions;
-  } catch (err) {
-    console.error('Gemini error:', err.message);
-    return null;
+    return JSON.parse(text);
+  } catch (error) {
+    console.error("Error generating quiz:", error);
+    throw error;
   }
-};
+}
 
-module.exports = generateQuiz;
+/**
+ * Safe answer comparison helper
+ */
+export function checkAnswer(selected, correct) {
+  if (!selected || !correct) return false;
+  return selected.trim().toLowerCase() === correct.trim().toLowerCase();
+}
