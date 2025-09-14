@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const generateQuiz = require('../utils/quizGenerator');
+const { generateQuiz } = require('../utils/quizGenerator');
 const Quiz = require('../models/Quiz'); // ✅ single model now
 
 router.post('/generate', async (req, res) => {

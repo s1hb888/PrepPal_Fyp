@@ -11,7 +11,8 @@ import Registration from './frontend/Registration';
 import Login from './frontend/Login';
 import Profile from './frontend/Profile';
 import Home from './frontend/Home';
-import RatingScreen from './frontend/RatingScreen';
+import FeedbackScreen from './frontend/FeedbackScreen';
+
 
 /* KID SCREENS */
 import KidHome from './frontend/kidHome';
@@ -34,7 +35,9 @@ import Color from './frontend/Color';
 import WatchVideoScreen from './frontend/WatchVideosScreen';
 import LearnIslamicStudies from './frontend/LearnIslamicStudies'; 
 import BasicQuestionsScreen from './frontend/BasicQuestionsScreen';
-
+import DuaScreen from './frontend/DuaScreen';
+import WorshipPracticeScreen from './frontend/WorshipPracticeScreen';
+import QuizScreen from './frontend/QuizScreen';
 /* PARENT / SHARED */
 import Settings from './frontend/Settings';
 import AboutUs from './frontend/AboutUs';
@@ -43,8 +46,6 @@ import UrduAccessScreen from './frontend/UrduAccessScreen';
 import AlphabetsAccessScreen from './frontend/AlphabetsAccessScreen';
 import AccessManagement from './frontend/AccessManagement';
 import ScreenTimeControl from './frontend/ScreenTimeControl';
-import DuaScreen from './frontend/DuaScreen';
-import WorshipPracticeScreen from './frontend/WorshipPracticeScreen';
 
 const Stack = createStackNavigator();
 
@@ -72,8 +73,8 @@ const includedScreens = [
   'DuaScreen',
   'WorshipPracticeScreen',
   'BasicQuestionsScreen',
+  'QuizScreen',
 ];
-
 
 export default function App() {
   const navigationRef = useRef();
@@ -83,25 +84,26 @@ export default function App() {
     <SessionProvider
       navigationRef={navigationRef}
       includedScreens={includedScreens}
-      sessionRef={sessionRef}  // Pass sessionRef here
+      sessionRef={sessionRef}  // Pass sessionRef for all session checks
     >
       <NavigationContainer
         ref={navigationRef}
         onStateChange={() => {
-          sessionRef.current.checkSession();
+          // ✅ Existing behavior: check session on navigation state change
+          sessionRef.current?.checkSession?.();
         }}
       >
         <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
-          {/* splash / auth */}
+          {/* Splash / Auth */}
           <Stack.Screen name="Splash" component={Splash} />
           <Stack.Screen name="Onboarding" component={Onboarding} />
           <Stack.Screen name="Registration" component={Registration} />
           <Stack.Screen name="Login" component={Login} />
 
-          {/* parent */}
+          {/* Parent / Shared */}
           <Stack.Screen name="Profile" component={Profile} />
           <Stack.Screen name="Home" component={Home} />
-           <Stack.Screen name="Rating" component={RatingScreen} />
+          <Stack.Screen name="Feedback" component={FeedbackScreen} />
           <Stack.Screen name="Settings" component={Settings} />
           <Stack.Screen name="AboutUs" component={AboutUs} />
           <Stack.Screen name="NumberAccessScreen" component={NumberAccessScreen} />
@@ -110,7 +112,7 @@ export default function App() {
           <Stack.Screen name="AccessManagement" component={AccessManagement} />
           <Stack.Screen name="ScreenTimeControl" component={ScreenTimeControl} />
 
-          {/* kid */}
+          {/* Kid Screens */}
           <Stack.Screen name="KidHome" component={KidHome} />
           <Stack.Screen name="Courses" component={Courses} />
           <Stack.Screen name="LearningMenu" component={LearningMenu} />
@@ -128,15 +130,14 @@ export default function App() {
           <Stack.Screen name="FruitScreen" component={FruitScreen} />
           <Stack.Screen name="VegetableScreen" component={VegetableScreen} />
           <Stack.Screen name="Color" component={Color} />
-          <Stack.Screen name="IslamicScreen" component={LearnIslamicStudies}/>
           <Stack.Screen name="WatchVideoScreen" component={WatchVideoScreen} />
+          <Stack.Screen name="LearnIslamicStudies" component={LearnIslamicStudies}/>
           <Stack.Screen name="DuaScreen" component={DuaScreen} />
-          <Stack.Screen name="WorshipPracticeScreen" component={WorshipPracticeScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="WorshipPracticeScreen" component={WorshipPracticeScreen} />
           <Stack.Screen name="BasicQuestionsScreen" component={BasicQuestionsScreen} />
-
+          <Stack.Screen name="QuizScreen" component={QuizScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </SessionProvider>
   );
 }
-

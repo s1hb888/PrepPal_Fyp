@@ -15,7 +15,7 @@ import * as Progress from 'react-native-progress';
 import Profile from './Profile';
 import Settings from './Settings';
 import AboutUs from './AboutUs';
-import RatingScreen from './RatingScreen';
+import FeedbackScreen from './FeedbackScreen';
 import API_BASE_URL from './config';
 
 
@@ -241,20 +241,23 @@ const Home = ({ navigation }) => {
               {tab: 'Settings', icon: 'settings'},
               {tab: 'Notifications', icon: 'bell'},
               {tab: 'AboutUs', icon: 'info'},
-              {tab: 'Rating', icon: 'star'} // Will navigate to separate screen
+              {tab: 'Feedback', icon: 'star'} // Will navigate to separate screen
             ].map(({tab, icon}) => (
               <TouchableOpacity
-                key={tab}
-                style={styles.drawerItem}
-                onPress={() => {
-                  setDrawerVisible(false);
-                  if(tab === 'Rating') {
-                    navigation.navigate('Rating'); // Open separate Rating.js
-                  } else {
-                    setSelectedTab(tab);
-                  }
-                }}
-              >
+  key={tab}
+  style={styles.drawerItem}
+  onPress={() => {
+    setDrawerVisible(false);
+    if (tab === 'Feedback') {
+      setTimeout(() => {
+        navigation.navigate('Feedback'); // drawer closed first
+      }, 300);
+    } else {
+      setSelectedTab(tab);
+    }
+  }}
+>
+
                 <Feather name={icon} size={20} color="#EF3349" style={{ width: 26 }} />
                 <Text style={styles.drawerItemText}>{tab === 'AboutUs' ? 'About Us' : tab}</Text>
               </TouchableOpacity>

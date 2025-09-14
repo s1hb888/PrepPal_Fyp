@@ -212,8 +212,10 @@ useEffect(() => {
         </View>
 
         {/* ☁️ Clouds */}
-        <Cloud x={width * 0.05} y={height * 0.05} size={1} />
-        <Cloud x={width * 0.18} y={height * 0.08} size={0.8} />
+{/* ☁️ Clouds */}
+<Cloud x={width * 0.03} y={height * 0.02} size={1} />
+<Cloud x={width * 0.18} y={height * 0.045} size={0.9} />
+
 
         {/* 📋 Card */}
         <Animated.View style={[styles.questionCard, { opacity: boardOpacity, transform: [{ scale: cardScale }] }]}>
@@ -264,19 +266,40 @@ const styles = StyleSheet.create({
   gradientBackground: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
   ground: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 60, backgroundColor: '#2BCB9A' },
 
-  sun: { position: 'absolute', top: 10, left: 700, zIndex: 1 },
+  // 🌞 Sun thoda aur right
+  sun: { position: 'absolute', top: 1, right: 7, zIndex: 1 },
 
-  teacherPosition: { position: 'absolute', left: width * 0, top: height * 0.05, zIndex: 1 },
-  teacherImage: { width: 280, height: 400 },
+  // 👩 Teacher fixed left side
+teacherPosition: {
+  position: 'absolute',
+  left: 10,
+  bottom: -40, // 🔽 pehle -20 tha, ab -40 kiya -> aur neeche
+  justifyContent: 'flex-end',
+  alignItems: 'center',
+  zIndex: 1,
+},
+  teacherImage: {
+    width: 240,        // size bara kiya
+    height: undefined,
+    aspectRatio: 0.7,  // proper proportion
+    resizeMode: 'contain',
+  },
 
-  cloud: { position: 'absolute', zIndex: 1 },
+cloud: {
+  position: 'absolute',
+  zIndex: 1,
+  resizeMode: 'contain',
+  width: 140,   // thoda bara cloud
+  height: 80,
+},
+
 
   questionCard: {
     position: 'absolute',
-    left: width * 0.3,
-    top: height * 0.1,
-    width: width * 0.62,
-    height: height * 0.75,
+    left: '28%',
+    top: '15%',
+    width: '60%',
+    height: '70%',
     borderRadius: 30,
     shadowColor: '#000',
     shadowOpacity: 0.25,
@@ -285,6 +308,7 @@ const styles = StyleSheet.create({
     zIndex: 0,
   },
   cardGradient: { flex: 1, borderRadius: 30, padding: 20 },
+
   progressContainer: {
     position: 'absolute',
     top: 15,
@@ -295,23 +319,26 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   progressText: { fontSize: 14, fontWeight: 'bold', color: '#333' },
-  navButton: {
-    position: 'absolute',
-    top: '60%',
-    transform: [{ translateY: -25 }],
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#EF3349',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 2,
-  },
+
+navButton: {
+  position: 'absolute',
+  top: '58%', // 🔽 pehle 50% tha, ab 58% kiya -> neeche aagaye
+  transform: [{ translateY: -25 }],
+  width: 50,
+  height: 50,
+  borderRadius: 25,
+  backgroundColor: '#EF3349',
+  justifyContent: 'center',
+  alignItems: 'center',
+  zIndex: 2,
+}, 
   leftNav: { left: -25 },
   rightNav: { right: -25 },
-  cardContent: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 40 },
+
+  cardContent: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 20 },
   questionContainer: { marginBottom: 10, paddingHorizontal: 10 },
   questionText: { fontSize: 24, fontWeight: 'bold', color: '#EF3349', textAlign: 'center', lineHeight: 32 },
+
   answerContainer: {
     backgroundColor: '#F1F8E9',
     borderRadius: 20,
@@ -322,5 +349,6 @@ const styles = StyleSheet.create({
     maxWidth: '90%',
   },
   answerText: { fontSize: 18, color: '#2E7D32', textAlign: 'center', lineHeight: 24, fontWeight: '500' },
+
   flower: { position: 'absolute' },
 });

@@ -6,10 +6,6 @@ const feedbackSchema = new mongoose.Schema({
     required: true,
     match: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/,
   },
-  course: {
-    type: String,
-    required: true,
-  },
   rating: {
     type: Number,
     required: true,

@@ -13,7 +13,6 @@ const ScreenTime = require('../models/ScreenTime');
 
 
 // Registration Route
-// Registration Route
 router.post('/register', async (req, res) => {
   const { email, password, kidName, kidAge, role, city, area } = req.body;
 

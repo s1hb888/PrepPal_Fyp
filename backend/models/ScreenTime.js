@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const ScreenTimeSchema = new mongoose.Schema({
-  /* parent‑configurable */
+  /* parent-configurable */
   userId: { type: mongoose.Types.ObjectId, ref: 'User', required: true, unique: true },
   dailyUsageLimit: { type: Number, default: 0 },
   sessionDuration: { type: Number, default: 0 },      // minutes
@@ -13,6 +13,9 @@ const ScreenTimeSchema = new mongoose.Schema({
   openCountToday:     { type: Number, default: 0 },
   totalUsedTimeToday: { type: Number, default: 0 },
   isLocked:           { type: Boolean, default: false },
+
+  /* background tracking */
+  backgroundStartTime: { type: Date, default: null },  // ⬅️ ADD THIS
 
   /* timestamps */
   lastReset:         { type: Date,   default: Date.now },

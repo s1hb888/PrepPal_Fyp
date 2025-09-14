@@ -4,11 +4,11 @@ const Feedback = require('../models/Feedback');
 const verifyToken = require('../middleware/authMiddleware'); // JWT middleware
 
 router.post('/', verifyToken, async (req, res) => {
-  const { course, rating, difficulty, suggestions } = req.body;
+  const { rating, difficulty, suggestions } = req.body;
   const email = req.user.email;
 
-  if (!course || !rating || !difficulty) {
-    return res.status(400).json({ message: 'Course, rating, and difficulty are required.' });
+  if (!rating || !difficulty) {
+    return res.status(400).json({ message: 'Rating and difficulty are required.' });
   }
 
   if (suggestions && suggestions.length > 500) {
@@ -16,7 +16,7 @@ router.post('/', verifyToken, async (req, res) => {
   }
 
   try {
-    const feedback = new Feedback({ email, course, rating, difficulty, suggestions: suggestions || '' });
+    const feedback = new Feedback({ email, rating, difficulty, suggestions: suggestions || '' });
     const savedFeedback = await feedback.save();
     return res.status(201).json({ message: 'Feedback submitted successfully', feedback: savedFeedback });
   } catch (error) {

@@ -64,7 +64,7 @@ const subjects = [
     name: 'Islamic Studies',
     icon: require('../assets/islamic.png'),
     color: ['#A0F0DC', '#7BE7CE'],
-    screen: 'IslamicScreen',
+    screen: 'LearnIslamicStudies',
   },
 ];
 

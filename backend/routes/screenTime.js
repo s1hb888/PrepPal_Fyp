@@ -76,19 +76,28 @@ router.post('/start-session', async (req, res) => {
 });
 
 /* ───────── SAVE / UPDATE SETTINGS ───────── */
-// ✅ Save route update with try-catch inside notification
 router.post('/save', async (req, res) => {
   try {
     const { userId } = req.body;
     if (!isValidId(userId))
       return res.status(400).json({ success: false, error: 'Invalid userId' });
 
-    const data = {};
-    if (req.body.dailyUsageLimit !== undefined) data.dailyUsageLimit = num(req.body.dailyUsageLimit);
-    if (req.body.sessionDuration !== undefined) data.sessionDuration = num(req.body.sessionDuration);
-    if (req.body.totalDailyTime !== undefined) data.totalDailyTime = num(req.body.totalDailyTime);
-    if (req.body.notificationsEnabled !== undefined) data.notificationsEnabled = !!req.body.notificationsEnabled;
-    if (req.body.nextSessionGap !== undefined) data.nextSessionGap = num(req.body.nextSessionGap);
+    // pick inputs
+    const daily = num(req.body.dailyUsageLimit);
+    const session = num(req.body.sessionDuration);
+    const gap = num(req.body.nextSessionGap);
+    const notify = !!req.body.notificationsEnabled;
+
+    // ✅ auto-calculate totalDailyTime
+    const total = daily > 0 && session > 0 ? daily * session : 0;
+
+    const data = {
+      dailyUsageLimit: daily,
+      sessionDuration: session,
+      totalDailyTime: total,
+      nextSessionGap: gap,
+      notificationsEnabled: notify,
+    };
 
     const rec = await ScreenTime.findOneAndUpdate(
       { userId },
@@ -104,14 +113,11 @@ router.post('/save', async (req, res) => {
       { new: true, upsert: true }
     );
 
-
     return res.json({ success: true, data: rec });
-
   } catch (e) {
     return res.status(500).json({ success: false, error: e.message });
   }
 });
-
 
 /* ───────── GET STATUS ───────── */
 router.get('/:userId', async (req, res) => {
