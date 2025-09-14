@@ -1,9 +1,8 @@
-// utils/quizGenerator.js
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const apiKey = process.env.GEMINI_API_KEY;
+const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
 if (!apiKey) {
-  throw new Error("Missing Gemini API key. Set GEMINI_API_KEY in your .env file.");
+  throw new Error("Missing Gemini API key. Set EXPO_PUBLIC_GEMINI_API_KEY in your .env file.");
 }
 
 const genAI = new GoogleGenerativeAI(apiKey);
@@ -62,7 +61,7 @@ Make questions about:
 /**
  * Generate quiz based on subject
  */
-async function generateQuiz(subject) {
+export async function generateQuiz(subject) {
   const prompt = buildPromptFor(subject);
 
   try {
@@ -83,9 +82,7 @@ async function generateQuiz(subject) {
 /**
  * Safe answer comparison helper
  */
-function checkAnswer(selected, correct) {
+export function checkAnswer(selected, correct) {
   if (!selected || !correct) return false;
   return selected.trim().toLowerCase() === correct.trim().toLowerCase();
 }
-
-module.exports = { generateQuiz, checkAnswer };

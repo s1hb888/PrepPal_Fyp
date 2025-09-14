@@ -4,9 +4,11 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { SessionProvider } from './SessionContext';
 
+
 /* ------------- Screens ------------- */
 import Splash from './frontend/Splash';
 import Onboarding from './frontend/Onboarding';
+import QuizScreen from './frontend/QuizScreen';
 import Registration from './frontend/Registration';
 import Login from './frontend/Login';
 import Profile from './frontend/Profile';
@@ -15,7 +17,7 @@ import FeedbackScreen from './frontend/FeedbackScreen';
 
 
 /* KID SCREENS */
-import KidHome from './frontend/kidHome';
+import KidHome from './frontend/KidHome';
 import Courses from './frontend/Courses';
 import LearningMenu from './frontend/LearningMenu';
 import AcademicLearning from './frontend/AcademicLearning';
