@@ -27,6 +27,7 @@ const quizRoutes = require('./routes/quiz');
 const duaRoutes = require('./routes/duas');
 const worshipRoute = require('./routes/worship');
 const basicQuestionsRoute = require('./routes/basicQuestions');
+const countingRoutes = require("./routes/counting");
 
 
 // DB Config
@@ -63,7 +64,7 @@ app.use('/api/duas', duaRoutes);
 app.use('/api/worship', worshipRoute);
 app.use('/api/basic-questions', basicQuestionsRoute);
 app.use('/api/feedback', feedbackRoutes);
-
+app.use('/api/counting', countingRoutes);
 
 // Start the server
 const port = process.env.PORT || 5000;

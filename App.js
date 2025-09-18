@@ -11,6 +11,7 @@ import * as Linking from 'expo-linking';
 import Splash from './frontend/Splash';
 import Onboarding from './frontend/Onboarding';
 import QuizScreen from './frontend/QuizScreen';
+import CountingScreen from './frontend/CountingScreen';
 import Registration from './frontend/Registration';
 import Login from './frontend/Login';
 import ResetPassword from './frontend/ResetPassword';
@@ -157,6 +158,7 @@ const linking = {
           <Stack.Screen name="WorshipPracticeScreen" component={WorshipPracticeScreen} />
           <Stack.Screen name="BasicQuestionsScreen" component={BasicQuestionsScreen} />
           <Stack.Screen name="QuizScreen" component={QuizScreen} />
+          <Stack.Screen name="CountingScreen" component={CountingScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </SessionProvider>
