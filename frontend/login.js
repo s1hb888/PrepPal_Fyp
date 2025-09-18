@@ -155,9 +155,10 @@ const Login = ({ navigation }) => {
         </View>
         {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
 
-        <TouchableOpacity onPress={() => Alert.alert('Reset Password', 'Password reset process initiated.')}> 
-          <Text style={styles.forgotPassword}>Forgot Password?</Text>
-        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('ResetPassword')}> 
+  <Text style={styles.forgotPassword}>Forgot Password?</Text>
+</TouchableOpacity>
+
 
         <TouchableOpacity onPress={handleLogin} style={[styles.button, { backgroundColor: MINT }]}>
           <Text style={styles.buttonText}>LOGIN</Text>

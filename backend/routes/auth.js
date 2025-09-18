@@ -10,35 +10,37 @@ const Alphabet = require('../models/Alphabet');
 const Number = require('../models/Number');
 const Urdu = require('../models/Urdu');
 const ScreenTime = require('../models/ScreenTime');
+const { sendVerificationEmail, sendResetPasswordEmail } = require('../utils/sendEmail');
 
 
-// Registration Route
+const crypto = require('crypto');
+const nodemailer = require('nodemailer');
+const emailExistence = require('email-existence');
+
 router.post('/register', async (req, res) => {
   const { email, password, kidName, kidAge, role, city, area } = req.body;
-
-  // Validate input fields
-  if (!email || !password || !kidName || !kidAge || !city || !area) {
+  if (!email || !password || !kidName || !kidAge || !city || !area)
     return res.status(400).json({ message: 'All fields are required.' });
-  }
-
-  // Validate Email Format
-  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-  if (!emailRegex.test(email)) {
-    return res.status(400).json({ message: 'Invalid email format. Please enter a valid email address.' });
-  }
 
   try {
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ message: 'Email is already registered.' });
+    // Check if email already exists in DB
+    const existingUser = await User.findOne({ email });
+    if (existingUser) return res.status(400).json({ message: 'Email is already registered.' });
+
+    // Check if email actually exists (MX record)
+    const emailExists = await new Promise((resolve) => {
+      emailExistence.check(email, (err, exists) => {
+        if (err) return resolve(false);
+        resolve(exists);
+      });
+    });
+
+    if (!emailExists) {
+      return res.status(400).json({ message: 'Email address does not exist.' });
     }
 
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!passwordRegex.test(password)) {
-      return res.status(400).json({ message: 'Password must be at least 8 characters long and contain an uppercase letter, a digit, and a special character.' });
-    }
-
-    const userRole = role || 'parent';
+    // Generate verification token
+    const verificationToken = crypto.randomBytes(32).toString('hex');
 
     const user = new User({
       email,
@@ -47,12 +49,14 @@ router.post('/register', async (req, res) => {
       kidAge,
       city,
       area,
-      role: userRole,
+      role: role || 'parent',
+      isVerified: false,
+      verificationToken
     });
 
     const savedUser = await user.save();
 
-    const accessEntry = {
+    await UserAccess.create({
       user_id: savedUser._id,
       restricted: false,
       access: {
@@ -66,15 +70,45 @@ router.post('/register', async (req, res) => {
         shapes: [],
         counting: []
       }
-    };
-    await UserAccess.create(accessEntry);
+    });
 
-    return res.status(201).json({ message: 'User registered successfully.' });
+    await sendVerificationEmail({ to: email, token: verificationToken });
+
+    return res.status(201).json({ message: 'Verification link sent to your email.', userId: savedUser._id });
   } catch (error) {
-    console.error(error);
+    console.error('Error saving user:', error);
     return res.status(500).json({ message: 'Server error, please try again later.' });
   }
 });
+
+// -----------------------
+// Email Verification
+router.get("/verify-email", async (req, res) => {
+  const { token, email } = req.query;
+
+  if (!token || !email) return res.status(400).send("<h2>Invalid verification link.</h2>");
+
+  try {
+    const user = await User.findOne({ email, verificationToken: token });
+    if (!user) return res.status(400).send("<h2>Invalid or expired link.</h2>");
+    if (user.isVerified) return res.send("<h2>Account already verified!</h2>");
+
+    user.isVerified = true;
+    user.verificationToken = null;
+    await user.save();
+
+    // ✅ Show confirmation page with deep link
+    return res.send(`
+      <h2>✅ Account verified successfully!</h2>
+      <p>You can now <a href="preppal://login">login in the PrepPal app</a> or 
+         <a href="${process.env.FRONTEND_URL}">login on web</a>.</p>
+    `);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("<h2>Server error. Please try again later.</h2>");
+  }
+});
+
 router.post('/login', async (req, res) => {
   const { email, password, role } = req.body;
 
@@ -89,6 +123,12 @@ router.post('/login', async (req, res) => {
 
     if (!user.isActive)
       return res.status(403).json({ message: 'Account is deactivated.' });
+
+    // ✅ Check if email is verified
+    if (!user.isVerified)
+      return res.status(403).json({
+        message: 'Your email is not verified. Please check your email and verify your account using the link sent to you.'
+      });
 
     const isMatch = await user.matchPassword(password);
     if (!isMatch)
@@ -129,7 +169,7 @@ router.post('/login', async (req, res) => {
         totalUsedTimeToday = 0,
         lastReset,
         lastSessionEndTime,
-        nextSessionGap = 5, // in minutes
+        nextSessionGap = 5,
         sessionStartTime
       } = screenTime;
 
@@ -180,7 +220,7 @@ router.post('/login', async (req, res) => {
       user: {
         _id: user._id,
         email: user.email,
-        role, // override DB role with selected role
+        role, 
         kidName: user.kidName,
         kidAge: user.kidAge,
         isActive: user.isActive
@@ -189,6 +229,64 @@ router.post('/login', async (req, res) => {
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Server error, please try again later.' });
+  }
+});
+
+// POST /api/forgot-password
+router.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: 'Email is required.' });
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'Email not registered.' });
+
+    // Generate reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+    user.resetPasswordToken = hashedToken;
+    user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 minutes expiry
+    await user.save();
+
+    // Send only token to email (raw)
+    await sendResetPasswordEmail({ to: email, token: resetToken });
+
+    res.status(200).json({ message: 'Reset token sent to your email.' });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    res.status(500).json({ message: 'Server error. Try again later.' });
+  }
+});
+
+
+// ------------------------
+// POST /api/reset-password
+router.post('/reset-password', async (req, res) => {
+  const { email, resetToken, password } = req.body;
+  if (!email || !resetToken || !password) 
+    return res.status(400).json({ message: 'All fields are required.' });
+
+  try {
+    const hashedToken = crypto.createHash('sha256').update(resetToken.trim()).digest('hex');
+
+    const user = await User.findOne({
+      email,
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) return res.status(400).json({ message: 'Invalid or expired reset token.' });
+
+    user.password = password; // Make sure your User schema pre-save hook hashes password
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+    await user.save();
+
+    res.status(200).json({ message: 'Password reset successfully.' });
+  } catch (err) {
+    console.error('Reset password error:', err);
+    res.status(500).json({ message: 'Server error. Try again later.' });
   }
 });
 

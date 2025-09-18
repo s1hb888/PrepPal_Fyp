@@ -34,47 +34,64 @@ const Registration = ({ navigation }) => {
   const [errors, setErrors] = useState({});
   const [cityDropdownOpen, setCityDropdownOpen] = useState(false);
   const [areaDropdownOpen, setAreaDropdownOpen] = useState(false);
+const [successMsg, setSuccessMsg] = useState('');
+const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const validatePassword = (password) =>
     /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
 
   const handleRegister = async () => {
-    const newErrors = {};
-    if (!kidName.trim()) newErrors.kidName = "Kid's name is required.";
-    if (!email.trim()) newErrors.email = 'Email is required.';
-    if (!password.trim()) newErrors.password = 'Password is required.';
-    if (!kidAge.trim()) newErrors.kidAge = "Kid's age is required.";
-    if (!city) newErrors.city = 'City is required.';
-    if (!area) newErrors.area = 'Area is required.';
-    if (!agree) newErrors.agree = 'You must agree to the terms.';
+  setErrors({});
+  setSuccessMsg('');
+  const newErrors = {};
 
-    if (email && !validateEmail(email)) newErrors.email = 'Invalid email format.';
-    if (password && !validatePassword(password))
-      newErrors.password = 'Password must have 8+ chars, uppercase, digit & special char.';
-    if (kidName && !/^[A-Za-z ]+$/.test(kidName.trim()))
-      newErrors.kidName = 'Kid name must contain only alphabets and spaces.';
-    if (kidAge && (parseInt(kidAge) < 3 || parseInt(kidAge) > 5))
-      newErrors.kidAge = "Kid's age should be between 3 and 5.";
+  // ----- Frontend Validations -----
+  if (!kidName.trim()) newErrors.kidName = "Kid's name is required.";
+  if (!email.trim()) newErrors.email = 'Email is required.';
+  if (!password.trim()) newErrors.password = 'Password is required.';
+  if (!kidAge.trim()) newErrors.kidAge = "Kid's age is required.";
+  if (!city) newErrors.city = 'City is required.';
+  if (!area) newErrors.area = 'Area is required.';
+  if (!agree) newErrors.agree = 'You must agree to the terms.';
 
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    newErrors.email = 'Invalid email format.';
+  if (password && !/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password))
+    newErrors.password = 'Password must have 8+ chars, uppercase, digit & special char.';
+  if (kidName && !/^[A-Za-z ]+$/.test(kidName.trim()))
+    newErrors.kidName = 'Kid name must contain only alphabets and spaces.';
+  if (kidAge && (parseInt(kidAge) < 3 || parseInt(kidAge) > 5))
+    newErrors.kidAge = "Kid's age should be between 3 and 5.";
+
+  if (Object.keys(newErrors).length > 0) {
     setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) return;
+    return;
+  }
 
-    try {
-      await axios.post(`${API_BASE_URL}/api/register`, {
-        email,
-        password,
-        kidName,
-        kidAge,
-        city,
-        area,
-      });
-      navigation.navigate('Login');
-    } catch (error) {
-      const msg = error.response?.data?.message || 'Registration failed.';
-      setErrors({ server: msg });
-    }
-  };
+  // ----- API Call -----
+  try {
+    const response = await axios.post(`${API_BASE_URL}/api/register`, {
+      email,
+      password,
+      kidName,
+      kidAge: parseInt(kidAge),
+      city,
+      area,
+    });
+
+    console.log('Backend response:', response.data); // ✅ Now response is defined
+
+    // Show success modal
+    setSuccessMsg("Verification link sent to your email. Please check your inbox.");
+    setShowSuccessModal(true);
+
+  } catch (error) {
+    console.error('Axios error:', error.response || error); // ✅ See full error in console
+    const msg = error.response?.data?.message || 'Registration failed.';
+    setErrors({ server: msg });
+  }
+};
 
   const renderInput = (label, icon, value, setValue, placeholder, keyboardType = 'default', secure = false, fieldKey) => (
     <View style={{ marginBottom: 12 }}>
@@ -221,6 +238,26 @@ const Dropdown = ({ label, value, setValue, options, fieldKey, icon }) => (
             </View>
           </View>
         )}
+
+        {showSuccessModal && (
+  <View style={styles.modalOverlay}>
+    <View style={styles.successModal}>
+      <Text style={[styles.successTitle, { textAlign: 'center', marginBottom: 15 }]}>
+        {successMsg}
+      </Text>
+      <TouchableOpacity
+        onPress={() => {
+          setShowSuccessModal(false);
+          navigation.navigate('Login');
+        }}
+        style={styles.closeButton}
+      >
+        <Text style={styles.closeButtonText}>OK</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+)}
+
       </ScrollView>
     </LinearGradient>
   );

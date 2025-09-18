@@ -3,6 +3,8 @@ import React, { useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { SessionProvider } from './SessionContext';
+import VerifyEmail from './frontend/VerifyEmail';
+import * as Linking from 'expo-linking';
 
 
 /* ------------- Screens ------------- */
@@ -11,6 +13,7 @@ import Onboarding from './frontend/Onboarding';
 import QuizScreen from './frontend/QuizScreen';
 import Registration from './frontend/Registration';
 import Login from './frontend/Login';
+import ResetPassword from './frontend/ResetPassword';
 import Profile from './frontend/Profile';
 import Home from './frontend/Home';
 import FeedbackScreen from './frontend/FeedbackScreen';
@@ -39,7 +42,6 @@ import LearnIslamicStudies from './frontend/LearnIslamicStudies';
 import BasicQuestionsScreen from './frontend/BasicQuestionsScreen';
 import DuaScreen from './frontend/DuaScreen';
 import WorshipPracticeScreen from './frontend/WorshipPracticeScreen';
-import QuizScreen from './frontend/QuizScreen';
 /* PARENT / SHARED */
 import Settings from './frontend/Settings';
 import AboutUs from './frontend/AboutUs';
@@ -82,6 +84,18 @@ export default function App() {
   const navigationRef = useRef();
   const sessionRef = useRef({ checkSession: () => {} });
 
+const linking = {
+  prefixes: ["preppal://"], 
+  config: {
+    screens: {
+      VerifyEmail: "verify",
+      Login: "login",
+    },
+  },
+};
+
+
+
   return (
     <SessionProvider
       navigationRef={navigationRef}
@@ -90,6 +104,7 @@ export default function App() {
     >
       <NavigationContainer
         ref={navigationRef}
+         linking={linking} 
         onStateChange={() => {
           // ✅ Existing behavior: check session on navigation state change
           sessionRef.current?.checkSession?.();
@@ -101,6 +116,8 @@ export default function App() {
           <Stack.Screen name="Onboarding" component={Onboarding} />
           <Stack.Screen name="Registration" component={Registration} />
           <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="ResetPassword" component={ResetPassword} />
+
 
           {/* Parent / Shared */}
           <Stack.Screen name="Profile" component={Profile} />
@@ -113,6 +130,8 @@ export default function App() {
           <Stack.Screen name="AlphabetsAccessScreen" component={AlphabetsAccessScreen} />
           <Stack.Screen name="AccessManagement" component={AccessManagement} />
           <Stack.Screen name="ScreenTimeControl" component={ScreenTimeControl} />
+          <Stack.Screen name="VerifyEmail" component={VerifyEmail} />
+
 
           {/* Kid Screens */}
           <Stack.Screen name="KidHome" component={KidHome} />
