@@ -2,13 +2,23 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const apiKey = process.env.GEMINI_API_KEY;
 if (!apiKey) {
-  throw new Error("Missing Gemini API key. Set EXPO_PUBLIC_GEMINI_API_KEY in your .env file.");
+  throw new Error("❌ Missing Gemini API key. Set GEMINI_API_KEY in your .env file.");
 }
+
 const UrduAlphabet = require('../models/Urdu');
 const Alphabet = require('../models/Alphabet'); // English
 const NumberModel = require('../models/Number'); // Maths
+
+// ✅ Use supported Gemini model
 const genAI = new GoogleGenerativeAI(apiKey);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({
+  model: "gemini-2.5-flash",   // 🔥 Updated model name
+  generationConfig: {
+    temperature: 0.9, // random variation
+    topP: 0.9,
+    topK: 40
+  }
+});
 
 /**
  * Build subject-specific prompt for quiz generation
@@ -30,10 +40,13 @@ Important:
 - Output must be valid JSON only.
 `;
 
+  // 👉 Random seed so har run par naye sawal ayen
+  const variation = `Create a fresh and different set of questions than before. 
+  Do NOT repeat previous patterns. Random seed: ${Math.random()}`;
+
   if (/^urdu$/i.test(subject)) {
-    return baseInstruction + `
+    return baseInstruction + variation + `
 Language: Urdu (use actual Urdu script, not Roman Urdu).
-Each time there must be new questions.
 Restrict strictly to letters from ا to ی only.
 Make questions about:
 - Identifying letters ("یہ کون سا حرف ہے؟") → MUST have imageUrl showing the letter.
@@ -41,10 +54,9 @@ Make questions about:
 - Missing letters ("ا _ ت")
 `;
   } else if (/^english$/i.test(subject)) {
-    return baseInstruction + `
+    return baseInstruction + variation + `
 Language: English.
 Restrict strictly to CAPITAL letters A to Z only.
-Each time there must be new questions.
 Make questions about:
 - Identifying letters ("Which letter is this?") → MUST have imageUrl showing the letter.
 - Sequence before/after ("What comes after C?")
@@ -52,26 +64,18 @@ Make questions about:
 - Picture-based: e.g. show an image of "CAT" and ask "Which letter does this word start with?" (include imageUrl)
 `;
   } else if (/^(math|maths)$/i.test(subject)) {
-    return baseInstruction + `
-Generate 10 unique math questions for kids, each time new and different. 
-Rules:
-- Only use numbers 1 through 10.
-- Mix question types randomly:
-   1) Identifying numbers → MUST include "imageUrl" if asking "Which number is this?"
-   2) Before/After sequence ("What comes before 7?")
-   3) Fill in the missing number ("1, 2, _ , 4")
-   4) Comparing two numbers ("Which is bigger: 3 or 5?")
-   5) Counting objects in a picture (must include "imageUrl" and ask e.g. "How many apples?")
-- Always return output in JSON array format.
-- Each object must have:
-   - "type"
-   - "question"
-   - "options" (4 choices)
-   - "answer"
-   - "imageUrl" if picture-based or number-identification.
+    return baseInstruction + variation + `
+Language: English (numbers are universal).
+Restrict strictly to numbers 1 through 10 only.
+Make questions about:
+- Identifying numbers 1-10 → MUST have imageUrl if asking "Which number is this?")
+- Before/after in sequence ("What comes before 7?")
+- Fill in missing number ("1, 2, _ , 4")
+- Comparing small numbers ("Which is bigger: 3 or 5?")
+- Picture-based: e.g. show 3 apples and ask "How many apples are there?" (include imageUrl)
 `;
   } else {
-    return baseInstruction + `Language: English. Subject: ${subject}.`;
+    return baseInstruction + variation + `Language: English. Subject: ${subject}.`;
   }
 }
 
@@ -83,28 +87,28 @@ function normalize(str) {
 
 async function attachOptionImages(quiz, subject) {
   let dataset = [];
-  console.log(subject);
+  console.log("🔍 Subject:", subject);
+
   if (/^urdu$/i.test(subject)) {
     dataset = await UrduAlphabet.find({}).lean();
   } else if (/^english$/i.test(subject)) {
     dataset = await Alphabet.find({}).lean();
-  } else if (/^maths$/i.test(subject)) {
+  } else if (/^maths?$/i.test(subject)) {
     dataset = await NumberModel.find({}).lean();
   }
 
-  // 🔥 lookup banate waqt Urdu alphabets split bhi karenge
   const lookup = {};
 
   dataset.forEach(item => {
     if (/^urdu$/i.test(subject)) {
-      // multiple forms ko split karo (e.g. "ی، ے")
+      // Multiple forms split (e.g. "ی، ے")
       const chars = item.alphabet.split(/،|,|\s+/).map(normalize);
       chars.forEach(ch => {
         if (ch) lookup[ch] = item.image_url;
       });
     } else if (/^english$/i.test(subject)) {
       lookup[normalize(item.alphabet).toUpperCase()] = item.image_url;
-    } else if (/^maths$/i.test(subject)) {
+    } else if (/^maths?$/i.test(subject)) {
       lookup[normalize(String(item.number))] = item.image_url;
       lookup[normalize(item.word)] = item.image_url;
     }
@@ -130,47 +134,38 @@ async function generateQuiz(subject) {
     const response = result.response;
     let text = response.text();
 
-    // Remove unwanted wrappers
+    // Clean unwanted wrappers
     text = text.replace(/```json|```/g, "").trim();
 
-    // Extract JSON (array ya object dono handle kar lo)
+    // Extract JSON
     const match = text.match(/\[[\s\S]*\]/) || text.match(/\{[\s\S]*\}/);
     if (!match) throw new Error("No valid JSON found in AI response");
 
     let quiz = JSON.parse(match[0]);
 
-    // 🛑 Gemini ka imageUrl ignore karna hai
-   // quiz = quiz.map(q => {
-   //   delete q.imageUrl; // remove Gemini provided
-   //   return q;
-   // });
-
     // ✅ Attach images from DB for each option
     quiz = await attachOptionImages(quiz, subject);
+
+    // ✅ Ensure question imageUrl matches correct option if available
     quiz = quiz.map(q => {
-  // options me se correct answer find karo
-  const correctOpt = q.options.find(opt => opt.text === q.correctAnswer);
+      const correctOpt = q.options.find(opt => opt.text === q.correctAnswer);
 
-  if (correctOpt && correctOpt.imageUrl) {
-    // agar mila to question ka imageUrl replace karo
-    q.imageUrl = correctOpt.imageUrl;
-  } else {
-    // warna null hi rehne do
-    q.imageUrl = q.imageUrl || null;
-  }
+      if (correctOpt && correctOpt.imageUrl) {
+        q.imageUrl = correctOpt.imageUrl;
+      } else {
+        q.imageUrl = q.imageUrl || null;
+      }
 
-  return q;
-});
-   console.log(JSON.stringify(quiz, null, 2))
+      return q;
+    });
 
+    console.log("✅ Final Quiz:", JSON.stringify(quiz, null, 2));
     return quiz;
   } catch (error) {
     console.error("❌ Quiz generation error:", error);
     throw error;
   }
 }
-
-
 
 /**
  * Safe answer comparison helper
