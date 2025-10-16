@@ -15,8 +15,9 @@ const userSchema = new mongoose.Schema({
   isVerified: { type: Boolean, default: false },
   verificationToken: String,
   resetPasswordToken: String,
-  resetPasswordExpires: Date
-});
+  resetPasswordExpires: Date,
+  expoToken: { type: String, default: "" },
+  }, { timestamps: true });
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {

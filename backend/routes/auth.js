@@ -1,5 +1,5 @@
 
-
+const mongoose = require('mongoose');
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
@@ -289,6 +289,30 @@ router.post('/reset-password', async (req, res) => {
     res.status(500).json({ message: 'Server error. Try again later.' });
   }
 });
+
+
+// POST /api/user/save-fcm-token
+router.post('/save-expo-token', async (req, res) => {
+  try {
+    const { userId, expoToken } = req.body;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ success: false, message: 'Invalid userId' });
+    }
+
+    // User schema me save karo
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { expoToken },
+      { new: true }
+    );
+
+    return res.json({ success: true, expoToken: user.expoToken });
+  } catch (err) {
+    console.error('Save Expo token error:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 
 // -----------------------------------------------------------------------------
 // POST /api/auth/logout

@@ -122,14 +122,33 @@ const Home = ({ navigation }) => {
     }
   };
 
-  const clearAll = async () => {
+const clearAll = async () => {
+  try {
     const userData = await AsyncStorage.getItem('user');
     if (!userData) return;
     const { _id } = JSON.parse(userData);
-    await fetch(`${API_BASE_URL}/api/notifications/clear/${_id}`, { method: 'DELETE' });
-    setNotifications([]);
+
+    // 1️⃣ Delete from backend
+    const res = await fetch(`${API_BASE_URL}/api/notifications/clear/${_id}`, { method: 'DELETE' });
+    const json = await res.json();
+    if (!json.success) throw new Error('Failed to clear notifications');
+
+    // 2️⃣ Refetch updated notifications from backend
+    const updatedRes = await fetch(`${API_BASE_URL}/api/notifications/${_id}`);
+    const updatedJson = await updatedRes.json();
+    if (updatedJson.success) {
+      setNotifications(updatedJson.data); // should be []
+    } else {
+      setNotifications([]);
+    }
+
     setModalVisible(false);
-  };
+  } catch (err) {
+    console.error('Error clearing notifications:', err);
+    alert('Failed to clear notifications. Try again.');
+  }
+};
+
 
   const deleteNotification = async (id) => {
     await fetch(`${API_BASE_URL}/api/notifications/delete/${id}`, { method: 'DELETE' });

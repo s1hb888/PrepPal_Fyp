@@ -79,6 +79,7 @@ const includedScreens = [
   'WorshipPracticeScreen',
   'BasicQuestionsScreen',
   'QuizScreen',
+  'CountingScreen',
 ];
 
 export default function App() {

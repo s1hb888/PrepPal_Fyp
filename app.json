@@ -18,7 +18,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "googleServicesFile": "./google-services.json"   
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -27,6 +28,11 @@
       "expo-video",
       "expo-font",
       "expo-web-browser"
-    ]
+    ],
+    "extra": {
+  "eas": {
+    "projectId": "cfa57ac3-2d81-49de-99f9-641571d0a4af"
+  }
+}
   }
 }

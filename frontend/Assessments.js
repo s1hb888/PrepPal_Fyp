@@ -10,13 +10,13 @@ import {
   UIManager,
   ActivityIndicator,
   Alert,
+  ScrollView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { LinearGradient } from 'expo-linear-gradient';
 import API_BASE_URL from './config';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // ✅ import
 
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
@@ -62,26 +62,11 @@ const Assessments = () => {
   const handleSubjectQuiz = async (subject) => {
     try {
       setLoading(true);
+      const response = await axios.post(`${API_BASE_URL}/api/quiz/generate`, {
+        subject,
+      });
 
-      // ✅ token get from storage
-      const token = await AsyncStorage.getItem("token");
-      if (!token) {
-        Alert.alert("Unauthorized", "Please login first.");
-        return;
-      }
-
-      const response = await axios.post(
-        `${API_BASE_URL}/api/quiz/generate`,
-        { subject },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // ✅ Bearer token added
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const { quizText, quizId, userId } = response.data;
+      const { quizText } = response.data;
 
       if (!quizText || !Array.isArray(quizText)) {
         Alert.alert('Error', 'No quiz generated from Gemini.');
@@ -93,8 +78,6 @@ const Assessments = () => {
       navigation.navigate('QuizScreen', {
         subject,
         quizText,
-        quizId,   // ✅ pass quizId for result saving
-        userId,
       });
     } catch (error) {
       Alert.alert('Error', 'Failed to generate quiz. Check your API or internet.');

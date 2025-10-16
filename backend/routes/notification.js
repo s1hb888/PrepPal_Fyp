@@ -3,7 +3,13 @@ const mongoose = require('mongoose');
 const moment = require('moment');
 const Notification = require('../models/Notification');
 const ScreenTime = require('../models/ScreenTime');
+const User = require('../models/User');
+
+
 const router = express.Router();
+
+
+const { sendFCM } = require('../server'); 
 
 const now = () => moment();
 const num = v => Number(v || 0);
@@ -21,7 +27,7 @@ async function doDailyReset(rec) {
   }
 }
 
-// Unlock session if gap has passed
+// Unlock if gap passed
 async function autoUnlockIfGapPassed(rec) {
   if (rec.isLocked && rec.lastSessionEndTime && num(rec.nextSessionGap) > 0) {
     const unlockAt = moment(rec.lastSessionEndTime).add(num(rec.nextSessionGap), 'minutes');
@@ -31,35 +37,48 @@ async function autoUnlockIfGapPassed(rec) {
     }
   }
 }
-
+/* ───── App background start/end ───── */
 /* ───── App background start/end ───── */
 router.post('/app-background', async (req, res) => {
   try {
     const { userId, action, role } = req.body;
-    if (!isId(userId) || role !== 'kid') return res.json({ success: true, skipped: true });
+    if (!isId(userId) || role !== 'kid') 
+      return res.json({ success: true, skipped: true });
 
     const rec = await ScreenTime.findOne({ userId });
-    if (!rec || !rec.notificationsEnabled) return res.json({ success: true, skipped: true });
+    if (!rec || !rec.notificationsEnabled) 
+      return res.json({ success: true, skipped: true });
 
-    await doDailyReset(rec);
-    await autoUnlockIfGapPassed(rec);
+    const nowMoment = moment();
 
-    if (action === 'start' && rec.sessionStartTime && !rec.backgroundStartTime) {
-      rec.backgroundStartTime = new Date();
-      await rec.save();
-      return res.json({ success: true, started: true });
+    // 🔹 START background session
+    if (action === 'start') {
+      if (!rec.backgroundStartTime) {
+        rec.backgroundStartTime = new Date();
+        await rec.save();
+      }
+      return res.json({ success: true, started: true, sessionNumber: rec.openCountToday || 1 });
     }
 
+    // 🔹 END background session
     if (action === 'end' && rec.backgroundStartTime) {
-      const diffMin = Math.max(1, Math.ceil(moment().diff(moment(rec.backgroundStartTime), 'minutes', true)));
-      await Notification.create({
-        userId: rec.userId,
-        message: `App was in background for ${human(diffMin)} (Session ${rec.openCountToday || 1}).`,
-        type: 'background_exit',
-      });
+      const diffMs = nowMoment.diff(moment(rec.backgroundStartTime));
+      const diffSec = Math.floor(diffMs / 1000);
+      const diffStr = diffSec < 60 ? `${diffSec} seconds` : `${Math.ceil(diffSec / 60)} minutes`;
+
+      const sessionNumber = rec.openCountToday || 1;
+
+      if (!rec.isLocked) {
+        await Notification.create({
+          userId: rec.userId,
+          message: `App was in background for ${diffStr} (Session ${sessionNumber}).`,
+          type: 'background_exit',
+        });
+      }
+
       rec.backgroundStartTime = null;
       await rec.save();
-      return res.json({ success: true, notified: true, diffMin });
+      return res.json({ success: true, diffStr, sessionNumber });
     }
 
     res.status(400).json({ success: false, msg: 'Invalid action' });
@@ -68,39 +87,93 @@ router.post('/app-background', async (req, res) => {
   }
 });
 
+
+
 /* ───── Heartbeat ───── */
 router.post('/heartbeat', async (req, res) => {
   try {
-    const { userId, role, ts, isActive } = req.body;
-    if (!isId(userId) || role !== 'kid') return res.json({ success: true, skipped: true });
+    const { userId, ts, isActive } = req.body;
+    if (!isId(userId)) return res.json({ success: true, skipped: true });
+
+    const user = await User.findById(userId);
+    if (!user || user.role !== 'kid') {
+      return res.json({ success: true, skipped: true });
+    }
 
     const rec = await ScreenTime.findOne({ userId });
     if (!rec) return res.status(404).json({ success: false, msg: 'Record not found' });
 
     rec.lastHeartbeat = new Date(ts);
     rec.isAppActive = !!isActive;
-    await rec.save();
 
-    // Background session ended check (optional redundant safety)
-    if (!rec.isAppActive && rec.backgroundStartTime && rec.sessionEndTime && now().isSameOrAfter(moment(rec.sessionEndTime))) {
-      const diffMin = Math.max(1, Math.ceil(moment().diff(moment(rec.backgroundStartTime), 'minutes', true)));
-      await Notification.create({
-        userId: rec.userId,
-        message: `App was in background for ${human(diffMin)} (Session ${rec.openCountToday || 1}).`,
-        type: 'background_exit',
-      });
-      rec.backgroundStartTime = null;
-      await rec.save();
-      console.log(`Background exit notification created for user ${rec.userId}`);
+    // ✅ ensure sessionStartTime set
+    if (!rec.sessionStartTime) {
+      rec.sessionStartTime = new Date();
     }
 
+    await rec.save();
     res.json({ success: true });
   } catch (err) {
+    console.error('[❌ Heartbeat server error]', err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-/* ───── App Exit ───── */
+
+
+// ───── App Exit (Force Exit Only) ─────
+const FORCE_KILL_INTERVAL_MS = 5000; // 5 sec test
+const HEARTBEAT_TIMEOUT_MS = 5000; 
+
+const checkForceKills = async () => {
+  try {
+    const now = new Date();
+
+    const kids = await User.find({ role: 'kid' }, '_id expoToken');
+    if (!kids.length) return;
+
+    const recs = await ScreenTime.find({
+      userId: { $in: kids.map(k => k._id) },
+      sessionStartTime: { $ne: null },
+      sessionEndTime: null, // only ongoing sessions
+    });
+
+    for (const rec of recs) {
+      const user = kids.find(k => String(k._id) === String(rec.userId));
+      const lastHeartbeatDiff = rec.lastHeartbeat ? now - rec.lastHeartbeat : Infinity;
+      const sessionNumber = (rec.openCountToday || 0);
+
+      if (lastHeartbeatDiff > HEARTBEAT_TIMEOUT_MS) {
+        const message = `App was forcefully closed before session end (Session ${sessionNumber + 1}).`;
+
+        // Create notification
+        await Notification.create({
+          userId: rec.userId,
+          message,
+          type: 'app_exit',
+        });
+
+        // Send FCM
+        if (user?.expoToken) await sendFCM(user._id, message);
+
+        // Cleanup session
+        rec.sessionStartTime = null;
+        rec.sessionEndTime = null;
+        rec.backgroundStartTime = null;
+        rec.isLocked = true;
+        rec.openCountToday = sessionNumber + 1;
+
+        await rec.save();
+
+        console.log(`[🚨 Force kill detected] ${message}`);
+      }
+    }
+  } catch (err) {
+    console.error('[❌ checkForceKills error]', err.message || err);
+  }
+};
+
+// Manual / frontend-triggered exit
 router.post('/app-exit', async (req, res) => {
   try {
     const { userId, role } = req.body;
@@ -109,105 +182,52 @@ router.post('/app-exit', async (req, res) => {
     const rec = await ScreenTime.findOne({ userId });
     if (!rec) return res.status(404).json({ success: false, msg: 'No ScreenTime record' });
 
-    const nowMoment = moment();
-    if (rec.backgroundStartTime) {
-      const diffMin = Math.max(1, Math.ceil(nowMoment.diff(moment(rec.backgroundStartTime), 'minutes', true)));
+    // Only send notification if session hasn't ended
+    if (rec.sessionStartTime && !rec.sessionEndTime) {
+      const sessionNumber = num(rec.openCountToday) + 1;
+
       await Notification.create({
         userId: rec.userId,
-        message: `App was in background for ${human(diffMin)} (Session ${rec.openCountToday || 1}).`,
-        type: 'background_exit',
-      });
-    } else {
-      await Notification.create({
-        userId: rec.userId,
-        message: `App was explicitly closed (Session ${rec.openCountToday + 1}).`,
+        message: `App was forcefully closed before session end (Session ${sessionNumber}).`,
         type: 'app_exit',
       });
-    }
 
-    rec.openCountToday = num(rec.openCountToday) + 1;
-    rec.lastSessionEndTime = nowMoment.toDate();
-    rec.sessionStartTime = null;
-    rec.sessionEndTime = null;
-    rec.backgroundStartTime = null;
-    rec.isLocked = true;
-    await rec.save();
+      const user = await User.findById(userId);
+      if (user?.expoToken) await sendFCM(user._id, `App was forcefully closed before session end (Session ${sessionNumber}).`);
+
+      // Cleanup session
+      rec.sessionStartTime = null;
+      rec.sessionEndTime = null;
+      rec.backgroundStartTime = null;
+      rec.isLocked = true;
+      rec.openCountToday = sessionNumber;
+      await rec.save();
+
+      console.log(`[🚨 Manual / Frontend exit] User: ${userId}, Session: ${sessionNumber}`);
+    }
 
     res.json({ success: true, notified: true });
   } catch (err) {
+    console.error('[ /app-exit error]', err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-/* ───── Force Kill & Expired Background Checker ───── */
-const checkForceKillAndBackground = async () => {
+// DELETE single notification
+router.delete("/delete/:id", async (req, res) => {
   try {
-    const recs = await ScreenTime.find({
-      sessionStartTime: { $ne: null } // only active sessions
-    });
+    const { id } = req.params;
+    if (!isId(id)) return res.status(400).json({ success: false, msg: "Invalid ID" });
 
-    const nowMoment = moment();
+    const result = await Notification.deleteOne({ _id: id });
+    if (result.deletedCount === 0) return res.status(404).json({ success: false, msg: "Notification not found" });
 
-    for (const rec of recs) {
-      let notificationCreated = false;
-
-      // ✅ Background expired session
-      if (rec.backgroundStartTime && rec.sessionEndTime && nowMoment.isSameOrAfter(moment(rec.sessionEndTime))) {
-        const diffMin = Math.max(1, Math.ceil(nowMoment.diff(moment(rec.backgroundStartTime), 'minutes', true)));
-        await Notification.create({
-          userId: rec.userId,
-          message: `App was in background for ${human(diffMin)} (Session ${rec.openCountToday || 1}).`,
-          type: 'background_exit',
-        });
-        notificationCreated = true;
-        console.log(`Background exit notification auto-created for user ${rec.userId}`);
-      }
-
-      // ✅ Force kill / app never returned before session end
-      // ✅ Force kill / app never returned before session end
-if (!notificationCreated && rec.sessionStartTime && rec.sessionEndTime && !rec.isAppActive && nowMoment.isSameOrAfter(moment(rec.sessionEndTime))) {
-  await Notification.create({
-    userId: rec.userId,
-    message: `App closed before Session ${rec.openCountToday || 1}.`,
-    type: 'app_exit',
-  });
-  notificationCreated = true;
-}
-
-
-      if (notificationCreated) {
-        rec.lastSessionEndTime = nowMoment.toDate();
-        rec.sessionEndTime = nowMoment.toDate();
-        rec.sessionStartTime = null;
-        rec.sessionEndTime = null;
-        rec.backgroundStartTime = null;
-        rec.isLocked = true;
-        await rec.save();
-      }
-    }
-  } catch (err) {
-    console.error("Error in checkForceKillAndBackground:", err.message);
-  }
-};
-
-// Run every 60 seconds
-setInterval(checkForceKillAndBackground, 60000);
-
-
-/* ───── Get notifications ───── */
-router.get("/:userId", async (req, res) => {
-  try {
-    const { userId } = req.params;
-    if (!isId(userId)) return res.status(400).json({ success: false });
-
-    const data = await Notification.find({
-      userId: new mongoose.Types.ObjectId(userId),
-    }).sort({ createdAt: -1 });
-    res.json({ success: true, data });
+    res.json({ success: true });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
 });
+
 
 /* ───── Mark all as read ───── */
 router.patch("/mark-all-read/:userId", async (req, res) => {
@@ -235,4 +255,20 @@ router.delete("/clear/:userId", async (req, res) => {
   }
 });
 
-module.exports = router;
+router.get("/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    if (!isId(userId)) return res.status(400).json({ success: false });
+
+    const data = await Notification.find({
+      userId: new mongoose.Types.ObjectId(userId),
+    }).sort({ createdAt: -1 });
+    res.json({ success: true, data });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
+module.exports = { router, checkForceKills };
+

@@ -18,8 +18,9 @@ const cityAreas = {
   Islamabad: ['F-6', 'F-7', 'F-8', 'G-6', 'G-7', 'G-8', 'Blue Area', 'I-8', 'Bahria Enclave', 'DHA Phase 2'],
   Rawalpindi: ['Saddar', 'Peshawar Road', 'Scheme 3', 'Satellite Town', 'Murree Road', 'Chaklala', 'Lalazar', 'Adiala Road', 'Airport Housing', 'Bahria Town Phase 8'],
   Lahore: ['DHA Phase 5', 'DHA Phase 6', 'Johar Town', 'Model Town', 'Garden Town', 'Gulberg', 'Faisal Town', 'Cantt', 'Wapda Town', 'Bahria Town'],
-  'Azad Kashmir': ['Muzaffarabad', 'Rawalakot', 'Bagh', 'Kotli', 'Mirpur', 'Neelum Valley', 'Athmuqam', 'Hattian Bala', 'Chakothi', 'Sudhanoti'],
+  AzadKashmir: ['Muzaffarabad', 'Rawalakot', 'Bagh', 'Kotli', 'Mirpur', 'Neelum Valley', 'Athmuqam', 'Hattian Bala', 'Chakothi', 'Sudhanoti'],
 };
+
 
 const Registration = ({ navigation }) => {
   const [email, setEmail] = useState('');

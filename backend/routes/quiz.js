@@ -1,11 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { generateQuiz } = require('../utils/quizGenerator');
-const Quiz = require('../models/Quiz');
-const verifyToken = require('../middleware/authMiddleware'); // ✅ your middleware
+const Quiz = require('../models/Quiz'); // ✅ single model now
 
-// Generate quiz (only logged-in users can access)
-router.post('/generate', verifyToken, async (req, res) => {
+router.post('/generate', async (req, res) => {
   const { subject } = req.body;
 
   if (!subject) return res.status(400).json({ message: 'Subject is required' });
@@ -13,22 +11,17 @@ router.post('/generate', verifyToken, async (req, res) => {
   try {
     const quizArray = await generateQuiz(subject);
 
+    // ✅ Check if it's a valid array
     if (!Array.isArray(quizArray) || !quizArray.length) {
       return res.status(500).json({ message: 'Failed to parse quiz properly.' });
     }
 
-    // ✅ Save quiz with logged-in userId from token
-    const savedQuiz = await Quiz.create({
-      subject,
-      questions: quizArray,
-      userId: req.user.id, // 👈 added from decoded token
-    });
+    // ✅ Save the parsed quiz with subject
+    const savedQuiz = await Quiz.create({ subject, questions: quizArray });
 
     res.status(201).json({
       message: `Quiz saved for ${subject}`,
-      quizText: savedQuiz.questions,
-      quizId: savedQuiz._id,
-      userId: req.user.id, // return for frontend confirmation
+      quizText: savedQuiz.questions, // 👈 frontend needs this
     });
 
   } catch (err) {
