@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
   },
   profileInfo: {
     alignItems: 'center',
-    marginTop: 40,
+    marginTop: 110,
     marginBottom: 20,
   },
   imageWrapper: {

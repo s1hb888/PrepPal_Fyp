@@ -129,14 +129,14 @@ const styles = StyleSheet.create({
   container: { backgroundColor: '#fff', flexGrow: 1 },
   header: {
     backgroundColor: MINT,
-    paddingVertical: 40,
+    paddingVertical: 70,
     paddingHorizontal: 20,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
     alignItems: 'center',
   },
   title: { fontSize: 26, fontWeight: 'bold', color: '#000' },
-  body: { padding: 20 },
+  body: { padding: 10 },
   sectionHeader: {
     fontSize: 15,
     fontWeight: '700',

@@ -8,6 +8,8 @@ import {
   ActivityIndicator,
   Alert,
   Modal,
+  ScrollView,
+  Animated,
 } from 'react-native';
 import { FontAwesome, Feather, MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
@@ -15,22 +17,27 @@ import API_BASE_URL from './config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function FeedbackScreen() {
-  // Form state
-  const [rating, setRating] = useState(0);
-  const [difficulty, setDifficulty] = useState('');
+  const [ratings, setRatings] = useState({
+    appEaseOfUse: 0,
+    performanceRating: 0,
+    designSatisfaction: 0,
+    featureUsefulness: 0,
+  });
+  const [bugOrIssueExperience, setBugOrIssueExperience] = useState('');
   const [suggestions, setSuggestions] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
+  const [focusedField, setFocusedField] = useState(null);
+  const [completionProgress, setCompletionProgress] = useState(0);
 
-  // Dropdown state
-  const [difficultyDropdownOpen, setDifficultyDropdownOpen] = useState(false);
-
-  const difficultyLevels = [
-    { id: 1, level: 'Easy', color: '#000000' },
-    { id: 2, level: 'Moderate', color: '#000000' },
-    { id: 3, level: 'Challenging', color: '#000000' },
-  ];
+  // Animation values
+  const [scaleAnimations] = useState({
+    appEaseOfUse: new Animated.Value(1),
+    performanceRating: new Animated.Value(1),
+    designSatisfaction: new Animated.Value(1),
+    featureUsefulness: new Animated.Value(1),
+  });
 
   useEffect(() => {
     const checkFeedback = async () => {
@@ -40,7 +47,7 @@ export default function FeedbackScreen() {
         const res = await axios.get(`${API_BASE_URL}/api/feedback`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const email = await AsyncStorage.getItem('email'); // assuming you stored email
+        const email = await AsyncStorage.getItem('email');
         const exists = res.data.some((f) => f.email === email);
         if (exists) setAlreadySubmitted(true);
       } catch (err) {
@@ -50,13 +57,36 @@ export default function FeedbackScreen() {
     checkFeedback();
   }, []);
 
-  const handleStarPress = (starRating) => {
-    setRating(starRating);
+  // Calculate completion progress
+  useEffect(() => {
+    const ratingCount = Object.values(ratings).filter(r => r > 0).length;
+    const progress = (ratingCount / 4) * 100;
+    setCompletionProgress(progress);
+  }, [ratings]);
+
+  const handleStarPress = (field, starRating) => {
+    setRatings((prev) => ({ ...prev, [field]: starRating }));
+    
+    // Animate the card
+    Animated.sequence([
+      Animated.timing(scaleAnimations[field], {
+        toValue: 1.02,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnimations[field], {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
   const handleSubmit = async () => {
-    if (!rating || !difficulty || suggestions.trim() === '') {
-      Alert.alert('Error', 'Rating, difficulty, and suggestions are required.');
+    const { appEaseOfUse, performanceRating, designSatisfaction, featureUsefulness } = ratings;
+
+    if (!appEaseOfUse || !performanceRating || !designSatisfaction || !featureUsefulness) {
+      Alert.alert('Incomplete Feedback', 'Please rate all required fields to help us serve you better.');
       return;
     }
 
@@ -65,14 +95,17 @@ export default function FeedbackScreen() {
     try {
       const token = await AsyncStorage.getItem('token');
       if (!token) {
-        Alert.alert('Error', 'User not authenticated.');
+        Alert.alert('Authentication Required', 'Please log in to submit feedback.');
         setIsSubmitting(false);
         return;
       }
 
       const feedbackData = {
-        rating,
-        difficulty,
+        appEaseOfUse,
+        performanceRating,
+        designSatisfaction,
+        featureUsefulness,
+        bugOrIssueExperience: bugOrIssueExperience.trim(),
         suggestions: suggestions.trim(),
       };
 
@@ -82,72 +115,89 @@ export default function FeedbackScreen() {
 
       if (response.status === 201) {
         setShowSuccess(true);
-        setAlreadySubmitted(true); // disable form after submission
+        setAlreadySubmitted(true);
       }
     } catch (error) {
       console.error('Error submitting feedback:', error.response?.data || error);
-      Alert.alert('Failed', error.response?.data?.message || 'Please try again later.');
+      Alert.alert('Submission Failed', error.response?.data?.message || 'Unable to submit feedback. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const resetForm = () => {
-    setRating(0);
-    setDifficulty('');
+    setRatings({
+      appEaseOfUse: 0,
+      performanceRating: 0,
+      designSatisfaction: 0,
+      featureUsefulness: 0,
+    });
+    setBugOrIssueExperience('');
     setSuggestions('');
   };
 
   const getRatingLabel = (rating) => {
     switch (rating) {
-      case 1: return 'Poor';
-      case 2: return 'Fair';
-      case 3: return 'Good';
+      case 1: return 'Needs Improvement';
+      case 2: return 'Below Average';
+      case 3: return 'Satisfactory';
       case 4: return 'Very Good';
-      case 5: return 'Excellent';
+      case 5: return 'Outstanding';
       default: return '';
     }
   };
 
-  const isFormValid = rating > 0 && difficulty && suggestions.trim() !== '' && !alreadySubmitted;
+  const getRatingIcon = (rating) => {
+    switch (rating) {
+      case 1:
+        return <MaterialIcons name="sentiment-very-dissatisfied" size={22} color="#EF3349" />;
+      case 2:
+        return <MaterialIcons name="sentiment-dissatisfied" size={22} color="#FFB300" />;
+      case 3:
+        return <MaterialIcons name="sentiment-satisfied" size={22} color="#FDD835" />;
+      case 4:
+        return <MaterialIcons name="sentiment-very-satisfied" size={22} color="#2BCB9A" />;
+      case 5:
+        return <MaterialIcons name="sentiment-very-satisfied" size={22} color="#2BCB9A" />;
+      default:
+        return null;
+    }
+  };
 
-  const Dropdown = ({ label, value, setValue, options, isOpen, setIsOpen, isRequired }) => (
-    <View style={{ marginTop: 8 }}>
-      <View style={styles.iconTitleRow}>
-        <Text style={styles.dropdownTitle}>{label}</Text>
-        {isRequired && <Text style={styles.requiredAsterisk}>*</Text>}
-      </View>
-      <TouchableOpacity
-        style={styles.dropdownHeader}
-        onPress={() => setIsOpen(!isOpen)}
-        disabled={alreadySubmitted}
-      >
-        <Text style={styles.dropdownLabel}>{value || `Select ${label}`}</Text>
-        <Feather name={isOpen ? 'chevron-up' : 'chevron-down'} size={20} />
-      </TouchableOpacity>
-      {isOpen && (
-        <View style={styles.dropdownList}>
-          {options.map((opt) => (
-            <TouchableOpacity
-              key={opt.id}
-              style={styles.dropdownItem}
-              onPress={() => {
-                setValue(opt.level);
-                setIsOpen(false);
-              }}
-              disabled={alreadySubmitted}
-            >
-              <Text style={{ color: '#000000' }}>{opt.level}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
-    </View>
-  );
+  const isFormValid =
+    Object.values(ratings).every((r) => r > 0) &&
+    !alreadySubmitted;
+
+  const ratingCategories = [
+  { 
+    field: 'appEaseOfUse', 
+    title: 'Ease of Use', 
+    desc: 'How intuitive and user-friendly is the navigation?',
+    icon: 'touch-app' // ✅ Replaced "mobile" → "touch-app" (represents usability)
+  },
+  { 
+    field: 'performanceRating', 
+    title: 'Performance & Reliability', 
+    desc: 'Speed, responsiveness, and stability of the app',
+    icon: 'speed' // ✅ Better than "dashboard" for app performance
+  },
+  { 
+    field: 'designSatisfaction', 
+    title: 'Visual Design & Appeal', 
+    desc: 'Child-friendly interface and overall aesthetics',
+    icon: 'color-lens' // ✅ Better than "palette" for UI design
+  },
+  { 
+    field: 'featureUsefulness', 
+    title: 'Feature Value', 
+    desc: 'Effectiveness of tools in supporting your kid’s learning',
+    icon: 'extension'// ✅ Symbolizes value and usefulness
+  },
+];
+
 
   return (
     <View style={styles.fullContainer}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => {}} style={styles.backButton}>
           <Feather name="arrow-left" size={20} color="#555" />
@@ -156,119 +206,230 @@ export default function FeedbackScreen() {
           <View style={styles.headerIcon}>
             <FontAwesome name="star" size={24} color="white" />
           </View>
-          <Text style={styles.headerTitle}>Feedback</Text>
-          <Text style={styles.headerSubtitle}>Help us make learning even better!</Text>
+          <Text style={styles.headerTitle}>Parent Feedback Center</Text>
+          <Text style={styles.headerSubtitle}>Your insights shape PrepPal's future</Text>
         </View>
+        
+        {/* Progress Indicator */}
+        {!alreadySubmitted && (
+          <View style={styles.progressContainer}>
+            <View style={styles.progressHeader}>
+              <Text style={styles.progressText}>Completion Progress</Text>
+              <Text style={styles.progressPercentage}>{Math.round(completionProgress)}%</Text>
+            </View>
+            <View style={styles.progressBarBackground}>
+              <View style={[styles.progressBarFill, { width: `${completionProgress}%` }]} />
+            </View>
+          </View>
+        )}
       </View>
 
-      {/* Content */}
-      <View style={styles.contentContainer}>
+      <ScrollView style={styles.contentContainer} showsVerticalScrollIndicator={false}>
         {alreadySubmitted && (
-          <Text style={{ textAlign: 'center', color: 'green', marginBottom: 12 }}>
-            You have already submitted your feedback. Thank you!
-          </Text>
+          <View style={styles.submittedBanner}>
+            <MaterialIcons name="check-circle" size={20} color="#2BCB9A" />
+            <Text style={styles.submittedText}>
+              Feedback received! We appreciate your time and input.
+            </Text>
+          </View>
         )}
 
-        {/* Rating */}
-        <View style={[styles.card, { marginTop: 12 }]}>
-          <View style={styles.iconTitleRow}>
-            <FontAwesome name="star" size={24} color="#EF3349" />
-            <Text style={styles.dropdownTitle}>Overall Rating</Text>
-            <Text style={styles.requiredAsterisk}>*</Text>
-          </View>
-          <Text style={styles.ratingSubtitle}>Rate your overall experience</Text>
-          <View style={styles.starsRow}>
-            {[1, 2, 3, 4, 5].map((star) => (
-              <TouchableOpacity key={star} onPress={() => handleStarPress(star)} disabled={alreadySubmitted}>
-                <FontAwesome
-                  name="star"
-                  size={32}
-                  color={star <= rating ? '#FFD700' : '#ccc'}
-                  style={{ marginHorizontal: 4 }}
-                />
-              </TouchableOpacity>
-            ))}
-          </View>
-          {rating > 0 && (
-            <View style={styles.ratingLabelContainer}>
-              <Text style={styles.ratingLabel}>{getRatingLabel(rating)}</Text>
-            </View>
-          )}
+        {/* Section Header */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Rate Your Experience</Text>
+          <Text style={styles.sectionSubtitle}>
+            Help us understand what's working and what needs improvement
+          </Text>
         </View>
 
-        {/* Difficulty */}
-        <View style={[styles.card, { marginTop: 12 }]}>
+        {/* Rating Categories */}
+        {ratingCategories.map(({ field, title, desc, icon }, index) => (
+          <Animated.View
+            key={field}
+            style={[
+              styles.card,
+              { 
+                marginTop: index === 0 ? 8 : 12,
+                transform: [{ scale: scaleAnimations[field] }],
+                borderColor: ratings[field] > 0 ? '#2BCB9A' : '#E0E0E0',
+                borderWidth: ratings[field] > 0 ? 1.5 : 1,
+              }
+            ]}
+          >
+            <View style={styles.cardHeader}>
+              <View style={styles.iconTitleRow}>
+                <View style={[styles.categoryIcon, { backgroundColor: ratings[field] > 0 ? '#EF3349' : '#F0F0F0' }]}>
+                  <MaterialIcons 
+                    name={icon} 
+                    size={20} 
+                    color={ratings[field] > 0 ? 'white' : '#999'} 
+                  />
+                </View>
+                <View style={styles.titleContainer}>
+                  <View style={styles.titleRow}>
+                    <Text style={styles.dropdownTitle}>{title}</Text>
+                    <Text style={styles.requiredAsterisk}>*</Text>
+                  </View>
+                  <Text style={styles.ratingSubtitle}>{desc}</Text>
+                </View>
+              </View>
+              {ratings[field] > 0 && (
+                <View style={styles.ratingBadge}>
+                  <Text style={styles.ratingBadgeText}>{ratings[field]}/5</Text>
+                </View>
+              )}
+            </View>
+            
+            <View style={styles.starsContainer}>
+              <View style={styles.starsRow}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <TouchableOpacity
+                    key={star}
+                    onPress={() => handleStarPress(field, star)}
+                    disabled={alreadySubmitted}
+                    style={styles.starButton}
+                  >
+                    <FontAwesome
+                      name={star <= ratings[field] ? "star" : "star-o"}
+                      size={32}
+                      color={star <= ratings[field] ? '#FFD700' : '#D0D0D0'}
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
+              {ratings[field] > 0 && (
+                <View style={styles.ratingLabelContainer}>
+                  {getRatingIcon(ratings[field])}
+                  <Text style={styles.ratingLabel}>{getRatingLabel(ratings[field])}</Text>
+                </View>
+              )}
+            </View>
+          </Animated.View>
+        ))}
+
+        {/* Detailed Feedback Section */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Additional Insights</Text>
+          <Text style={styles.sectionSubtitle}>
+            Optional but invaluable for continuous improvement
+          </Text>
+        </View>
+
+        {/* Bug/Issue Field */}
+        <View style={[
+          styles.card, 
+          { 
+            marginTop: 8,
+            borderColor: focusedField === 'bugs' ? '#EF3349' : '#E0E0E0',
+            borderWidth: focusedField === 'bugs' ? 1.5 : 1,
+          }
+        ]}>
           <View style={styles.iconTitleRow}>
-            <MaterialIcons name="trending-up" size={24} color="#EF3349" />
-            <Text style={styles.dropdownTitle}>Difficulty</Text>
-            <Text style={styles.requiredAsterisk}>*</Text>
+            <View style={styles.categoryIcon}>
+              <MaterialIcons name="bug-report" size={20} color="white" />
+            </View>
+            <View style={styles.titleContainer}>
+              <Text style={styles.dropdownTitle}>Technical Issues</Text>
+              <Text style={styles.optionalLabel}>Optional</Text>
+            </View>
           </View>
-          <Dropdown
-            label="Difficulty"
-            value={difficulty}
-            setValue={setDifficulty}
-            options={difficultyLevels}
-            isOpen={difficultyDropdownOpen}
-            setIsOpen={setDifficultyDropdownOpen}
-            isRequired={true}
+          <TextInput
+            style={[styles.textArea, { borderColor: focusedField === 'bugs' ? '#EF3349' : '#E0E0E0' }]}
+            multiline
+            placeholder="Report any bugs, crashes, or technical difficulties encountered..."
+            placeholderTextColor="#999"
+            value={bugOrIssueExperience}
+            onChangeText={setBugOrIssueExperience}
+            editable={!alreadySubmitted}
+            onFocus={() => setFocusedField('bugs')}
+            onBlur={() => setFocusedField(null)}
           />
+          <Text style={styles.charCount}>{bugOrIssueExperience.length} characters</Text>
         </View>
 
         {/* Suggestions */}
-        <View style={[styles.card, { marginTop: 12 }]}>
+        <View style={[
+          styles.card, 
+          { 
+            marginTop: 12,
+            borderColor: focusedField === 'suggestions' ? '#EF3349' : '#E0E0E0',
+            borderWidth: focusedField === 'suggestions' ? 1.5 : 1,
+          }
+        ]}>
           <View style={styles.iconTitleRow}>
-            <MaterialIcons name="lightbulb-outline" size={24} color="#EF3349" />
-            <Text style={styles.dropdownTitle}>Suggestions</Text>
-            <Text style={styles.requiredAsterisk}>*</Text>
+            <View style={styles.categoryIcon}>
+              <MaterialIcons name="lightbulb-outline" size={20} color="white" />
+            </View>
+            <View style={styles.titleContainer}>
+              <Text style={styles.dropdownTitle}>Feature Requests & Ideas</Text>
+              <Text style={styles.optionalLabel}>Optional</Text>
+            </View>
           </View>
           <TextInput
-            style={styles.textArea}
+            style={[styles.textArea, { borderColor: focusedField === 'suggestions' ? '#EF3349' : '#E0E0E0' }]}
             multiline
-            placeholder="Any ideas on how we can improve?"
+            placeholder="Share your ideas for new features or improvements..."
             placeholderTextColor="#999"
             value={suggestions}
             onChangeText={setSuggestions}
             editable={!alreadySubmitted}
+            onFocus={() => setFocusedField('suggestions')}
+            onBlur={() => setFocusedField(null)}
           />
+          <Text style={styles.charCount}>{suggestions.length} characters</Text>
         </View>
 
         {/* Submit Button */}
         <TouchableOpacity
           onPress={handleSubmit}
           disabled={!isFormValid || isSubmitting}
-          style={[styles.submitButton, { opacity: !isFormValid || isSubmitting ? 0.5 : 1 }]}
+          style={[
+            styles.submitButton, 
+            { 
+              opacity: !isFormValid || isSubmitting ? 0.5 : 1,
+              backgroundColor: isFormValid && !isSubmitting ? '#EF3349' : '#CCC'
+            }
+          ]}
         >
           {isSubmitting ? (
-            <ActivityIndicator color="white" />
+            <View style={styles.submitContent}>
+              <ActivityIndicator color="white" size="small" />
+              <Text style={styles.submitText}>Submitting...</Text>
+            </View>
           ) : (
-            <Text style={styles.submitText}>Submit Feedback</Text>
+            <View style={styles.submitContent}>
+              <MaterialIcons name="send" size={20} color="white" />
+              <Text style={styles.submitText}>Submit Feedback</Text>
+            </View>
           )}
         </TouchableOpacity>
-      </View>
+
+        <Text style={styles.privacyNote}>
+          Your feedback is confidential and used solely to enhance PrepPal
+        </Text>
+
+        <View style={{ height: 20 }} />
+      </ScrollView>
 
       {/* Success Modal */}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={showSuccess}
-        onRequestClose={() => {
-          setShowSuccess(false);
-          resetForm();
-        }}
-      >
+      <Modal animationType="fade" transparent={true} visible={showSuccess}>
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <MaterialIcons name="check-circle" size={60} color="#2BCB9A" />
-            <Text style={styles.modalTitle}>Thank You!</Text>
-            <Text style={styles.modalText}>Your feedback has been submitted successfully.</Text>
+            <View style={styles.successIconContainer}>
+              <MaterialIcons name="check-circle" size={70} color="#2BCB9A" />
+            </View>
+            <Text style={styles.modalTitle}>Feedback Received!</Text>
+            <Text style={styles.modalText}>
+              Thank you for taking the time to share your thoughts. Your insights are instrumental in making PrepPal the best learning companion for your child.
+            </Text>
             <TouchableOpacity
-              style={[styles.button, { backgroundColor: '#2BCB9A' }]} // Mint close button
+              style={styles.modalButton}
               onPress={() => {
                 setShowSuccess(false);
                 resetForm();
               }}
             >
-              <Text style={styles.textStyle}>Close</Text>
+              <Text style={styles.modalButtonText}>Close</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -277,41 +438,297 @@ export default function FeedbackScreen() {
   );
 }
 
-// Styles
 const styles = StyleSheet.create({
   fullContainer: { flex: 1, backgroundColor: '#F5F5F5' },
   header: {
-    padding: 12,
+    padding: 16,
     backgroundColor: 'rgb(160,240,220)',
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
     paddingTop: 40,
+    paddingBottom: 20,
   },
-  backButton: { padding: 6, backgroundColor: '#fff', borderRadius: 12, alignSelf: 'flex-start', marginBottom: 6 },
-  headerContent: { alignItems: 'center', marginTop: -4 },
-  headerIcon: { width: 46, height: 46, borderRadius: 23, backgroundColor: '#EF3349', alignItems: 'center', justifyContent: 'center', marginBottom: 6 },
-  headerTitle: { fontSize: 25, fontWeight: 'bold', color: '#000' },
-  headerSubtitle: { color: '#000', fontSize: 13 },
-  contentContainer: { flex: 1, padding: 12 },
-  card: { backgroundColor: '#fff', borderRadius: 14, padding: 14, marginVertical: 6, shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 4, elevation: 1 },
-  iconTitleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
-  dropdownTitle: { fontSize: 15, fontWeight: 'bold', color: '#000', marginLeft: 6 },
-  requiredAsterisk: { color: '#EF3349', fontSize: 14, fontWeight: 'bold', marginLeft: 2 },
-  ratingSubtitle: { color: '#999', fontSize: 13, marginTop: -2, marginBottom: 6 },
-  dropdownHeader: { borderWidth: 1, borderColor: '#ccc', borderRadius: 10, padding: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff' },
-  dropdownLabel: { fontSize: 13, color: '#000' },
-  dropdownList: { marginTop: 3, borderWidth: 1, borderColor: '#ccc', borderRadius: 10, backgroundColor: '#fff' },
-  dropdownItem: { padding: 10 },
-  starsRow: { flexDirection: 'row', justifyContent: 'center', marginVertical: 6 },
-  ratingLabelContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 2 },
-  ratingLabel: { textAlign: 'center', color: '#000', fontSize: 13, fontWeight: 'bold' },
-  textArea: { borderWidth: 1, borderColor: '#ccc', borderRadius: 10, padding: 10, backgroundColor: '#fff', textAlignVertical: 'top', minHeight: 70, marginTop: 2 },
-  submitButton: { backgroundColor: '#EF3349', paddingVertical: 12, borderRadius: 10, alignItems: 'center', marginTop: 10 },
-  submitText: { color: 'white', fontWeight: 'bold', fontSize: 15 },
-  centeredView: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
-  modalView: { margin: 20, backgroundColor: 'white', borderRadius: 20, padding: 30, alignItems: 'center', elevation: 5 },
-  modalTitle: { fontSize: 22, fontWeight: 'bold', marginBottom: 12, textAlign: 'center' },
-  modalText: { fontSize: 15, marginBottom: 20, textAlign: 'center' },
-  button: { borderRadius: 10, padding: 10, elevation: 2 },
-  textStyle: { color: 'white', fontWeight: 'bold', textAlign: 'center', fontSize: 15 },
+  backButton: {
+    padding: 8,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+    marginBottom: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  headerContent: { alignItems: 'center', marginTop: 4 },
+  headerIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#EF3349',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  headerTitle: { fontSize: 26, fontWeight: 'bold', color: '#000', marginBottom: 4 },
+  headerSubtitle: { color: '#2C3E50', fontSize: 14, fontWeight: '500' },
+  progressContainer: {
+    marginTop: 16,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    borderRadius: 12,
+    padding: 12,
+  },
+  progressHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  progressText: { fontSize: 13, fontWeight: '600', color: '#2C3E50' },
+  progressPercentage: { fontSize: 13, fontWeight: 'bold', color: '#EF3349' },
+  progressBarBackground: {
+    height: 6,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#2BCB9A',
+    borderRadius: 3,
+  },
+  contentContainer: { flex: 1, padding: 16 },
+  submittedBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E8F8F5',
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: '#2BCB9A',
+  },
+  submittedText: {
+    flex: 1,
+    marginLeft: 10,
+    color: '#147D64',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  sectionHeader: {
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#2C3E50',
+    marginBottom: 4,
+  },
+  sectionSubtitle: {
+    fontSize: 13,
+    color: '#7F8C8D',
+    lineHeight: 18,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    marginVertical: 6,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  iconTitleRow: { 
+    flexDirection: 'row', 
+    alignItems: 'flex-start',
+    flex: 1,
+  },
+  categoryIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#EF3349',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  titleContainer: {
+    flex: 1,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  dropdownTitle: { 
+    fontSize: 16, 
+    fontWeight: 'bold', 
+    color: '#2C3E50',
+  },
+  requiredAsterisk: { 
+    color: '#EF3349', 
+    fontSize: 16, 
+    fontWeight: 'bold', 
+    marginLeft: 4,
+  },
+  ratingSubtitle: { 
+    color: '#7F8C8D', 
+    fontSize: 13, 
+    marginTop: 4,
+    lineHeight: 18,
+  },
+  optionalLabel: {
+    fontSize: 12,
+    color: '#95A5A6',
+    fontStyle: 'italic',
+    marginTop: 2,
+  },
+  ratingBadge: {
+    backgroundColor: '#2BCB9A',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  ratingBadgeText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  starsContainer: {
+    alignItems: 'center',
+  },
+  starsRow: { 
+    flexDirection: 'row', 
+    justifyContent: 'center',
+    marginVertical: 8,
+  },
+  starButton: {
+    marginHorizontal: 4,
+    padding: 4,
+  },
+  ratingLabelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    backgroundColor: '#F8F9FA',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  ratingLabel: { 
+    color: '#2C3E50', 
+    fontSize: 14, 
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  textArea: {
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 12,
+    padding: 14,
+    backgroundColor: '#FAFAFA',
+    textAlignVertical: 'top',
+    minHeight: 100,
+    marginTop: 10,
+    fontSize: 14,
+    color: '#2C3E50',
+  },
+  charCount: {
+    fontSize: 11,
+    color: '#95A5A6',
+    textAlign: 'right',
+    marginTop: 6,
+  },
+  submitButton: {
+    backgroundColor: '#EF3349',
+    paddingVertical: 16,
+    borderRadius: 14,
+    alignItems: 'center',
+    marginTop: 24,
+    shadowColor: '#EF3349',
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+  },
+  submitContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  submitText: { 
+    color: 'white', 
+    fontWeight: 'bold', 
+    fontSize: 16,
+    marginLeft: 8,
+  },
+  privacyNote: {
+    textAlign: 'center',
+    color: '#95A5A6',
+    fontSize: 12,
+    marginTop: 16,
+    fontStyle: 'italic',
+    paddingHorizontal: 20,
+  },
+  centeredView: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    backgroundColor: 'rgba(0,0,0,0.6)' 
+  },
+  modalView: { 
+    margin: 20, 
+    backgroundColor: 'white', 
+    borderRadius: 24, 
+    padding: 32, 
+    alignItems: 'center', 
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    maxWidth: 340,
+  },
+  successIconContainer: {
+    marginBottom: 16,
+  },
+  modalTitle: { 
+    fontSize: 24, 
+    fontWeight: 'bold', 
+    marginBottom: 14, 
+    textAlign: 'center',
+    color: '#2C3E50',
+  },
+  modalText: { 
+    fontSize: 15, 
+    marginBottom: 24, 
+    textAlign: 'center',
+    color: '#5D6D7E',
+    lineHeight: 22,
+  },
+  modalButton: { 
+    backgroundColor: '#2BCB9A',
+    borderRadius: 12, 
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    elevation: 2,
+    minWidth: 140,
+  },
+  modalButtonText: { 
+    color: 'white', 
+    fontWeight: 'bold', 
+    textAlign: 'center', 
+    fontSize: 16,
+  },
 });

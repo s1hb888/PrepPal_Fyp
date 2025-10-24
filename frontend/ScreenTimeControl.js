@@ -10,6 +10,7 @@ import {
   Platform,
   Modal,
   AppState,
+  ScrollView,
 } from 'react-native';
 import { Ionicons, MaterialIcons, Feather } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -26,32 +27,34 @@ const Stepper = ({ value, setValue, min = 0, max = 999 }) => (
       style={styles.stepBtn}
       onPress={() => setValue(Math.max(min, (+value || 0) - 1).toString())}
     >
-      <Feather name="minus" size={16} color={RED} />
+      {/* Reduced size: 16 */}
+      <Feather name="minus" size={16} color={RED} /> 
     </TouchableOpacity>
-    <TextInput
-      style={styles.stepInput}
-      keyboardType="numeric"
-      value={value}
-      onChangeText={(val) => {
-        // Only digits, no negatives
-        if (/^\d*$/.test(val)) setValue(val);
-      }}
-      maxLength={3}
-    />
+    <View style={styles.stepInputContainer}>
+      <TextInput
+        style={styles.stepInput}
+        keyboardType="numeric"
+        value={value}
+        onChangeText={(val) => {
+          if (/^\d*$/.test(val)) setValue(val);
+        }}
+        maxLength={3}
+      />
+    </View>
     <TouchableOpacity
       style={styles.stepBtn}
       onPress={() => setValue(Math.min(max, (+value || 0) + 1).toString())}
     >
-      <Feather name="plus" size={16} color={RED} />
+      {/* Reduced size: 16 */}
+      <Feather name="plus" size={16} color={RED} /> 
     </TouchableOpacity>
   </View>
 );
 
 const ScreenTimeControl = () => {
   const [userId, setUserId] = useState('');
-  const [dailyUsageLimit, setDailyUsageLimit] = useState('');
+  const [dailyUsageLimit, setDailyUsageLimit] = useState(''); 
   const [sessionDuration, setSessionDuration] = useState('');
-  const [totalDailyTime, setTotalDailyTime] = useState('');
   const [gapMinutes, setGapMinutes] = useState('');
   const [gapHours, setGapHours] = useState('');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -81,9 +84,8 @@ const ScreenTimeControl = () => {
       const json = await res.json();
       if (res.ok && json.data) {
         const d = json.data;
-        setDailyUsageLimit(d.dailyUsageLimit?.toString() || '');
+        setDailyUsageLimit(d.dailyUsageLimit?.toString() || ''); 
         setSessionDuration(d.sessionDuration?.toString() || '');
-        setTotalDailyTime(d.totalDailyTime?.toString() || '');
         setGapMinutes(((d.nextSessionGap || 0) % 60).toString());
         setGapHours(Math.floor((d.nextSessionGap || 0) / 60).toString());
         setNotificationsEnabled(d.notificationsEnabled ?? true);
@@ -127,7 +129,6 @@ const ScreenTimeControl = () => {
       ok = false;
     }
 
-    // Gap validation
     if (!gapMinutes) {
       err.gap = 'Minutes required';
       ok = false;
@@ -159,105 +160,196 @@ const ScreenTimeControl = () => {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <View style={styles.fixedContainer}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerIcon}>
-            <Ionicons name="shield-outline" size={26} color="#fff" />
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header Section */}
+        <View style={styles.headerSection}>
+          <View style={styles.headerIconContainer}>
+            <View style={styles.headerIconOuter}>
+              <View style={styles.headerIcon}>
+                <Ionicons name="shield-checkmark" size={32} color="#fff" />
+              </View>
+            </View>
           </View>
-          <Text style={styles.title}>Screen-Time Limits</Text>
-        </View>
-
-        {/* Subtitle */}
-        <Text style={styles.subtitleText}>
-          Manage your kid's digital wellbeing. Set healthy boundaries.
-        </Text>
-
-        {/* Daily Usage Limit */}
-        <View style={styles.card}>
-          <View style={styles.rowCenter}>
-            <Ionicons name="time-outline" size={18} color={RED} />
-            <Text style={styles.cardLabel}>App Opens per Day</Text>
-          </View>
-          <Stepper value={dailyUsageLimit} setValue={setDailyUsageLimit} min={1} />
-          {errors.daily && <Text style={styles.error}>{errors.daily}</Text>}
-        </View>
-
-        {/* Session Duration */}
-        <View style={styles.card}>
-          <View style={styles.rowCenter}>
-            <MaterialIcons name="hourglass-top" size={18} color={RED} />
-            <Text style={styles.cardLabel}>Session Duration (min)</Text>
-          </View>
-          <Stepper value={sessionDuration} setValue={setSessionDuration} min={1} />
-          {errors.session && <Text style={styles.error}>{errors.session}</Text>}
-        </View>
-
-        {/* Gap */}
-        <View style={styles.card}>
-          <View style={styles.rowCenter}>
-            <MaterialIcons name="timer" size={18} color={RED} />
-            <Text style={styles.cardLabel}>Gap Between Sessions</Text>
-          </View>
-          <View style={styles.gapRow}>
-            <TextInput
-              style={[styles.input, { flex: 1, marginRight: 6 }]}
-              placeholder="Hours (optional)"
-              keyboardType="numeric"
-              value={gapHours}
-              onChangeText={(val) => {
-                if (/^\d*$/.test(val)) setGapHours(val);
-              }}
-            />
-            <TextInput
-              style={[styles.input, { flex: 1 }]}
-              placeholder="Minutes *"
-              keyboardType="numeric"
-              value={gapMinutes}
-              onChangeText={(val) => {
-                if (/^\d*$/.test(val)) setGapMinutes(val);
-              }}
-            />
-          </View>
-          {errors.gap && <Text style={styles.error}>{errors.gap}</Text>}
-        </View>
-
-        {/* Notifications Toggle */}
-        <TouchableOpacity
-          style={styles.toggleCard}
-          activeOpacity={0.9}
-          onPress={() => setNotificationsEnabled(!notificationsEnabled)}
-        >
-          <Ionicons name="notifications-outline" size={18} color={RED} />
-          <Text style={[styles.cardLabel, { flex: 1, marginLeft: 6 }]}>
-            Notify if app closed early
+          <Text style={styles.title}>Screen Time Control</Text>
+          <Text style={styles.subtitle}>
+            Set healthy digital boundaries for your child's wellbeing
           </Text>
-          <Switch
-            value={notificationsEnabled}
-            onValueChange={setNotificationsEnabled}
-            trackColor={{ false: '#ccc', true: MINT }}
-            thumbColor={notificationsEnabled ? MINT : '#f4f4f4'}
-          />
-        </TouchableOpacity>
+        </View>
+
+        {/* Main Content */}
+        <View style={styles.contentSection}>
+          {/* Daily Usage Card */}
+          <View style={styles.settingCard}>
+            <View style={styles.cardHeader}>
+              <View style={styles.iconBadge}>
+                <Ionicons name="calendar-outline" size={20} color={RED} />
+              </View>
+              <View style={styles.cardHeaderText}>
+                <Text style={styles.cardTitle}>Daily Screen Time Limit (min)</Text>
+                <Text style={styles.cardDescription}>
+                  Maximum minutes of total app usage allowed per day
+                </Text>
+              </View>
+            </View>
+            <View style={styles.cardContent}>
+              <Stepper value={dailyUsageLimit} setValue={setDailyUsageLimit} min={1} />
+            </View>
+            {errors.daily && (
+              <View style={styles.errorContainer}>
+                <Feather name="alert-circle" size={12} color={RED} />
+                <Text style={styles.errorText}>{errors.daily}</Text>
+              </View>
+            )}
+          </View>
+
+          {/* Session Duration Card */}
+          <View style={styles.settingCard}>
+            <View style={styles.cardHeader}>
+              <View style={styles.iconBadge}>
+                <MaterialIcons name="av-timer" size={20} color={RED} />
+              </View>
+              <View style={styles.cardHeaderText}>
+                <Text style={styles.cardTitle}>Session Duration (min)</Text>
+                <Text style={styles.cardDescription}>
+                  Maximum minutes for a single active session
+                </Text>
+              </View>
+            </View>
+            <View style={styles.cardContent}>
+              <Stepper value={sessionDuration} setValue={setSessionDuration} min={1} />
+            </View>
+            {errors.session && (
+              <View style={styles.errorContainer}>
+                <Feather name="alert-circle" size={12} color={RED} />
+                <Text style={styles.errorText}>{errors.session}</Text>
+              </View>
+            )}
+          </View>
+
+          {/* Session Gap Card - Updated Label/Description */}
+          <View style={styles.settingCard}>
+            <View style={styles.cardHeader}>
+              <View style={styles.iconBadge}>
+                <MaterialIcons name="schedule" size={20} color={RED} />
+              </View>
+              <View style={styles.cardHeaderText}>
+                <Text style={styles.cardTitle}>Session Gap</Text>
+                <Text style={styles.cardDescription}>
+                  Minimum time required between the end of one session and the start of the next
+                </Text>
+              </View>
+            </View>
+            <View style={styles.cardContent}>
+              <View style={styles.gapInputsContainer}>
+                <View style={styles.gapInputWrapper}>
+                  <Text style={styles.inputLabel}>Hours</Text>
+                  <TextInput
+                    style={styles.gapInput}
+                    placeholder="0"
+                    placeholderTextColor="#999"
+                    keyboardType="numeric"
+                    value={gapHours}
+                    onChangeText={(val) => {
+                      if (/^\d*$/.test(val)) setGapHours(val);
+                    }}
+                  />
+                  <Text style={styles.inputUnit}>hrs</Text>
+                </View>
+                <View style={styles.gapSeparator}>
+                  <Text style={styles.gapSeparatorText}>:</Text>
+                </View>
+                <View style={styles.gapInputWrapper}>
+                  <Text style={styles.inputLabel}>Minutes*</Text>
+                  <TextInput
+                    style={styles.gapInput}
+                    placeholder="30"
+                    placeholderTextColor="#999"
+                    keyboardType="numeric"
+                    value={gapMinutes}
+                    onChangeText={(val) => {
+                      if (/^\d*$/.test(val)) setGapMinutes(val);
+                    }}
+                  />
+                  <Text style={styles.inputUnit}>min</Text>
+                </View>
+              </View>
+            </View>
+            {errors.gap && (
+              <View style={styles.errorContainer}>
+                <Feather name="alert-circle" size={12} color={RED} />
+                <Text style={styles.errorText}>{errors.gap}</Text>
+              </View>
+            )}
+          </View>
+
+          {/* Notifications Toggle Card - Updated Label/Description */}
+          <View style={styles.settingCard}>
+            <TouchableOpacity
+              style={styles.toggleContent}
+              activeOpacity={0.8}
+              onPress={() => setNotificationsEnabled(!notificationsEnabled)}
+            >
+              <View style={styles.toggleLeft}>
+                <View style={styles.iconBadge}>
+                  <Ionicons name="notifications-outline" size={20} color={RED} />
+                </View>
+                <View style={styles.cardHeaderText}>
+                  <Text style={styles.cardTitle}>App Background</Text>
+                  <Text style={styles.cardDescription}>
+                    Get notified if the app is sent to the background
+                  </Text>
+                </View>
+              </View>
+              <Switch
+                value={notificationsEnabled}
+                onValueChange={setNotificationsEnabled}
+                trackColor={{ false: '#E0E0E0', true: MINT }}
+                thumbColor={notificationsEnabled ? '#fff' : '#fff'}
+                ios_backgroundColor="#E0E0E0"
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
 
         {/* Save Button */}
-        <TouchableOpacity style={styles.saveBtn} onPress={saveSettings}>
-          <Ionicons name="save-outline" size={18} color="#fff" />
-          <Text style={styles.saveText}>Save</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.footerSection}>
+          <TouchableOpacity style={styles.saveButton} onPress={saveSettings}>
+            <View style={styles.saveButtonContent}>
+              <Ionicons name="checkmark-circle" size={22} color="#fff" />
+              <Text style={styles.saveButtonText}>Save Settings</Text>
+            </View>
+          </TouchableOpacity>
+          <Text style={styles.footerNote}>
+            Changes take effect immediately
+          </Text>
+        </View>
+      </ScrollView>
 
       {/* Success Modal */}
       <Modal transparent visible={showSuccessModal} animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
-            <Feather name="check-circle" size={46} color={MINT} />
-            <Text style={styles.modalMsg}>Settings Saved!</Text>
+            <View style={styles.modalIconContainer}>
+              <View style={styles.modalIconCircle}>
+                {/* CHANGE MADE HERE: 
+                  Icon color changed from {MINT} (light green) to {RED} 
+                */}
+                <Feather name="check" size={40} color={RED} /> 
+              </View>
+            </View>
+            <Text style={styles.modalTitle}>Success!</Text>
+            <Text style={styles.modalMessage}>
+              Your screen time settings have been saved and are now active.
+            </Text>
             <TouchableOpacity
-              style={styles.modalOk}
+              style={styles.modalButton}
               onPress={() => setShowSuccessModal(false)}
             >
-              <Text style={styles.modalOkText}>OK</Text>
+              <Text style={styles.modalButtonText}>Got it</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -269,116 +361,335 @@ const ScreenTimeControl = () => {
 export default ScreenTimeControl;
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  fixedContainer: { flex: 1, padding: 16, justifyContent: 'space-between' },
-
-  // Header
-  header: { justifyContent: 'center', alignItems: 'center', marginTop: 3 },
-  headerIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: RED,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 6,
-    marginTop: 10,
+  container: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
   },
-  title: { fontSize: 25, fontWeight: '700', color: TEXT, marginBottom: 0 },
-  subtitleText: {
-    fontSize: 15,
-    color: '#555',
-    marginTop: 0,
-    marginBottom: 5,
-    textAlign: 'center',
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 30,
   },
 
-  // Card
-  card: {
+  // Header Section
+  headerSection: {
     backgroundColor: '#fff',
-    borderRadius: 14,
-    padding: 12,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#eee',
-    elevation: 1,
-  },
-  rowCenter: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
-  cardLabel: { fontSize: 14, fontWeight: '600', color: TEXT, marginLeft: 5 },
-
-  // Stepper
-  stepperWrap: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  stepBtn: {
-    backgroundColor: MINT,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
+    paddingTop: 60,
+    paddingBottom: 30,
+    paddingHorizontal: 20,
     alignItems: 'center',
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  stepInput: {
-    backgroundColor: '#F4F4F4',
-    borderRadius: 8,
-    paddingVertical: 6,
-    fontSize: 14,
-    color: TEXT,
-    textAlign: 'center',
-    width: 60,
-    fontWeight: '600',
-  },
-
-  // Inputs
-  input: {
-    backgroundColor: '#F4F4F4',
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    fontSize: 14,
-    color: TEXT,
-  },
-  gapRow: { flexDirection: 'row', marginTop: 6 },
-
-  // Toggle
-  toggleCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 14,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#eee',
+  headerIconContainer: {
     marginBottom: 16,
   },
-
-  // Save Button
-  saveBtn: {
-    flexDirection: 'row',
+  headerIconOuter: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: `${RED}15`,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: RED,
-    borderRadius: 24,
-    paddingVertical: 10,
-    paddingHorizontal: 36,
-    alignSelf: 'center',
   },
-  saveText: { marginLeft: 6, color: '#fff', fontWeight: '700', fontSize: 15 },
+  headerIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: RED,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: TEXT,
+    marginBottom: 8,
+    letterSpacing: -0.5,
+  },
+  subtitle: {
+    fontSize: 15,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 22,
+    paddingHorizontal: 20,
+  },
 
-  error: { color: RED, fontSize: 12, marginTop: 3 },
+  // Content Section
+  contentSection: {
+    paddingHorizontal: 20,
+    paddingTop: 24,
+  },
 
+  // Setting Cards
+  settingCard: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+  },
+  iconBadge: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: `${RED}10`,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  cardHeaderText: {
+    flex: 1,
+    paddingTop: 2,
+  },
+  cardTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: TEXT,
+    marginBottom: 4,
+  },
+  cardDescription: {
+    fontSize: 13,
+    color: '#666',
+    lineHeight: 18,
+  },
+  cardContent: {
+    marginTop: 4,
+  },
+
+  // Stepper (Reduced Size)
+  stepperWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12, // Reduced border radius
+    padding: 4, // Reduced padding
+  },
+  stepBtn: {
+    backgroundColor: MINT,
+    width: 36, // Reduced width
+    height: 36, // Reduced height
+    borderRadius: 10, // Reduced border radius
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: MINT,
+    shadowOffset: { width: 0, height: 1 }, // Reduced shadow
+    shadowOpacity: 0.2, // Reduced shadow
+    shadowRadius: 3, // Reduced shadow
+    elevation: 2,
+  },
+  stepInputContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepInput: {
+    backgroundColor: '#fff',
+    borderRadius: 10, // Reduced border radius
+    paddingVertical: 6, // Reduced padding
+    paddingHorizontal: 16, // Reduced padding
+    fontSize: 20, // Reduced font size
+    fontWeight: '700',
+    color: TEXT,
+    textAlign: 'center',
+    minWidth: 70, // Reduced min width
+    borderWidth: 2,
+    borderColor: '#F0F0F0',
+  },
+
+  // Gap Inputs (Reduced Size)
+  gapInputsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12, // Reduced border radius
+    padding: 12, // Reduced padding
+  },
+  gapInputWrapper: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  inputLabel: {
+    fontSize: 10, // Reduced font size
+    fontWeight: '600',
+    color: '#999',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 6, // Reduced margin
+  },
+  gapInput: {
+    backgroundColor: '#fff',
+    borderRadius: 10, // Reduced border radius
+    paddingVertical: 10, // Reduced padding
+    paddingHorizontal: 14, // Reduced padding
+    fontSize: 18, // Reduced font size
+    fontWeight: '700',
+    color: TEXT,
+    textAlign: 'center',
+    width: '100%',
+    borderWidth: 2,
+    borderColor: '#F0F0F0',
+    marginBottom: 4, // Reduced margin
+  },
+  inputUnit: {
+    fontSize: 11, // Reduced font size
+    fontWeight: '600',
+    color: '#666',
+  },
+  gapSeparator: {
+    marginHorizontal: 10, // Reduced margin
+    paddingTop: 16, // Reduced padding
+  },
+  gapSeparatorText: {
+    fontSize: 22, // Reduced font size
+    fontWeight: '700',
+    color: '#CCC',
+  },
+
+  // Toggle
+  toggleContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  toggleLeft: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    flex: 1,
+    marginRight: 12,
+  },
+
+  // Error
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+    paddingHorizontal: 4,
+  },
+  errorText: {
+    color: RED,
+    fontSize: 13,
+    marginLeft: 6,
+    fontWeight: '500',
+  },
+
+  // Footer Section
+  footerSection: {
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    alignItems: 'center',
+  },
+  saveButton: {
+    backgroundColor: RED,
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 40,
+    shadowColor: RED,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
+    width: '100%',
+    maxWidth: 400,
+  },
+  saveButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontSize: 17,
+    fontWeight: '700',
+    marginLeft: 8,
+    letterSpacing: 0.3,
+  },
+  footerNote: {
+    fontSize: 13,
+    color: '#999',
+    marginTop: 12,
+    textAlign: 'center',
+  },
+
+  // Modal
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.35)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 20,
   },
   modalCard: {
     backgroundColor: '#fff',
-    width: '75%',
-    borderRadius: 16,
-    padding: 20,
+    borderRadius: 24,
+    padding: 32,
+    width: '100%',
+    maxWidth: 340,
     alignItems: 'center',
-    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 24,
+    elevation: 8,
   },
-  modalMsg: { fontSize: 15, fontWeight: '600', color: TEXT, marginVertical: 10, textAlign: 'center' },
-  modalOk: { backgroundColor: MINT, paddingVertical: 8, paddingHorizontal: 24, borderRadius: 20 },
-  modalOkText: { fontWeight: '700', color: '#000' },
+  modalIconContainer: {
+    marginBottom: 20,
+  },
+  modalIconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    // Background remains MINT for contrast
+    backgroundColor: `${MINT}20`, 
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: TEXT,
+    marginBottom: 12,
+  },
+  modalMessage: {
+    fontSize: 15,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 24,
+  },
+  modalButton: {
+    backgroundColor: MINT,
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 48,
+    shadowColor: MINT,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  modalButtonText: {
+    color: TEXT,
+    fontSize: 16,
+    fontWeight: '700',
+  },
 });

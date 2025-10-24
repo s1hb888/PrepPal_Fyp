@@ -6,6 +6,7 @@ import moment from 'moment';
 import axios from 'axios';
 import { Ionicons } from '@expo/vector-icons';
 import API_BASE_URL from './frontend/config';
+import Constants from "expo-constants";
 
 export const SessionContext = createContext();
 
@@ -18,12 +19,30 @@ export const SessionProvider = ({ children, navigationRef, includedScreens = [] 
   const appState = useRef(AppState.currentState);
   const currentKidIdRef = useRef(null);
 
-  const clearIntervalSafe = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
+const registerAndSaveFcmToken = async (userId) => {
+  try {
+    const { status } = await Notifications.requestPermissionsAsync();
+    if (status !== 'granted') {
+      console.log('[⚠️ Notifications permission denied]');
+      return null;
     }
-  };
+
+    const tokenObj = await Notifications.getExpoPushTokenAsync({
+      projectId: Constants.expoConfig.extra.eas.projectId,
+    });
+
+    const expoToken  = tokenObj.data;
+    console.log('Expo Push Token:', expoToken);
+
+    const res = await axios.post(`${API_BASE_URL}/api/save-expo-token`, { userId, expoToken  });
+    console.log('Expo token saved:', res.data);
+
+    return expoToken;
+  } catch (err) {
+    console.log('[❌ FCM token save error]', err);
+    return null;
+  }
+};
 
   const enforceLockUI = (reason = '') => {
     const currentRoute = navigationRef.current?.getCurrentRoute()?.name;
@@ -48,35 +67,62 @@ export const SessionProvider = ({ children, navigationRef, includedScreens = [] 
     }
   };
 
-  const startKidSession = useCallback(async () => {
-    const stored = await AsyncStorage.getItem('user');
-    const user = JSON.parse(stored || '{}');
-    if (!user || user.role !== 'kid') return;
-
-    currentKidIdRef.current = user._id;
-
-    try {
-      const { data } = await axios.post(`${API_BASE_URL}/api/screen-time/start-session`, {
-        userId: user._id,
+const checkForceKill = async (userId, sessionEnd) => {
+  try {
+    // Only send FCM if session hasn't ended yet
+    if (sessionEnd && moment().isBefore(sessionEnd)) {
+      await axios.post(`${API_BASE_URL}/api/notifications/app-exit`, {
+        userId,
+        role: 'kid',
+        forced: true, // optional flag
       });
-
-      if (!data?.success || data?.locked) {
-        const reason = data?.message || 'Daily screentime limit exceeded. You can try again tomorrow.';
-        enforceLockUI(reason);
-        return;
-      }
-
-      // Session started successfully
-      sessionEndRef.current = moment(data.endISO);
-      clearLockUI();
-      clearIntervalSafe();
-      bootInterval(user._id);
-
-    } catch (err) {
-      console.log('[❌ startKidSession error]', err?.message || err);
-      enforceLockUI('Daily screentime limit exceeded. You can try again tomorrow.');
+      console.log('[🚨 Forced Exit Detected & Notified]');
     }
-  }, []);
+  } catch (err) {
+    console.error('[❌ checkForceKill error]', err?.message || err);
+  }
+};
+
+const clearIntervalSafe = () => {
+  if (intervalRef.current) {
+    clearInterval(intervalRef.current);
+    intervalRef.current = null;
+    console.log('[🛑 Interval cleared]');
+  }
+};
+
+ const startKidSession = useCallback(async () => {
+  const stored = await AsyncStorage.getItem('user');
+  const user = JSON.parse(stored || '{}');
+  if (!user || user.role !== 'kid') return;
+
+  currentKidIdRef.current = user._id;
+
+  // 🔹 Save FCM token BEFORE starting session
+  await registerAndSaveFcmToken(user._id);
+
+  try {
+    const { data } = await axios.post(`${API_BASE_URL}/api/screen-time/start-session`, {
+      userId: user._id,
+    });
+
+    if (!data?.success || data?.locked) {
+      const reason = data?.message || 'Daily screentime limit exceeded. You can try again tomorrow.';
+      enforceLockUI(reason);
+      return;
+    }
+
+    // Session started successfully
+    sessionEndRef.current = moment(data.endISO);
+    clearLockUI();
+    clearIntervalSafe();
+    bootInterval(user._id);
+
+  } catch (err) {
+    console.log('[❌ startKidSession error]', err?.message || err);
+    enforceLockUI('Daily screentime limit exceeded. You can try again tomorrow.');
+  }
+}, []);
 
   const bootInterval = (userId) => {
     if (intervalRef.current) return;
@@ -114,61 +160,101 @@ export const SessionProvider = ({ children, navigationRef, includedScreens = [] 
     }, 1000);
   };
 
-  useEffect(() => {
-    (async () => {
-      const stored = await AsyncStorage.getItem('user');
-      const user = JSON.parse(stored || '{}');
-      if (user?.role === 'kid') {
-        startKidSession();
+useEffect(() => {
+  (async () => {
+    const stored = await AsyncStorage.getItem('user');
+    const user = JSON.parse(stored || '{}');
+    if (user?.role === 'kid') {
+      const lockFlag = await AsyncStorage.getItem('isLocked');
+      if (lockFlag === 'true') {
+        enforceLockUI();
+        return;
       }
-    })();
-  }, [startKidSession]);
+      startKidSession();
+    }
+  })();
+}, [startKidSession]);
 
-  useEffect(() => {
-    const sub = AppState.addEventListener('change', async (nextAppState) => {
-      const prev = appState.current;
-      appState.current = nextAppState;
+// Cleanup effect ko remove kar do
+useEffect(() => {
+  return () => {
+    clearIntervalSafe();
+  };
+}, []);
 
-      const stored = await AsyncStorage.getItem('user');
-      const user = JSON.parse(stored || '{}');
-      if (!user || user.role !== 'kid') return;
 
-      try {
-        if (prev === 'active' && nextAppState.match(/inactive|background/)) {
-          await axios.post(`${API_BASE_URL}/api/notifications/app-background`, {
+useEffect(() => {
+  const interval = setInterval(async () => {
+    const stored = await AsyncStorage.getItem('user');
+    const user = JSON.parse(stored || '{}');
+    if (!user || user.role !== 'kid') return;
+
+    try {
+      await axios.post(`${API_BASE_URL}/api/notifications/heartbeat`, {
+        userId: user._id,
+        role: 'kid',
+        ts: new Date(),
+        isActive: AppState.currentState === 'active',
+      });
+    } catch (err) {
+      console.log('[❌ Heartbeat error]', err?.message || err);
+    }
+  }, 5000);
+
+  return () => clearInterval(interval);
+}, []);
+
+
+useEffect(() => {
+  const sub = AppState.addEventListener('change', async (nextAppState) => {
+    const prev = appState.current;
+    appState.current = nextAppState;
+
+    const stored = await AsyncStorage.getItem('user');
+    const user = JSON.parse(stored || '{}');
+    if (!user || user.role !== 'kid') return;
+
+    try {
+      // 🔹 App goes to background
+      if (prev === 'active' && nextAppState.match(/inactive|background/)) {
+        await axios.post(`${API_BASE_URL}/api/notifications/app-background`, {
+          userId: user._id,
+          role: 'kid',
+          action: 'start',
+        });
+      }
+
+      // 🔹 App returns to foreground
+      if (prev.match(/inactive|background/) && nextAppState === 'active') {
+        const { data } = await axios.get(`${API_BASE_URL}/api/screen-time/${user._id}`);
+        const rec = data?.data;
+
+        // Session ended naturally → lock UI
+        if (rec?.sessionEndTime && moment().isSameOrAfter(moment(rec.sessionEndTime))) {
+          await axios.post(`${API_BASE_URL}/api/screen-time/lock-session`, {
             userId: user._id,
-            role: 'kid',
-            action: 'start',
+            sessionEnded: true,
           });
+          enforceLockUI();
         }
 
-        if (prev.match(/inactive|background/) && nextAppState === 'active') {
-          const { data } = await axios.get(`${API_BASE_URL}/api/screen-time/${user._id}`);
-          const rec = data?.data;
-
-          // If session ended → show lock modal
-          if (rec?.sessionEndTime && moment().isSameOrAfter(moment(rec.sessionEndTime))) {
-            await axios.post(`${API_BASE_URL}/api/screen-time/lock-session`, {
-              userId: user._id,
-              sessionEnded: true,
-            });
-            enforceLockUI();
-          }
-
+        // End background session if it was started
+        if (rec?.backgroundStartTime) {
           await axios.post(`${API_BASE_URL}/api/notifications/app-background`, {
             userId: user._id,
             role: 'kid',
             action: 'end',
           });
         }
-
-      } catch (err) {
-        console.log('[❌ AppState change error]', err?.message || err);
       }
-    });
+    } catch (err) {
+      console.log('[❌ AppState change error]', err?.message || err);
+    }
+  });
 
-    return () => sub.remove();
-  }, []);
+  return () => sub.remove();
+}, []);
+
 
   const backToLogin = async () => {
     clearIntervalSafe();

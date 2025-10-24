@@ -8,6 +8,8 @@ import {
   ActivityIndicator,
   Dimensions,
   Platform,
+  StatusBar,
+  ScrollView,
 } from 'react-native';
 import * as Speech from 'expo-speech';
 import axios from 'axios';
@@ -17,7 +19,7 @@ import * as Animatable from 'react-native-animatable';
 import API_BASE_URL from './config';
 
 const screenWidth = Dimensions.get('window').width;
-const cardSize = (screenWidth - 48) / 2;
+const cardSize = (screenWidth - 56) / 2;
 
 const borderGradients = [
   ['#FFC1CC', '#FFB6C1'],
@@ -55,7 +57,8 @@ const VowelsScreen = () => {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#EF3349" />
+        <ActivityIndicator size="large" color="#A0F0DC" />
+        <Text style={styles.loadingText}>Loading vowels...</Text>
       </View>
     );
   }
@@ -86,45 +89,69 @@ const VowelsScreen = () => {
       <TouchableOpacity
         key={vowel.id}
         onPress={() => speakVowel(vowel.sound_text, index)}
-        activeOpacity={0.85}
-        style={styles.box}
+        activeOpacity={0.9}
+        style={styles.cardContainer}
       >
-        <LinearGradient colors={gradientColors} style={styles.rectangle}>
-          <Animatable.Image
-            animation={isActive ? 'pulse' : undefined}
-            iterationCount="infinite"
-            easing="ease-in-out"
-            source={{ uri: vowel.image_url }}
-            style={styles.image}
-          />
-          <TouchableOpacity style={styles.soundWrapper}>
-            <Ionicons name="volume-high" size={20} color="#EF3349" />
-          </TouchableOpacity>
+        <LinearGradient 
+          colors={gradientColors} 
+          style={styles.card}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
+          <View style={styles.imageContainer}>
+            <Animatable.Image
+              animation={isActive ? 'pulse' : undefined}
+              iterationCount="infinite"
+              easing="ease-in-out"
+              duration={1000}
+              source={{ uri: vowel.image_url }}
+              style={styles.image}
+            />
+          </View>
+          
+          <View style={styles.cardFooter}>
+            <View style={styles.soundButton}>
+              <Ionicons 
+                name={isActive ? "volume-high" : "volume-medium-outline"} 
+                size={18} 
+                color="#000" 
+              />
+            </View>
+          </View>
+
+          {isActive && (
+            <Animatable.View 
+              animation="fadeIn" 
+              style={styles.activeIndicator}
+            >
+              <View style={styles.activeRing} />
+            </Animatable.View>
+          )}
         </LinearGradient>
       </TouchableOpacity>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <LinearGradient
-  colors={['#FFEB99', '#FFD1DC']}
-  start={{ x: 0.1, y: 0 }}
-  end={{ x: 1, y: 1 }}
-  style={styles.fancyHeader}
->
-  <Animatable.Text
-    animation="bounceIn"
-    duration={1500}
-    style={styles.fancyTitle}
-  >
-    🎈 Let's Learn Vowels! 🌈
-  </Animatable.Text>
-</LinearGradient>
+    <>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <View style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.title}>Vowels</Text>
+          <Text style={styles.subtitle}>Tap cards to learn vowel</Text>
+        </View>
 
-
-      <View style={styles.vowelContainer}>{rows}</View>
-    </View>
+        {/* Vowel Cards */}
+        <ScrollView 
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {rows}
+        </ScrollView>
+      </View>
+    </>
   );
 };
 
@@ -133,83 +160,115 @@ export default VowelsScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFDF8',
-    paddingTop: Platform.OS === 'ios' ? 50 : 30,
+    backgroundColor: '#FAFAFA',
   },
-  fancyHeader: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 25,
-    paddingVertical: 16,
-    marginHorizontal: 16,
-    borderRadius: 40,
-    elevation: 5,
-    shadowColor: '#FFCF25',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+  header: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 24,
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    paddingBottom: 15,
   },
-  fancyTitle: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#EF3349',
-    fontFamily: Platform.OS === 'ios' ? 'Chalkboard SE' : 'serif',
+  title: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    marginBottom: 0,
+    marginTop:-30,
   },
-  vowelContainer: {
-    paddingHorizontal: 16,
-    paddingBottom: 5,
+  subtitle: {
+    fontSize: 15,
+    color: '#999',
+    fontWeight: '500',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 5,
+    paddingBottom: 30,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 18,
+    marginBottom: 10,
   },
   singleCenterRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 18,
+    marginBottom: 20,
   },
-  box: {
+  cardContainer: {
     width: cardSize,
   },
-  rectangle: {
+  card: {
     width: '100%',
-    height: 200,
-    borderRadius: 18,
-    backgroundColor: '#ffffff',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    padding: 8,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 6,
-    position: 'relative',
-  },
-  image: {
-    width: '92%',
-    height: 140,
-    resizeMode: 'contain',
-    borderRadius: 14,
-    backgroundColor: '#fff',
-  },
-  soundWrapper: {
-    position: 'absolute',
-    bottom: 8,
-    right: 8,
-    backgroundColor: '#fff',
-    padding: 5,
     borderRadius: 20,
+    overflow: 'hidden',
     elevation: 3,
     shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
     shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+  imageContainer: {
+    backgroundColor: '#FFFFFF',
+    margin: 3,
+    borderRadius: 17,
+    padding: 12,
+    aspectRatio: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+  cardFooter: {
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 3,
+    marginBottom: 3,
+    borderBottomLeftRadius: 17,
+    borderBottomRightRadius: 17,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+  },
+  soundButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F5F5F5',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  activeIndicator: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  activeRing: {
+    width: '95%',
+    height: '95%',
+    borderRadius: 18,
+    borderWidth: 3,
+    borderColor: 'rgba(255,255,255,0.8)',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#FAFAFA',
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: '#999',
+    fontWeight: '500',
   },
 });

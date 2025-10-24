@@ -94,22 +94,26 @@ export default function ColorScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#FFFDF8" },
+  container: { 
+    flex: 1, 
+    backgroundColor: "#FFFDF8", 
+    paddingTop: Platform.OS === "android" ? 30 : 0 
+  },
   heading: {
     fontSize: 24,
     textAlign: "center",
-    marginTop: 40,
-    marginBottom: 10,
+    marginTop: 0,
+    marginBottom: 0,
     fontWeight: "700",
     color: "#000",
     fontFamily: Platform.OS === "ios" ? "Georgia" : "serif",
   },
   svgArea: {
     alignItems: "center",
-    marginVertical: 20,
+    marginVertical: 0, // was 20
   },
   selectedName: {
-    marginTop: 8,
+    marginTop: 6,
     fontSize: 18,
     fontWeight: "700",
   },
@@ -117,7 +121,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
-    marginTop: 20,
+    marginTop: 5,   // was 20 → reduced to lift palette up
+    marginBottom: 20, // optional spacing from bottom
   },
   colorCircle: {
     width: 60,
