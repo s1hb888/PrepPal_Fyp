@@ -6,7 +6,6 @@ import { SessionProvider } from './SessionContext';
 import VerifyEmail from './frontend/VerifyEmail';
 import * as Linking from 'expo-linking';
 
-
 /* ------------- Screens ------------- */
 import Splash from './frontend/Splash';
 import Onboarding from './frontend/Onboarding';
@@ -18,7 +17,8 @@ import ResetPassword from './frontend/ResetPassword';
 import Profile from './frontend/Profile';
 import Home from './frontend/Home';
 import FeedbackScreen from './frontend/FeedbackScreen';
-
+import Performance from './frontend/PerformanceReport';
+import PerformanceDetail from './frontend/Performancedetail';
 
 /* KID SCREENS */
 import KidHome from './frontend/KidHome';
@@ -39,10 +39,11 @@ import FruitScreen from './frontend/FruitScreen';
 import VegetableScreen from './frontend/VegetableScreen';
 import Color from './frontend/Color';
 import WatchVideoScreen from './frontend/WatchVideosScreen';
-import LearnIslamicStudies from './frontend/LearnIslamicStudies'; 
+import LearnIslamicStudies from './frontend/LearnIslamicStudies';
 import BasicQuestionsScreen from './frontend/BasicQuestionsScreen';
 import DuaScreen from './frontend/DuaScreen';
 import WorshipPracticeScreen from './frontend/WorshipPracticeScreen';
+
 /* PARENT / SHARED */
 import Settings from './frontend/Settings';
 import AboutUs from './frontend/AboutUs';
@@ -86,29 +87,27 @@ export default function App() {
   const navigationRef = useRef();
   const sessionRef = useRef({ checkSession: () => {} });
 
-const linking = {
-  prefixes: ["preppal://"], 
-  config: {
-    screens: {
-      VerifyEmail: "verify",
-      Login: "login",
+  const linking = {
+    prefixes: ["preppal://"],
+    config: {
+      screens: {
+        VerifyEmail: "verify",
+        Login: "login",
+      },
     },
-  },
-};
-
-
+  };
 
   return (
     <SessionProvider
       navigationRef={navigationRef}
       includedScreens={includedScreens}
-      sessionRef={sessionRef}  // Pass sessionRef for all session checks
+      sessionRef={sessionRef} // Pass sessionRef for all session checks
     >
       <NavigationContainer
         ref={navigationRef}
-         linking={linking} 
+        linking={linking}
         onStateChange={() => {
-          // ✅ Existing behavior: check session on navigation state change
+          // ✅ Check session on navigation state change
           sessionRef.current?.checkSession?.();
         }}
       >
@@ -120,11 +119,12 @@ const linking = {
           <Stack.Screen name="Login" component={Login} />
           <Stack.Screen name="ResetPassword" component={ResetPassword} />
 
-
           {/* Parent / Shared */}
           <Stack.Screen name="Profile" component={Profile} />
           <Stack.Screen name="Home" component={Home} />
           <Stack.Screen name="Feedback" component={FeedbackScreen} />
+          <Stack.Screen name="Performance" component={Performance} />
+          <Stack.Screen name="PerformanceDetail" component={PerformanceDetail} />
           <Stack.Screen name="Settings" component={Settings} />
           <Stack.Screen name="AboutUs" component={AboutUs} />
           <Stack.Screen name="NumberAccessScreen" component={NumberAccessScreen} />
@@ -133,7 +133,6 @@ const linking = {
           <Stack.Screen name="AccessManagement" component={AccessManagement} />
           <Stack.Screen name="ScreenTimeControl" component={ScreenTimeControl} />
           <Stack.Screen name="VerifyEmail" component={VerifyEmail} />
-
 
           {/* Kid Screens */}
           <Stack.Screen name="KidHome" component={KidHome} />
@@ -154,7 +153,7 @@ const linking = {
           <Stack.Screen name="VegetableScreen" component={VegetableScreen} />
           <Stack.Screen name="Color" component={Color} />
           <Stack.Screen name="WatchVideoScreen" component={WatchVideoScreen} />
-          <Stack.Screen name="LearnIslamicStudies" component={LearnIslamicStudies}/>
+          <Stack.Screen name="LearnIslamicStudies" component={LearnIslamicStudies} />
           <Stack.Screen name="DuaScreen" component={DuaScreen} />
           <Stack.Screen name="WorshipPracticeScreen" component={WorshipPracticeScreen} />
           <Stack.Screen name="BasicQuestionsScreen" component={BasicQuestionsScreen} />

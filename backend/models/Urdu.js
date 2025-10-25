@@ -18,6 +18,19 @@ const UrduSchema = new mongoose.Schema({
   sound_text: {
     type: String,
     required: true
+  },
+  // 👇 Added configuration fields
+  min_attempts: {
+    type: Number,
+    default: 3, // default value if not provided
+  },
+  min_time_avg: {
+    type: Number,
+    default: 2.0, // in seconds or whatever your app logic uses
+  },
+  min_correct_avg: {
+    type: Number,
+    default: 80, // percentage threshold
   }
 });
 
