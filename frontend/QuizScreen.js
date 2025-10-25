@@ -26,7 +26,7 @@ const normalizeRaw = (text = "") =>
   text
     .toString()
     .toLowerCase()
-    .replace(/[^a-z0-9]/g, "") // remove punctuation/spaces
+    .replace(/[\s.,!?؛،؟]/g, "") // remove common punctuation & spaces, keep letters
     .trim();
 
 export default function QuizScreen({ route }) {
@@ -82,25 +82,44 @@ export default function QuizScreen({ route }) {
     }
   }, [current, cleanQuiz, subjectLower]);
 
-  const saveResults = async (finalAnswers, finalScore) => {
-    try {
-      const token = await AsyncStorage.getItem("token");
-      if (!token) return Alert.alert("Unauthorized", "Please login first.");
-      const payload = {
-        quizId: quizId || null,
-        score: finalScore,
-        total: cleanQuiz.length,
-        answers: finalAnswers.filter(Boolean),
-      };
-      const res = await axios.post(`${API_BASE_URL}/api/result/save`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      Alert.alert("✅ Result Saved", "Your quiz results have been submitted!");
-      console.log("Saved:", res.data);
-    } catch (e) {
-      console.error("Save error:", e.response?.data || e);
+ const saveResults = async (finalAnswers, finalScore) => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    if (!token) {
+      return Alert.alert("Unauthorized", "Please login first.");
     }
-  };
+
+    const payload = {
+      quizId: quizId || null,
+      score: finalScore,
+      total: cleanQuiz.length,
+      answers: finalAnswers.filter(Boolean),
+    };
+
+    // 1️⃣ Save quiz results
+    const res1 = await axios.post(`${API_BASE_URL}/api/result/save`, payload, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    console.log("✅ Result saved:", res1.data);
+
+    // 2️⃣ Refresh full performance
+    const res2 = await axios.post(
+      `${API_BASE_URL}/api/quiz/complete`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    console.log("🔁 Performance refreshed:", res2.data);
+
+    Alert.alert(
+      "✅ Quiz Complete",
+      "Results saved and performance updated successfully!"
+    );
+  } catch (e) {
+    console.error("❌ Save or Refresh error:", e.response?.data || e);
+    Alert.alert("Error", "Failed to save or refresh results.");
+  }
+};
+
 
   const handleAnswer = (optionClicked) => {
     if (selected || finished) return;
@@ -122,9 +141,12 @@ export default function QuizScreen({ route }) {
     };
     setAnswers(nextAnswers);
     setFeedback(isCorrect ? "✅ Correct!" : "❌ Wrong!");
-    Speech.speak(isCorrect ? "Correct!" : "Wrong!", {
-      language: subjectLower === "urdu" ? "ur" : "en",
-    });
+   Speech.speak(
+  isCorrect
+    ? subjectLower === "urdu" ? "صحیح!" : "Correct!"
+    : subjectLower === "urdu" ? "غلط!" : "Wrong!",
+  { language: subjectLower === "urdu" ? "ur" : "en" }
+);
 
     setTimeout(() => {
       setFeedback(null);
@@ -192,53 +214,64 @@ export default function QuizScreen({ route }) {
 
   // 🍋 Send to LemonFox API
   const sendToLemonFox = async (uri) => {
-    try {
-      console.log("📤 Sending audio to LemonFox...");
-      const formData = new FormData();
-      formData.append("file", {
-        uri,
-        name: "speech.m4a",
-        type: "audio/m4a",
+  try {
+    console.log("📤 Sending audio to LemonFox...");
+    const formData = new FormData();
+    formData.append("file", {
+      uri,
+      name: "speech.m4a",
+      type: "audio/m4a",
+    });
+
+    // Set language dynamically
+    const langCode = subjectLower === "urdu" ? "urdu" : "english";
+    formData.append("language", langCode);
+    formData.append("response_format", "json");
+
+    const res = await fetch("https://api.lemonfox.ai/v1/audio/transcriptions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${LEMONFOX_API_KEY}` },
+      body: formData,
+    });
+
+    const data = await res.json();
+    console.log("🧠 LemonFox Response:", data);
+
+    const spoken = normalizeRaw(data.text || "");
+    console.log("🎤 You said (cleaned):", spoken);
+
+    if (!spoken) {
+      Speech.speak(subjectLower === "urdu" ? "میں سمجھ نہیں پایا، دوبارہ کہیے۔" : "I couldn't catch that, please repeat.", {
+        language: langCode,
       });
-      formData.append("language", "english");
-      formData.append("response_format", "json");
-
-      const res = await fetch("https://api.lemonfox.ai/v1/audio/transcriptions", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${LEMONFOX_API_KEY}` },
-        body: formData,
-      });
-
-      const data = await res.json();
-      console.log("🧠 LemonFox Response:", data);
-
-      const spoken = normalizeRaw(data.text || "");
-      console.log("🎤 You said (cleaned):", spoken);
-
-      if (!spoken) {
-        Speech.speak("I couldn't catch that, please repeat.");
-        return;
-      }
-
-      const q = cleanQuiz[current];
-      const matched = q.options.find(
-        (opt) =>
-          normalizeRaw(spoken).includes(normalizeRaw(opt.text)) ||
-          normalizeRaw(opt.text).includes(normalizeRaw(spoken))
-      );
-
-      if (matched) {
-        console.log("✅ Matched:", matched.text);
-        handleAnswer(matched);
-      } else {
-        console.warn("⚠️ No match for:", spoken);
-        Speech.speak("Please try again, I didn’t understand your answer.");
-      }
-    } catch (e) {
-      console.error("LemonFox error:", e);
-      Speech.speak("Error understanding your answer.");
+      return;
     }
-  };
+
+    const q = cleanQuiz[current];
+    const matched = q.options.find(
+      (opt) =>
+        normalizeRaw(spoken).includes(normalizeRaw(opt.text)) ||
+        normalizeRaw(opt.text).includes(normalizeRaw(spoken))
+    );
+
+    if (matched) {
+      console.log("✅ Matched:", matched.text);
+      handleAnswer(matched);
+    } else {
+      console.warn("⚠️ No match for:", spoken);
+      Speech.speak(
+        subjectLower === "urdu" ? "براہ کرم دوبارہ کوشش کریں، میں آپ کا جواب سمجھ نہیں پایا۔" : 
+        "Please try again, I didn’t understand your answer.",
+        { language: langCode }
+      );
+    }
+  } catch (e) {
+    console.error("LemonFox error:", e);
+    Speech.speak(subjectLower === "urdu" ? "جواب سمجھنے میں خرابی۔" : "Error understanding your answer.", {
+      language: subjectLower === "urdu" ? "ur" : "en",
+    });
+  }
+};
 
   const restartQuiz = async () => {
     console.log("♻️ Restarting...");

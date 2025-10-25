@@ -10,19 +10,21 @@ import {
   UIManager,
   ActivityIndicator,
   Alert,
-  ScrollView,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { LinearGradient } from 'expo-linear-gradient';
 import API_BASE_URL from './config';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// ✅ Enable layout animation for Android
 if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental &&
     UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+// ✅ Quiz Categories
 const categories = [
   {
     id: '1',
@@ -59,34 +61,72 @@ const Assessments = () => {
     setExpandedMenu((prev) => (prev === id ? null : id));
   };
 
-  const handleSubjectQuiz = async (subject) => {
+  // ✅ Decode JWT Token to extract userId
+  const decodeToken = (token) => {
     try {
-      setLoading(true);
-      const response = await axios.post(`${API_BASE_URL}/api/quiz/generate`, {
-        subject,
-      });
-
-      const { quizText } = response.data;
-
-      if (!quizText || !Array.isArray(quizText)) {
-        Alert.alert('Error', 'No quiz generated from Gemini.');
-        return;
-      }
-
-      Alert.alert('✅ Success', `${subject} quiz generated!`);
-
-      navigation.navigate('QuizScreen', {
-        subject,
-        quizText,
-      });
-    } catch (error) {
-      Alert.alert('Error', 'Failed to generate quiz. Check your API or internet.');
-      console.error('❌ Quiz API error:', error.message);
-    } finally {
-      setLoading(false);
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      console.error('❌ Error decoding token:', e);
+      return null;
     }
   };
 
+ const subjectMap = {
+  English: 'Alphabet',
+  Urdu: 'Urdu',
+  Maths: 'Number',
+};
+
+const handleSubjectQuiz = async (subject) => {
+  try {
+    setLoading(true);
+
+    const token = await AsyncStorage.getItem('token');
+    if (!token) {
+      Alert.alert('Unauthorized', 'Please login first.');
+      return;
+    }
+
+    const backendSubject = subjectMap[subject] || subject;
+
+    const response = await axios.post(
+      `${API_BASE_URL}/api/quiz/generate`,
+      { subject: backendSubject },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    const { quiz, quizId } = response.data;
+    if (!quiz || !Array.isArray(quiz)) {
+      Alert.alert('Error', 'No quiz generated from Gemini.');
+      return;
+    }
+
+    Alert.alert('✅ Success', `${subject} quiz generated!`);
+    console.log(quiz);
+    navigation.navigate('QuizScreen', { subject, quizText: quiz, quizId });
+
+  } catch (error) {
+    console.error('❌ Quiz API error:', error);
+    Alert.alert('Error', 'Failed to generate quiz. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
+
+  // ✅ Sub-item rendering
   const renderSubItem = (item, parentTitle) => {
     const isAcademic = parentTitle === 'Academic Courses';
 
@@ -106,6 +146,7 @@ const Assessments = () => {
     );
   };
 
+  // ✅ Main category rendering
   const renderItem = ({ item }) => {
     const isGK = item.title === 'General Knowledge';
     return (
@@ -127,6 +168,7 @@ const Assessments = () => {
             />
           </LinearGradient>
         </TouchableOpacity>
+
         {expandedMenu === item.id &&
           item.assessments.map((subItem) => renderSubItem(subItem, item.title))}
       </View>
@@ -159,6 +201,7 @@ const Assessments = () => {
   );
 };
 
+// ✅ Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,

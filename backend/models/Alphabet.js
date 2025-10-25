@@ -18,6 +18,19 @@ const AlphabetSchema = new mongoose.Schema({
   sound_text: {
     type: String,
     required: true
+  },
+  // 👇 Added fields for progress/learning criteria
+  min_attempts: {
+    type: Number,
+    default: 3
+  },
+  min_time_avg: {
+    type: Number,
+    default: 2.0
+  },
+  min_correct_avg: {
+    type: Number,
+    default: 80
   }
 });
 
