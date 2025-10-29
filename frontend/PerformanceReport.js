@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Feather } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as Progress from 'react-native-progress';
 import API_BASE_URL from './config';
 
@@ -38,34 +39,73 @@ const PerformanceReport = ({ navigation }) => {
 
   // 🎯 Reward Logic
   const getReward = (accuracy, avgTime, completionRate) => {
-  if (accuracy >= 90 && avgTime <= 1 && completionRate >= 90) {
-    return { grade: 'Gold', emoji: '🥇', color: '#FFD700', message: 'Excellent Performance!' };
-  } else if (accuracy >= 85 && avgTime <= 1.5 && completionRate >= 85) {
-    return { grade: 'Silver', emoji: '🥈', color: '#C0C0C0', message: 'Great Job!' };
-  } else if (accuracy >= 80 && avgTime <= 2 && completionRate >= 80) {
-    return { grade: 'Bronze', emoji: '🥉', color: '#CD7F32', message: 'Good try!' };
-  } else {
-    return { grade: 'Participant', emoji: '🎯', color: '#89CFF0', message: 'Keep practicing!' };
-  }
-};
+    if (accuracy >= 90 && avgTime <= 1 && completionRate >= 90) {
+      return { grade: 'Gold', icon: 'award', color: '#FFD700', message: 'Excellent Performance!' };
+    } else if (accuracy >= 85 && avgTime <= 1.5 && completionRate >= 85) {
+      return { grade: 'Silver', icon: 'award', color: '#C0C0C0', message: 'Great Job!' };
+    } else if (accuracy >= 80 && avgTime <= 2 && completionRate >= 80) {
+      return { grade: 'Bronze', icon: 'award', color: '#CD7F32', message: 'Good try!' };
+    } else {
+      return { grade: 'Participant', icon: 'target', color: '#89CFF0', message: 'Keep practicing!' };
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Feather name="arrow-left" size={22} color="#EF3349" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Subject Performance</Text>
-      </View>
+      {/* Header with Gradient */}
+      <LinearGradient
+        colors={['#7BE7CE', '#5DD9BF', '#A0F0DC']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.header}
+      >
+        {/* Decorative Header Elements */}
+        <View style={styles.headerBubble1} />
+        <View style={styles.headerBubble2} />
+
+        <View style={styles.headerContent}>
+          <TouchableOpacity 
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+          >
+            <Feather name="arrow-left" size={22} color="#EF3349" />
+          </TouchableOpacity>
+          <View style={styles.headerTextContainer}>
+            <Text style={styles.headerSubtitle}>Performance Overview</Text>
+            <Text style={styles.headerTitle}>Subject Summary</Text>
+          </View>
+          <View style={styles.headerIconWrapper}>
+            <Feather name="bar-chart-2" size={24} color="#fff" />
+          </View>
+        </View>
+      </LinearGradient>
 
       {/* Content */}
       {loading ? (
-        <ActivityIndicator color="#EF3349" style={{ marginTop: 50 }} />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator color="#EF3349" size="large" />
+          <Text style={styles.loadingText}>Loading performance data...</Text>
+        </View>
       ) : (
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Background Bubbles */}
+          <View style={styles.bgBubble1} />
+          <View style={styles.bgBubble2} />
+          <View style={styles.bgBubble3} />
+
           {data.length === 0 ? (
-            <Text style={styles.noData}>No performance data yet.</Text>
+            <View style={styles.noDataContainer}>
+              <View style={styles.noDataIcon}>
+                <Feather name="trending-up" size={48} color="#A0F0DC" />
+              </View>
+              <Text style={styles.noDataTitle}>No Performance Data</Text>
+              <Text style={styles.noDataText}>
+                Subject performance data will appear here once available.
+              </Text>
+            </View>
           ) : (
             data.map((item) => {
               const reward = getReward(item.avgAccuracy, item.avgTimeSec, item.completionRate);
@@ -76,82 +116,121 @@ const PerformanceReport = ({ navigation }) => {
                   onPress={() =>
                     navigation.navigate('PerformanceDetail', { subject: item.subject })
                   }
+                  activeOpacity={0.7}
                 >
-                  <Text style={styles.subjectTitle}>{item.subject}</Text>
+                  {/* Card Header */}
+                  <View style={styles.cardHeader}>
+                    <View style={styles.subjectTitleContainer}>
+                      <View style={styles.subjectIconWrapper}>
+                        <Feather name="book-open" size={22} color="#EF3349" />
+                      </View>
+                      <Text style={styles.subjectTitle}>{item.subject}</Text>
+                    </View>
+                    <Feather name="chevron-right" size={20} color="#A0F0DC" />
+                  </View>
 
-                  {/* Progress + Stats */}
-                  <View style={styles.progressRow}>
-                    <Progress.Circle
-                      progress={item.avgAccuracy / 100}
-                      size={80}
-                      color="#EF3349"
-                      showsText
-                      formatText={() => `${item.avgAccuracy}%`}
-                      unfilledColor="#eee"
-                      borderWidth={0}
-                      thickness={8}
-                    />
-                    <View style={styles.statsRight}>
-                      <Text style={styles.statLine}>
-                        🧠 Accuracy: <Text style={styles.bold}>{item.avgAccuracy}%</Text>
-                      </Text>
-                      <Text style={styles.statLine}>
-                        ⏱ Avg Time: <Text style={styles.bold}>{item.avgTimeSec}s</Text>
-                      </Text>
-                      <Text style={styles.statLine}>
-                        ✅ Completion: <Text style={styles.bold}>{item.completionRate}%</Text>
-                      </Text>
+                  {/* Progress Circle + Quick Stats */}
+                  <View style={styles.progressSection}>
+                    <View style={styles.circleWrapper}>
+                      <Progress.Circle
+                        progress={item.avgAccuracy / 100}
+                        size={90}
+                        color="#EF3349"
+                        showsText
+                        formatText={() => `${item.avgAccuracy}%`}
+                        unfilledColor="#F0F0F0"
+                        borderWidth={0}
+                        thickness={9}
+                        textStyle={styles.circleText}
+                      />
+                      <Text style={styles.circleLabel}>Accuracy</Text>
+                    </View>
+
+                    <View style={styles.quickStats}>
+                      <View style={styles.quickStatItem}>
+                        <Feather name="zap" size={16} color="#FF9800" />
+                        <Text style={styles.quickStatLabel}>Avg Time</Text>
+                        <Text style={styles.quickStatValue}>{item.avgTimeSec}s</Text>
+                      </View>
+                      <View style={styles.quickStatDivider} />
+                      <View style={styles.quickStatItem}>
+                        <Feather name="check-circle" size={16} color="#4CAF50" />
+                        <Text style={styles.quickStatLabel}>Completion</Text>
+                        <Text style={styles.quickStatValue}>{item.completionRate}%</Text>
+                      </View>
                     </View>
                   </View>
 
-                  {/* 🏅 Reward Badge */}
-                  <View
-                    style={[
-                      styles.rewardBox,
-                      { borderColor: reward.color, backgroundColor: reward.color + '33' },
-                    ]}
+                  {/* Reward Badge */}
+                  <LinearGradient
+                    colors={[reward.color + '25', reward.color + '15']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={[styles.rewardBadge, { borderColor: reward.color }]}
                   >
-                    <Text style={[styles.rewardTitle, { color: reward.color }]}>
-                      {reward.emoji} {reward.grade} Badge
-                    </Text>
-                    <Text style={styles.rewardMessage}>{reward.message}</Text>
-                  </View>
+                    <View style={[styles.rewardIconWrapper, { backgroundColor: reward.color }]}>
+                      <Feather name={reward.icon} size={24} color="#fff" />
+                    </View>
+                    <View style={styles.rewardContent}>
+                      <Text style={[styles.rewardGrade, { color: reward.color }]}>
+                        {reward.grade} Badge
+                      </Text>
+                      <Text style={styles.rewardMessage}>{reward.message}</Text>
+                    </View>
+                  </LinearGradient>
 
-                  {/* Attempts + Correct */}
-                  <View style={styles.footerRow}>
-                    <Text style={styles.footerText}>
-                      Attempts: <Text style={styles.bold}>{item.totalAttempts}</Text>
-                    </Text>
-                    <Text style={styles.footerText}>
-                      Correct: <Text style={styles.bold}>{item.totalCorrect}</Text>
-                    </Text>
-                  </View>
-
-                  {/* Total & Completed Words */}
-                  <View style={styles.footerRow}>
-                    <Text style={styles.footerText}>
-                      Total Words: <Text style={styles.bold}>{item.totalWords}</Text>
-                    </Text>
-                    <Text style={styles.footerText}>
-                      Completed: <Text style={styles.bold}>{item.completedWords}</Text>
-                    </Text>
+                  {/* Detailed Stats Grid */}
+                  <View style={styles.statsGrid}>
+                    <View style={styles.statItem}>
+                      <View style={styles.statIconWrapper}>
+                        <Feather name="activity" size={16} color="#7BE7CE" />
+                      </View>
+                      <Text style={styles.statValue}>{item.totalAttempts}</Text>
+                      <Text style={styles.statLabel}>Attempts</Text>
+                    </View>
+                    <View style={styles.statItem}>
+                      <View style={styles.statIconWrapper}>
+                        <Feather name="check" size={16} color="#4CAF50" />
+                      </View>
+                      <Text style={styles.statValue}>{item.totalCorrect}</Text>
+                      <Text style={styles.statLabel}>Correct</Text>
+                    </View>
+                    <View style={styles.statItem}>
+                      <View style={styles.statIconWrapper}>
+                        <Feather name="layers" size={16} color="#2196F3" />
+                      </View>
+                      <Text style={styles.statValue}>{item.totalWords}</Text>
+                      <Text style={styles.statLabel}>Total Words</Text>
+                    </View>
+                    <View style={styles.statItem}>
+                      <View style={styles.statIconWrapper}>
+                        <Feather name="award" size={16} color="#FF9800" />
+                      </View>
+                      <Text style={styles.statValue}>{item.completedWords}</Text>
+                      <Text style={styles.statLabel}>Completed</Text>
+                    </View>
                   </View>
 
                   {/* Passing Criteria */}
                   {item.min_attempts !== undefined && (
-                    <View style={styles.criteriaBox}>
-                      <Text style={styles.criteriaTitle}>🎯 Passing Criteria</Text>
-                      <View style={styles.criteriaRow}>
-                        <Text style={styles.criteriaLabel}>Min Attempts:</Text>
-                        <Text style={styles.criteriaValue}>{item.min_attempts}</Text>
+                    <View style={styles.criteriaSection}>
+                      <View style={styles.criteriaHeader}>
+                        <Feather name="target" size={16} color="#7BE7CE" />
+                        <Text style={styles.criteriaTitle}>Passing Criteria</Text>
                       </View>
-                      <View style={styles.criteriaRow}>
-                        <Text style={styles.criteriaLabel}>Min Avg Time (s):</Text>
-                        <Text style={styles.criteriaValue}>{item.min_time_avg}</Text>
-                      </View>
-                      <View style={styles.criteriaRow}>
-                        <Text style={styles.criteriaLabel}>Min Correct Avg (%):</Text>
-                        <Text style={styles.criteriaValue}>{item.min_correct_avg}</Text>
+                      <View style={styles.criteriaGrid}>
+                        <View style={styles.criteriaItem}>
+                          <Text style={styles.criteriaLabel}>Min Attempts</Text>
+                          <Text style={styles.criteriaValue}>{item.min_attempts}</Text>
+                        </View>
+                        <View style={styles.criteriaItem}>
+                          <Text style={styles.criteriaLabel}>Min Avg Time</Text>
+                          <Text style={styles.criteriaValue}>{item.min_time_avg}s</Text>
+                        </View>
+                        <View style={styles.criteriaItem}>
+                          <Text style={styles.criteriaLabel}>Min Correct</Text>
+                          <Text style={styles.criteriaValue}>{item.min_correct_avg}%</Text>
+                        </View>
                       </View>
                     </View>
                   )}
@@ -166,89 +245,362 @@ const PerformanceReport = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#fff' },
+  safeArea: { 
+    flex: 1, 
+    backgroundColor: '#F5F7FA' 
+  },
   header: {
+    paddingTop: 50,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
+    position: 'relative',
+    overflow: 'hidden',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+  headerBubble1: {
+    position: 'absolute',
+    top: -40,
+    right: -40,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+  },
+  headerBubble2: {
+    position: 'absolute',
+    bottom: -20,
+    left: -30,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgb(160,240,220)',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    elevation: 3,
+    zIndex: 10,
   },
-  headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#000', marginLeft: 10 },
-  scrollContent: { padding: 20 },
-  noData: { textAlign: 'center', fontSize: 16, color: '#888', marginTop: 40 },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  headerTextContainer: {
+    flex: 1,
+  },
+  headerSubtitle: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.9)',
+    fontWeight: '500',
+    marginBottom: 2,
+    letterSpacing: 0.5,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#fff',
+    textShadowColor: 'rgba(0, 0, 0, 0.1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  headerIconWrapper: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+  },
+  loadingText: {
+    marginTop: 15,
+    fontSize: 16,
+    color: '#666',
+    fontWeight: '500',
+  },
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  bgBubble1: {
+    position: 'absolute',
+    top: 50,
+    right: -30,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(160, 240, 220, 0.08)',
+  },
+  bgBubble2: {
+    position: 'absolute',
+    top: 300,
+    left: -40,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(160, 240, 220, 0.06)',
+  },
+  bgBubble3: {
+    position: 'absolute',
+    bottom: 100,
+    right: 20,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(160, 240, 220, 0.1)',
+  },
+  noDataContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 80,
+    paddingHorizontal: 40,
+  },
+  noDataIcon: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#E8FBF7',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  noDataTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 8,
+  },
+  noDataText: {
+    fontSize: 15,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 22,
+  },
   subjectCard: {
-    backgroundColor: '#A0F0DC',
+    backgroundColor: '#fff',
     borderRadius: 20,
     padding: 20,
     marginBottom: 20,
+    elevation: 3,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E8F5F3',
   },
-  subjectTitle: { fontSize: 20, fontWeight: 'bold', color: '#000', marginBottom: 15 },
-  progressRow: { flexDirection: 'row', alignItems: 'center' },
-  statsRight: { marginLeft: 20 },
-  statLine: { fontSize: 14, color: '#000', marginBottom: 4 },
-  bold: { fontWeight: 'bold', color: '#000' },
-
-  // 🏅 Reward Section (brighter & visible)
-  rewardBox: {
-    marginTop: 18,
-    borderRadius: 15,
-    borderWidth: 2,
-    paddingVertical: 12,
-    paddingHorizontal: 10,
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  subjectTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  subjectIconWrapper: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#FEE8EC',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  subjectTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#000',
+    flex: 1,
+  },
+  progressSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    gap: 20,
+  },
+  circleWrapper: {
     alignItems: 'center',
   },
-  rewardTitle: {
-    fontSize: 17,
+  circleText: {
+    fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 5,
+    color: '#000',
+  },
+  circleLabel: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 8,
+    fontWeight: '600',
+  },
+  quickStats: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 14,
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E8F5F3',
+  },
+  quickStatItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  quickStatLabel: {
+    fontSize: 10,
+    color: '#666',
+    marginTop: 6,
+    marginBottom: 4,
+    fontWeight: '500',
+  },
+  quickStatValue: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#000',
+  },
+  quickStatDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: '#E0E0E0',
+    marginHorizontal: 10,
+  },
+  rewardBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 16,
+    borderWidth: 2,
+    padding: 16,
+    marginBottom: 20,
+    gap: 14,
+  },
+  rewardIconWrapper: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  rewardContent: {
+    flex: 1,
+  },
+  rewardGrade: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 2,
   },
   rewardMessage: {
     fontSize: 14,
-    color: '#333',
+    color: '#666',
+    fontWeight: '500',
     fontStyle: 'italic',
-    textAlign: 'center',
   },
-
-  footerRow: {
+  statsGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 15,
-    borderTopWidth: 1,
-    borderTopColor: '#ccc',
-    paddingTop: 10,
+    flexWrap: 'wrap',
+    marginBottom: 15,
+    gap: 10,
   },
-  footerText: { fontSize: 14, color: '#000' },
-
-  // Passing Criteria Styles
-  criteriaBox: {
-    marginTop: 15,
-    backgroundColor: '#eafff7',
-    borderRadius: 12,
-    padding: 10,
+  statItem: {
+    flex: 1,
+    minWidth: '45%',
+    backgroundColor: '#F8F9FA',
+    borderRadius: 14,
+    padding: 15,
+    alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#d3f3e5',
+    borderColor: '#E8F5F3',
+  },
+  statIconWrapper: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  statValue: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#000',
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: '#666',
+    fontWeight: '500',
+  },
+  criteriaSection: {
+    backgroundColor: '#E8FBF7',
+    borderRadius: 14,
+    padding: 15,
+    marginTop: 5,
+  },
+  criteriaHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    gap: 8,
   },
   criteriaTitle: {
     fontSize: 15,
-    fontWeight: 'bold',
+    fontWeight: '700',
     color: '#000',
-    marginBottom: 6,
   },
-  criteriaRow: {
+  criteriaGrid: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: 2,
+    flexWrap: 'wrap',
+    gap: 12,
   },
-  criteriaLabel: { fontSize: 13, color: '#333' },
-  criteriaValue: { fontSize: 13, fontWeight: 'bold', color: '#000' },
+  criteriaItem: {
+    flex: 1,
+    minWidth: '30%',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 10,
+    alignItems: 'center',
+  },
+  criteriaLabel: {
+    fontSize: 11,
+    color: '#666',
+    marginBottom: 4,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  criteriaValue: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#000',
+  },
 });
 
 export default PerformanceReport;
