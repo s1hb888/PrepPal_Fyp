@@ -8,7 +8,6 @@ import {
   Image,
   Modal,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { RadioButton } from 'react-native-paper';
@@ -20,6 +19,7 @@ import { SessionContext } from '../SessionContext';
 const MINT = 'rgb(160,240,220)';
 const RED = '#EF3349';
 const TEXT = '#000000';
+const GREEN = '#23B26D';
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -37,7 +37,14 @@ const Login = ({ navigation }) => {
 
   const handleLogin = async () => {
     const newErrors = {};
-    if (!email.trim()) newErrors.email = 'Email is required. Please enter your registered email address.';
+    if (!email.trim()) {
+      newErrors.email = 'Email is required. Please enter your registered email address.';
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        newErrors.email = "Invalid email format. Please enter a valid email address.";
+      }
+    }
     if (!password.trim()) newErrors.password = 'Password is required.';
 
     setErrors(newErrors);
@@ -53,6 +60,18 @@ const Login = ({ navigation }) => {
       const data = await response.json();
 
       if (response.ok) {
+        if (data.user && data.user.isVerified === false) {
+          setErrorMessage("Your email is not verified. Please check your email and verify your account using the link sent to you.");
+          setErrorModalVisible(true);
+          return;
+        }
+
+        if (data.user && data.user.isActive === false) {
+          setErrorMessage("Your account is deactivated. Please contact support for assistance.");
+          setErrorModalVisible(true);
+          return;
+        }
+
         await AsyncStorage.setItem('token', data.token);
         await AsyncStorage.setItem('userId', data.user._id.toString());
         await AsyncStorage.setItem('user', JSON.stringify({ ...data.user, role }));
@@ -82,13 +101,22 @@ const Login = ({ navigation }) => {
         }, 2000);
 
       } else {
-        setErrorMessage(data.message || 'Invalid credentials');
+        if (data.message === "Email not registered") {
+          setErrorMessage("This email is not registered. Please create an account.");
+        } else if (data.message === "Invalid credentials") {
+          setErrorMessage("Invalid email or password. Please try again.");
+        } else if (data.message === "Account deactivated") {
+          setErrorMessage("Your account is deactivated. Please contact support for assistance.");
+        } else {
+          setErrorMessage(data.message || "Invalid credentials");
+        }
         setErrorModalVisible(true);
       }
 
     } catch (error) {
       console.error(error);
-      Alert.alert('Error', 'Server error, please try again later.');
+      setErrorMessage('Server error. Please try again later.');
+      setErrorModalVisible(true);
     }
   };
 
@@ -156,9 +184,8 @@ const Login = ({ navigation }) => {
         {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
 
         <TouchableOpacity onPress={() => navigation.navigate('ResetPassword')}> 
-  <Text style={styles.forgotPassword}>Forgot Password?</Text>
-</TouchableOpacity>
-
+          <Text style={styles.forgotPassword}>Forgot Password?</Text>
+        </TouchableOpacity>
 
         <TouchableOpacity onPress={handleLogin} style={[styles.button, { backgroundColor: MINT }]}>
           <Text style={styles.buttonText}>LOGIN</Text>
@@ -166,47 +193,92 @@ const Login = ({ navigation }) => {
 
         <TouchableOpacity onPress={() => navigation.navigate('Registration')}>
           <Text style={styles.signupText}>
-            Don’t have an account? <Text style={styles.signupLink}>Sign up</Text>
+            Don't have an account? <Text style={styles.signupLink}>Sign up</Text>
           </Text>
         </TouchableOpacity>
 
+        {/* Professional Success Modal */}
         {successModalVisible && (
           <Modal transparent animationType="fade">
             <View style={styles.modalOverlay}>
-              <View style={styles.successModal}>
-                <Ionicons name="checkmark-circle-outline" size={60} color={MINT} />
-                <Text style={styles.successTitle}>Login Successful!</Text>
-                <Text style={styles.successText}>Redirecting...</Text>
+              <View style={styles.professionalModal}>
+                <View style={styles.iconCircleContainer}>
+                  <LinearGradient
+                    colors={[GREEN, '#1E9A5C']}
+                    style={styles.successIconCircle}
+                  >
+                    <Ionicons name="checkmark" size={50} color="#fff" />
+                  </LinearGradient>
+                </View>
+                
+                <Text style={styles.professionalTitle}>Login Successful!</Text>
+                <Text style={styles.professionalMessage}>Welcome back! Redirecting you now...</Text>
               </View>
             </View>
           </Modal>
         )}
 
+        {/* Professional Error Modal */}
         {errorModalVisible && (
           <Modal transparent animationType="fade">
             <View style={styles.modalOverlay}>
-              <View style={styles.errorModal}>
-                <Ionicons name="alert-circle-outline" size={60} color={RED} />
-                <Text style={styles.errorTitle}>Login Failed</Text>
-                <Text style={styles.errorTextModal}>{errorMessage}</Text>
-                <TouchableOpacity onPress={() => setErrorModalVisible(false)} style={[styles.dismissButton, { backgroundColor: RED }]}>
-                  <Text style={styles.dismissText}>Dismiss</Text>
-                </TouchableOpacity>
+              <View style={styles.professionalModal}>
+                <View style={styles.iconCircleContainer}>
+                  <LinearGradient
+                    colors={[RED, '#D12A3D']}
+                    style={styles.errorIconCircle}
+                  >
+                    <Ionicons name="close" size={50} color="#fff" />
+                  </LinearGradient>
+                </View>
+                
+                <Text style={styles.professionalTitle}>Login Failed</Text>
+                <Text style={styles.professionalMessage}>{errorMessage}</Text>
+                
+                <LinearGradient
+                  colors={[RED, '#D12A3D']}
+                  style={styles.professionalButton}
+                >
+                  <TouchableOpacity 
+                    onPress={() => setErrorModalVisible(false)} 
+                    style={styles.professionalButtonTouchable}
+                  >
+                    <Text style={styles.professionalButtonText}>Try Again</Text>
+                  </TouchableOpacity>
+                </LinearGradient>
               </View>
             </View>
           </Modal>
         )}
 
+        {/* Professional Lock Modal */}
         {lockModalVisible && (
           <Modal transparent animationType="fade">
             <View style={styles.modalOverlay}>
-              <View style={styles.errorModal}>
-                <Ionicons name="lock-closed-outline" size={60} color={RED} />
-                <Text style={styles.errorTitle}>Screen Time Limit Reached</Text>
-                <Text style={styles.errorTextModal}>{lockReason}</Text>
-                <TouchableOpacity onPress={() => setLockModalVisible(false)} style={[styles.dismissButton, { backgroundColor: RED }]}>
-                  <Text style={styles.dismissText}>OK</Text>
-                </TouchableOpacity>
+              <View style={styles.professionalModal}>
+                <View style={styles.iconCircleContainer}>
+                  <LinearGradient
+                    colors={[RED, '#D12A3D']}
+                    style={styles.errorIconCircle}
+                  >
+                    <Ionicons name="lock-closed" size={50} color="#fff" />
+                  </LinearGradient>
+                </View>
+                
+                <Text style={styles.professionalTitle}>Screen Time Limit Reached</Text>
+                <Text style={styles.professionalMessage}>{lockReason}</Text>
+                
+                <LinearGradient
+                  colors={[RED, '#D12A3D']}
+                  style={styles.professionalButton}
+                >
+                  <TouchableOpacity 
+                    onPress={() => setLockModalVisible(false)} 
+                    style={styles.professionalButtonTouchable}
+                  >
+                    <Text style={styles.professionalButtonText}>OK</Text>
+                  </TouchableOpacity>
+                </LinearGradient>
               </View>
             </View>
           </Modal>
@@ -236,15 +308,90 @@ const styles = StyleSheet.create({
   buttonText: { color: TEXT, fontWeight: 'bold', fontSize: 16 },
   signupText: { textAlign: 'center', fontSize: 14, color: TEXT },
   signupLink: { color: RED, fontWeight: 'bold' },
-  modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.4)' },
-  successModal: { backgroundColor: '#fff', borderRadius: 20, padding: 25, width: '80%', alignItems: 'center', elevation: 5 },
-  successTitle: { fontSize: 20, fontWeight: 'bold', marginTop: 15, textAlign: 'center' },
-  successText: { fontSize: 14, color: '#333', marginTop: 5, textAlign: 'center' },
-  errorModal: { backgroundColor: '#fff', borderRadius: 20, padding: 25, width: '80%', alignItems: 'center', elevation: 5 },
-  errorTitle: { fontSize: 20, color: RED, fontWeight: 'bold', marginTop: 15, textAlign: 'center' },
-  errorTextModal: { fontSize: 14, color: '#333', marginTop: 5, textAlign: 'center' },
-  dismissButton: { marginTop: 15, paddingVertical: 8, paddingHorizontal: 20, borderRadius: 8 },
-  dismissText: { color: '#fff', fontWeight: 'bold', fontSize: 14 },
+  
+  // Professional Modal Styles
+  modalOverlay: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 20,
+  },
+  professionalModal: { 
+    backgroundColor: '#fff', 
+    borderRadius: 24, 
+    padding: 32, 
+    width: '100%',
+    maxWidth: 380,
+    alignItems: 'center',
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+  },
+  iconCircleContainer: {
+    marginBottom: 24,
+  },
+  successIconCircle: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: GREEN,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+  },
+  errorIconCircle: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: RED,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+  },
+  professionalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#000',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  professionalMessage: {
+    fontSize: 15,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 28,
+    paddingHorizontal: 8,
+  },
+  professionalButton: {
+    width: '100%',
+    borderRadius: 14,
+    overflow: 'hidden',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+  },
+  professionalButtonTouchable: {
+    width: '100%',
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  professionalButtonText: {
+    color: '#fff',
+    fontSize: 17,
+    fontWeight: '700',
+  },
 });
 
 export default Login;

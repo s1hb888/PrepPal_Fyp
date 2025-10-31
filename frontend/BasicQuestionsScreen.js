@@ -30,7 +30,7 @@ const FlowerDecoration = ({ x, y, color, size = 1 }) => (
       <Circle cx="15" cy="10" r="2" fill={color} opacity="0.8" />
       <Circle cx="10" cy="15" r="2" fill={color} opacity="0.8" />
       <Circle cx="5" cy="10" r="2" fill={color} opacity="0.8" />
-      <Circle cx="10" cy="10" r="1" fill="#FFCF25" />
+      <Circle cx="10" cy="10" r="1" fill="#FFE680" />
     </Svg>
   </View>
 );
@@ -50,6 +50,7 @@ const Cloud = ({ x, y, size = 1 }) => (
 export default function BasicQuestionsScreen({ navigation }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [started, setStarted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentQA, setCurrentQA] = useState({ question: '', answer: '' });
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -60,6 +61,7 @@ export default function BasicQuestionsScreen({ navigation }) {
   const questionOpacity = useRef(new Animated.Value(0)).current;
   const answerOpacity = useRef(new Animated.Value(0)).current;
   const sunRotation = useRef(new Animated.Value(0)).current;
+  const startButtonScale = useRef(new Animated.Value(0)).current;
 
   // 🔒 Lock to landscape on mount, unlock on unmount
   useEffect(() => {
@@ -69,7 +71,7 @@ export default function BasicQuestionsScreen({ navigation }) {
     lock();
 
     return () => {
-      ScreenOrientation.unlockAsync(); // back to portrait after leaving
+      ScreenOrientation.unlockAsync();
     };
   }, []);
 
@@ -83,7 +85,16 @@ export default function BasicQuestionsScreen({ navigation }) {
     } finally {
       setLoading(false);
       Animated.timing(boardOpacity, { toValue: 1, duration: 800, useNativeDriver: true }).start();
-      Animated.timing(cardScale, { toValue: 1, duration: 800, useNativeDriver: true }).start();
+      Animated.timing(cardScale, { toValue: 1, duration: 800, useNativeDriver: true }).start(() => {
+        Animated.spring(startButtonScale, { toValue: 1, useNativeDriver: true }).start(() => {
+          // Speak the welcome message when board appears
+          Speech.speak("Let's learn some basic concepts about Islam!", {
+            language: "en",
+            pitch: 0.9,
+            rate: 0.9,
+          });
+        });
+      });
     }
   };
 
@@ -100,33 +111,22 @@ export default function BasicQuestionsScreen({ navigation }) {
     ).start();
   }, []);
 
-useEffect(() => {
-  if (data.length > 0) {
-    const qa = data[currentIndex];
-    setCurrentQA(qa);
-    setShowAnswer(false);
-    cardScale.setValue(0);
-    questionOpacity.setValue(0);
-    answerOpacity.setValue(0);
+  useEffect(() => {
+    if (started && data.length > 0) {
+      const qa = data[currentIndex];
+      setCurrentQA(qa);
+      setShowAnswer(false);
+      cardScale.setValue(0);
+      questionOpacity.setValue(0);
+      answerOpacity.setValue(0);
 
-    Animated.timing(cardScale, { toValue: 1, duration: 500, useNativeDriver: true }).start(() => {
-      Animated.timing(questionOpacity, { toValue: 1, duration: 500, useNativeDriver: true }).start(() => {
-        if (currentIndex === 0) {
-          // 🎤 Catchline before first question
-          Speech.speak("Let's learn some basic concepts about Islam!", {
-            language: "en",
-            pitch: 0.9,
-            rate: 0.9,
-            onDone: () => speak(qa.question, "question", qa),
-          });
-        } else {
+      Animated.timing(cardScale, { toValue: 1, duration: 500, useNativeDriver: true }).start(() => {
+        Animated.timing(questionOpacity, { toValue: 1, duration: 500, useNativeDriver: true }).start(() => {
           speak(qa.question, "question", qa);
-        }
+        });
       });
-    });
-  }
-}, [currentIndex, data]);
-
+    }
+  }, [currentIndex, data, started]);
 
   const speak = (text, type, qaRef) => {
     if (!text) return;
@@ -148,6 +148,10 @@ useEffect(() => {
       },
       onStopped: () => setIsSpeaking(false),
     });
+  };
+
+  const handleStart = () => {
+    setStarted(true);
   };
 
   const goPrev = () => {
@@ -212,48 +216,71 @@ useEffect(() => {
         </View>
 
         {/* ☁️ Clouds */}
-{/* ☁️ Clouds */}
-<Cloud x={width * 0.03} y={height * 0.02} size={1} />
-<Cloud x={width * 0.18} y={height * 0.045} size={0.9} />
-
+        <Cloud x={width * 0.03} y={height * 0.02} size={1} />
+        <Cloud x={width * 0.18} y={height * 0.045} size={0.9} />
 
         {/* 📋 Card */}
-        <Animated.View style={[styles.questionCard, { opacity: boardOpacity, transform: [{ scale: cardScale }] }]}>
-          <ExpoLinearGradient colors={['#FFFFFF', '#F8F9FA']} style={styles.cardGradient}>
-            <View style={styles.progressContainer}>
-              <Text style={styles.progressText}>{currentIndex + 1} / {data.length}</Text>
-            </View>
-            <TouchableOpacity
-              style={[styles.navButton, styles.leftNav, { opacity: currentIndex === 0 ? 0.3 : 1 }]}
-              onPress={goPrev}
-              disabled={currentIndex === 0}
-            >
-              <FontAwesome5 name="chevron-left" size={20} color="white" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.navButton, styles.rightNav, { opacity: currentIndex === data.length - 1 ? 0.3 : 1 }]}
-              onPress={goNext}
-              disabled={currentIndex === data.length - 1}
-            >
-              <FontAwesome5 name="chevron-right" size={20} color="white" />
-            </TouchableOpacity>
-            <View style={styles.cardContent}>
-              <Animated.View style={[styles.questionContainer, { opacity: questionOpacity }]}>
-                <Text style={styles.questionText}>{currentQA.question}</Text>
-              </Animated.View>
-              {showAnswer && (
-                <Animated.View style={[styles.answerContainer, { opacity: answerOpacity }]}>
-                  <Text style={styles.answerText}>{currentQA.answer}</Text>
+        {!started ? (
+          // Initial Welcome Board
+          <Animated.View style={[styles.questionCard, { opacity: boardOpacity, transform: [{ scale: cardScale }] }]}>
+            <ExpoLinearGradient colors={['#FFFFFF', '#F8F9FA']} style={styles.cardGradient}>
+              <View style={styles.welcomeContent}>
+                <Text style={styles.welcomeTitle}>Let's learn basic{'\n'}concepts about Islam!</Text>
+                <Animated.View style={{ transform: [{ scale: startButtonScale }] }}>
+                  <TouchableOpacity onPress={handleStart}>
+                    <ExpoLinearGradient
+                      colors={['#FFE680', '#FFD54F']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={styles.startButton}
+                    >
+                      <FontAwesome5 name="play" size={20} color="#EF3349" style={{ marginRight: 8 }} />
+                      <Text style={styles.startButtonText}>START</Text>
+                    </ExpoLinearGradient>
+                  </TouchableOpacity>
                 </Animated.View>
-              )}
-            </View>
-          </ExpoLinearGradient>
-        </Animated.View>
+              </View>
+            </ExpoLinearGradient>
+          </Animated.View>
+        ) : (
+          // Questions Board
+          <Animated.View style={[styles.questionCard, { opacity: boardOpacity, transform: [{ scale: cardScale }] }]}>
+            <ExpoLinearGradient colors={['#FFFFFF', '#F8F9FA']} style={styles.cardGradient}>
+              <View style={styles.progressContainer}>
+                <Text style={styles.progressText}>{currentIndex + 1} / {data.length}</Text>
+              </View>
+              <TouchableOpacity
+                style={[styles.navButton, styles.leftNav, { opacity: currentIndex === 0 ? 0.3 : 1 }]}
+                onPress={goPrev}
+                disabled={currentIndex === 0}
+              >
+                <FontAwesome5 name="chevron-left" size={20} color="white" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.navButton, styles.rightNav, { opacity: currentIndex === data.length - 1 ? 0.3 : 1 }]}
+                onPress={goNext}
+                disabled={currentIndex === data.length - 1}
+              >
+                <FontAwesome5 name="chevron-right" size={20} color="white" />
+              </TouchableOpacity>
+              <View style={styles.cardContent}>
+                <Animated.View style={[styles.questionContainer, { opacity: questionOpacity }]}>
+                  <Text style={styles.questionText}>{currentQA.question}</Text>
+                </Animated.View>
+                {showAnswer && (
+                  <Animated.View style={[styles.answerContainer, { opacity: answerOpacity }]}>
+                    <Text style={styles.answerText}>{currentQA.answer}</Text>
+                  </Animated.View>
+                )}
+              </View>
+            </ExpoLinearGradient>
+          </Animated.View>
+        )}
 
         {/* 🌸 Flowers */}
-        <FlowerDecoration x={50} y={height - 50} color="#FF69B4" size={1.2} />
-        <FlowerDecoration x={width - 100} y={height - 40} color="#FF4500" size={1.1} />
-        <FlowerDecoration x={width / 2} y={height - 30} color="#6A5ACD" size={1.3} />
+        <FlowerDecoration x={50} y={height - 50} color="#FFC1CC" size={1.2} />
+        <FlowerDecoration x={width - 100} y={height - 40} color="#FFE680" size={1.1} />
+        <FlowerDecoration x={width / 2} y={height - 30} color="#A0F0DC" size={1.3} />
       </View>
     </GestureHandlerRootView>
   );
@@ -265,35 +292,28 @@ const styles = StyleSheet.create({
   loadingText: { marginTop: 20, fontSize: 18, color: '#2BCB9A', fontWeight: 'bold' },
   gradientBackground: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
   ground: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 60, backgroundColor: '#2BCB9A' },
-
-  // 🌞 Sun thoda aur right
   sun: { position: 'absolute', top: 1, right: 7, zIndex: 1 },
-
-  // 👩 Teacher fixed left side
-teacherPosition: {
-  position: 'absolute',
-  left: 10,
-  bottom: -40, // 🔽 pehle -20 tha, ab -40 kiya -> aur neeche
-  justifyContent: 'flex-end',
-  alignItems: 'center',
-  zIndex: 1,
-},
+  teacherPosition: {
+    position: 'absolute',
+    left: 10,
+    bottom: -40,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    zIndex: 1,
+  },
   teacherImage: {
-    width: 240,        // size bara kiya
+    width: 240,
     height: undefined,
-    aspectRatio: 0.7,  // proper proportion
+    aspectRatio: 0.7,
     resizeMode: 'contain',
   },
-
-cloud: {
-  position: 'absolute',
-  zIndex: 1,
-  resizeMode: 'contain',
-  width: 140,   // thoda bara cloud
-  height: 80,
-},
-
-
+  cloud: {
+    position: 'absolute',
+    zIndex: 1,
+    resizeMode: 'contain',
+    width: 140,
+    height: 80,
+  },
   questionCard: {
     position: 'absolute',
     left: '28%',
@@ -308,37 +328,63 @@ cloud: {
     zIndex: 0,
   },
   cardGradient: { flex: 1, borderRadius: 30, padding: 20 },
-
+  welcomeContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  welcomeTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#EF3349',
+    textAlign: 'center',
+    lineHeight: 40,
+    marginBottom: 30,
+  },
+  startButton: {
+    flexDirection: 'row',
+    paddingHorizontal: 40,
+    paddingVertical: 16,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  startButtonText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#000',
+  },
   progressContainer: {
     position: 'absolute',
     top: 15,
     left: 20,
-    backgroundColor: '#FFCF25',
+    backgroundColor: '#FFE680',
     borderRadius: 15,
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
   progressText: { fontSize: 14, fontWeight: 'bold', color: '#333' },
-
-navButton: {
-  position: 'absolute',
-  top: '58%', // 🔽 pehle 50% tha, ab 58% kiya -> neeche aagaye
-  transform: [{ translateY: -25 }],
-  width: 50,
-  height: 50,
-  borderRadius: 25,
-  backgroundColor: '#EF3349',
-  justifyContent: 'center',
-  alignItems: 'center',
-  zIndex: 2,
-}, 
+  navButton: {
+    position: 'absolute',
+    top: '58%',
+    transform: [{ translateY: -25 }],
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#EF3349',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 2,
+  },
   leftNav: { left: -25 },
   rightNav: { right: -25 },
-
   cardContent: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 20 },
   questionContainer: { marginBottom: 10, paddingHorizontal: 10 },
   questionText: { fontSize: 24, fontWeight: 'bold', color: '#EF3349', textAlign: 'center', lineHeight: 32 },
-
   answerContainer: {
     backgroundColor: '#F1F8E9',
     borderRadius: 20,
@@ -349,6 +395,5 @@ navButton: {
     maxWidth: '90%',
   },
   answerText: { fontSize: 18, color: '#2E7D32', textAlign: 'center', lineHeight: 24, fontWeight: '500' },
-
   flower: { position: 'absolute' },
 });

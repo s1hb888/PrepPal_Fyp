@@ -32,7 +32,7 @@ const categories = [
     icon: 'school',
     assessments: [
       { id: '1-1', title: 'English', icon: 'alphabet-latin' },
-      { id: '1-2', title: 'Urdu', icon: 'alpha-u-box' },
+      { id: '1-2', title: 'Urdu', customIcon: 'ا ب' },
       { id: '1-3', title: 'Maths', icon: 'calculator-variant' },
     ],
   },
@@ -127,24 +127,28 @@ const handleSubjectQuiz = async (subject) => {
 };
 
   // ✅ Sub-item rendering
-  const renderSubItem = (item, parentTitle) => {
-    const isAcademic = parentTitle === 'Academic Courses';
+ const renderSubItem = (item, parentTitle) => {
+  const isAcademic = parentTitle === 'Academic Courses';
 
-    return (
-      <TouchableOpacity
-        key={item.id}
-        style={styles.subMenuItem}
-        onPress={() =>
-          isAcademic
-            ? handleSubjectQuiz(item.title)
-            : Alert.alert('Coming Soon', `${item.title} quizzes not available yet`)
-        }
-      >
+  return (
+    <TouchableOpacity
+      key={item.id}
+      style={styles.subMenuItem}
+      onPress={() =>
+        isAcademic
+          ? handleSubjectQuiz(item.title)
+          : Alert.alert('Coming Soon', `${item.title} quizzes not available yet`)
+      }
+    >
+      {item.customIcon ? (
+        <Text style={styles.customUrduIcon}>{item.customIcon}</Text>
+      ) : (
         <Icon name={item.icon} size={22} color="#EF3349" />
-        <Text style={styles.subMenuText}>{item.title}</Text>
-      </TouchableOpacity>
-    );
-  };
+      )}
+      <Text style={styles.subMenuText}>{item.title}</Text>
+    </TouchableOpacity>
+  );
+};
 
   // ✅ Main category rendering
   const renderItem = ({ item }) => {
@@ -216,6 +220,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#EF3349',
   },
+  customUrduIcon: {
+  fontSize: 22,
+  color: '#EF3349',
+  fontWeight: 'bold',
+  fontFamily: Platform.OS === 'ios' ? 'Geeza Pro' : 'sans-serif', // Urdu-compatible font
+},
+
   menuContainer: {
     marginBottom: 16,
     borderRadius: 14,

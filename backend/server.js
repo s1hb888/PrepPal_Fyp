@@ -23,7 +23,6 @@ const { router: notificationRoutes, checkForceKills } = require('./routes/notifi
 const quizRoutes = require('./routes/quiz');
 const resultRoutes = require('./routes/quizResults');
 const duaRoutes = require('./routes/duas');
-const worshipRoute = require('./routes/worship');
 const basicQuestionsRoute = require('./routes/basicQuestions');
 const countingRoutes = require("./routes/counting");
 const performanceRoutes = require("./routes/performance");
@@ -60,39 +59,14 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/quiz', quizRoutes);
 app.use('/api/result', resultRoutes);
 app.use('/api/duas', duaRoutes);
-app.use('/api/worship', worshipRoute);
 app.use('/api/basic-questions', basicQuestionsRoute);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/counting', countingRoutes);
 app.use('/api/performance', performanceRoutes);
 
-// ----------------- EXPO PUSH HELPER -----------------
-const sendFCM = async (userId, message) => {
-  try {
-    const user = await User.findById(userId);
-    const expoToken = user?.expoToken; // Expo Push Token
-    if (!expoToken) return;
-
-    await axios.post("https://exp.host/--/api/v2/push/send", {
-      to: expoToken,
-      sound: "default",
-      title: "PrepPal Alert",
-      body: message,
-    });
-
-    console.log('Expo Push sent to user:', userId);
-  } catch (err) {
-    console.error('Expo Push Error:', err.message);
-  }
-};
-
-// Periodic check for force kills (every 5 sec)
-setInterval(() => {
-  checkForceKills();
-}, 5000);
 
 // ----------------- EXPORTS -----------------
-module.exports = { app, sendFCM };
+module.exports = { app };
 
 // ----------------- SERVER START -----------------
 const port = process.env.PORT || 5000;

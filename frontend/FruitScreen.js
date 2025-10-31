@@ -28,6 +28,7 @@ const FruitScreen = () => {
   const [currentShadowFruit, setCurrentShadowFruit] = useState(null);
   const [selectedFruit, setSelectedFruit] = useState(null);
   const [animationStarted, setAnimationStarted] = useState(false);
+  const [incorrectFruit, setIncorrectFruit] = useState(null);
 
   const buzzerSound = useRef(null);
   const translateX = new Animated.Value(0);
@@ -70,6 +71,7 @@ const FruitScreen = () => {
   const handleSelect = async (fruit) => {
     if (fruit.word === currentShadowFruit.word) {
       setSelectedFruit(fruit);
+      setIncorrectFruit(null);
       Speech.speak(`${fruit.sound_text}`);
       animateImageToShadow(fruit);
 
@@ -95,6 +97,10 @@ const FruitScreen = () => {
       if (buzzerSound.current) {
         await buzzerSound.current.replayAsync();
       }
+      setIncorrectFruit(fruit);
+      setTimeout(() => {
+        setIncorrectFruit(null);
+      }, 800);
       setSelectedFruit(null);
     }
   };
@@ -103,6 +109,16 @@ const FruitScreen = () => {
     setAnimationStarted(true);
     Animated.spring(translateX, { toValue: 0, useNativeDriver: true }).start();
     Animated.spring(translateY, { toValue: 0, useNativeDriver: true }).start();
+  };
+
+  const getContainerStyle = (fruit) => {
+    if (selectedFruit && selectedFruit.word === fruit.word && fruit.word === currentShadowFruit.word) {
+      return [styles.fruitContainer, styles.correctContainer];
+    }
+    if (incorrectFruit && incorrectFruit.word === fruit.word) {
+      return [styles.fruitContainer, styles.incorrectContainer];
+    }
+    return styles.fruitContainer;
   };
 
   return (
@@ -131,7 +147,7 @@ const FruitScreen = () => {
         {displayFruits.map((fruit, index) => {
           const gradientColors = colorGradients[index % colorGradients.length];
           return (
-            <TouchableOpacity key={index} onPress={() => handleSelect(fruit)} style={styles.fruitContainer}>
+            <TouchableOpacity key={index} onPress={() => handleSelect(fruit)} style={getContainerStyle(fruit)}>
               <LinearGradient colors={gradientColors} style={styles.fruitCard}>
                 <Image source={{ uri: fruit.image_url }} style={styles.fruitImage} />
                 <Text style={styles.fruitName}>{fruit.word}</Text>
@@ -148,7 +164,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 20,
     backgroundColor: '#FFFDF8',
   },
 
@@ -156,7 +172,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '700',
     marginBottom: 15,
-    marginTop:40,
+    marginTop:30,
     textAlign: 'center',
   },
 
@@ -194,12 +210,25 @@ const styles = StyleSheet.create({
 
   fruitContainer: {
     marginBottom: 20,
+    borderRadius: 22,
+    borderWidth: 4,
+    borderColor: 'transparent',
+  },
+
+  correctContainer: {
+    borderColor: '#4CAF50',
+    backgroundColor: '#4CAF50',
+  },
+
+  incorrectContainer: {
+    borderColor: '#F44336',
+    backgroundColor: '#F44336',
   },
 
   fruitCard: {
     width: 130,
     height: 150,
-    borderRadius: 22,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 10,
@@ -226,4 +255,3 @@ const styles = StyleSheet.create({
 });
 
 export default FruitScreen;
-

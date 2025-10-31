@@ -27,7 +27,6 @@ const Stepper = ({ value, setValue, min = 0, max = 999 }) => (
       style={styles.stepBtn}
       onPress={() => setValue(Math.max(min, (+value || 0) - 1).toString())}
     >
-      {/* Reduced size: 16 */}
       <Feather name="minus" size={16} color={RED} /> 
     </TouchableOpacity>
     <View style={styles.stepInputContainer}>
@@ -36,7 +35,21 @@ const Stepper = ({ value, setValue, min = 0, max = 999 }) => (
         keyboardType="numeric"
         value={value}
         onChangeText={(val) => {
-          if (/^\d*$/.test(val)) setValue(val);
+          if (/^\d*$/.test(val)) {
+            const num = +val || 0;
+            if (num >= min && num <= max) {
+              setValue(val);
+            } else if (val === '') {
+              setValue('');
+            }
+          }
+        }}
+        onBlur={() => {
+          if (value === '' || +value < min) {
+            setValue(min.toString());
+          } else if (+value > max) {
+            setValue(max.toString());
+          }
         }}
         maxLength={3}
       />
@@ -45,7 +58,6 @@ const Stepper = ({ value, setValue, min = 0, max = 999 }) => (
       style={styles.stepBtn}
       onPress={() => setValue(Math.min(max, (+value || 0) + 1).toString())}
     >
-      {/* Reduced size: 16 */}
       <Feather name="plus" size={16} color={RED} /> 
     </TouchableOpacity>
   </View>
@@ -120,19 +132,44 @@ const ScreenTimeControl = () => {
     const err = {};
     let ok = true;
 
-    if (!+dailyUsageLimit) {
-      err.daily = 'Required';
+    // Validate Number of Sessions (1-4)
+    const numSessions = +dailyUsageLimit || 0;
+    if (!dailyUsageLimit || dailyUsageLimit === '') {
+      err.daily = 'Number of sessions is required';
       ok = false;
-    }
-    if (!+sessionDuration) {
-      err.session = 'Required';
+    } else if (numSessions < 1 || numSessions > 4) {
+      err.daily = 'Number of sessions must be between 1 and 4';
       ok = false;
     }
 
-    if (!gapMinutes) {
-      err.gap = 'Minutes required';
+    // Validate Session Duration (15-30 minutes)
+    const sessionDur = +sessionDuration || 0;
+    if (!sessionDuration || sessionDuration === '') {
+      err.session = 'Session duration is required';
       ok = false;
-    } else if (!/^\d+$/.test(gapMinutes) || +gapMinutes < 0) {
+    } else if (sessionDur < 15 || sessionDur > 30) {
+      err.session = 'Session duration must be between 15 and 30 minutes';
+      ok = false;
+    }
+
+    // Validate Gap Between Sessions (30-120 minutes, only if sessions >= 2)
+    const totalGapMinutes = (+gapMinutes || 0) + (+gapHours || 0) * 60;
+    
+    if (numSessions >= 2) {
+      if (!gapMinutes && !gapHours) {
+        err.gap = 'Gap between sessions is required when sessions ≥ 2';
+        ok = false;
+      } else if (totalGapMinutes < 30) {
+        err.gap = 'Gap must be at least 30 minutes (0.5 hours)';
+        ok = false;
+      } else if (totalGapMinutes > 120) {
+        err.gap = 'Gap cannot exceed 120 minutes (2 hours)';
+        ok = false;
+      }
+    }
+
+    // Validate numeric input for gap fields
+    if (gapMinutes && (!/^\d+$/.test(gapMinutes) || +gapMinutes < 0)) {
       err.gap = 'Only positive numbers allowed';
       ok = false;
     }
@@ -182,21 +219,21 @@ const ScreenTimeControl = () => {
 
         {/* Main Content */}
         <View style={styles.contentSection}>
-          {/* Daily Usage Card */}
+          {/* Number of Sessions Card */}
           <View style={styles.settingCard}>
             <View style={styles.cardHeader}>
               <View style={styles.iconBadge}>
                 <Ionicons name="calendar-outline" size={20} color={RED} />
               </View>
               <View style={styles.cardHeaderText}>
-                <Text style={styles.cardTitle}>Daily Screen Time Limit (min)</Text>
+                <Text style={styles.cardTitle}>Number of Sessions</Text>
                 <Text style={styles.cardDescription}>
-                  Maximum minutes of total app usage allowed per day
+                  How many sessions per day (1-4)
                 </Text>
               </View>
             </View>
             <View style={styles.cardContent}>
-              <Stepper value={dailyUsageLimit} setValue={setDailyUsageLimit} min={1} />
+              <Stepper value={dailyUsageLimit} setValue={setDailyUsageLimit} min={1} max={4} />
             </View>
             {errors.daily && (
               <View style={styles.errorContainer}>
@@ -215,12 +252,12 @@ const ScreenTimeControl = () => {
               <View style={styles.cardHeaderText}>
                 <Text style={styles.cardTitle}>Session Duration (min)</Text>
                 <Text style={styles.cardDescription}>
-                  Maximum minutes for a single active session
+                  Duration of each session (15-30 minutes)
                 </Text>
               </View>
             </View>
             <View style={styles.cardContent}>
-              <Stepper value={sessionDuration} setValue={setSessionDuration} min={1} />
+              <Stepper value={sessionDuration} setValue={setSessionDuration} min={15} max={30} />
             </View>
             {errors.session && (
               <View style={styles.errorContainer}>
@@ -230,16 +267,16 @@ const ScreenTimeControl = () => {
             )}
           </View>
 
-          {/* Session Gap Card - Updated Label/Description */}
+          {/* Session Gap Card */}
           <View style={styles.settingCard}>
             <View style={styles.cardHeader}>
               <View style={styles.iconBadge}>
                 <MaterialIcons name="schedule" size={20} color={RED} />
               </View>
               <View style={styles.cardHeaderText}>
-                <Text style={styles.cardTitle}>Session Gap</Text>
+                <Text style={styles.cardTitle}>Gap Between Sessions</Text>
                 <Text style={styles.cardDescription}>
-                  Minimum time required between the end of one session and the start of the next
+                  Gap between sessions (30-120 min)
                 </Text>
               </View>
             </View>
@@ -254,7 +291,19 @@ const ScreenTimeControl = () => {
                     keyboardType="numeric"
                     value={gapHours}
                     onChangeText={(val) => {
-                      if (/^\d*$/.test(val)) setGapHours(val);
+                      if (/^\d*$/.test(val)) {
+                        const totalMin = (+val || 0) * 60 + (+gapMinutes || 0);
+                        if (totalMin <= 120 || val === '') {
+                          setGapHours(val);
+                        }
+                      }
+                    }}
+                    onBlur={() => {
+                      const totalMin = (+gapHours || 0) * 60 + (+gapMinutes || 0);
+                      if (totalMin > 120) {
+                        setGapHours('2');
+                        setGapMinutes('0');
+                      }
                     }}
                   />
                   <Text style={styles.inputUnit}>hrs</Text>
@@ -271,7 +320,21 @@ const ScreenTimeControl = () => {
                     keyboardType="numeric"
                     value={gapMinutes}
                     onChangeText={(val) => {
-                      if (/^\d*$/.test(val)) setGapMinutes(val);
+                      if (/^\d*$/.test(val)) {
+                        const totalMin = (+gapHours || 0) * 60 + (+val || 0);
+                        if (totalMin <= 120 || val === '') {
+                          setGapMinutes(val);
+                        }
+                      }
+                    }}
+                    onBlur={() => {
+                      const totalMin = (+gapHours || 0) * 60 + (+gapMinutes || 0);
+                      if (totalMin > 120) {
+                        setGapHours('2');
+                        setGapMinutes('0');
+                      } else if (!gapMinutes && !gapHours && (+dailyUsageLimit >= 2)) {
+                        setGapMinutes('30');
+                      }
                     }}
                   />
                   <Text style={styles.inputUnit}>min</Text>
@@ -286,7 +349,7 @@ const ScreenTimeControl = () => {
             )}
           </View>
 
-          {/* Notifications Toggle Card - Updated Label/Description */}
+          {/* Notifications Toggle Card */}
           <View style={styles.settingCard}>
             <TouchableOpacity
               style={styles.toggleContent}
@@ -335,10 +398,8 @@ const ScreenTimeControl = () => {
           <View style={styles.modalCard}>
             <View style={styles.modalIconContainer}>
               <View style={styles.modalIconCircle}>
-                {/* CHANGE MADE HERE: 
-                  Icon color changed from {MINT} (light green) to {RED} 
-                */}
-                <Feather name="check" size={40} color={RED} /> 
+                <Feather name="check" size={40} color="#23B26D" />
+
               </View>
             </View>
             <Text style={styles.modalTitle}>Success!</Text>
@@ -474,26 +535,26 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
 
-  // Stepper (Reduced Size)
+  // Stepper
   stepperWrap: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: '#F8F9FA',
-    borderRadius: 12, // Reduced border radius
-    padding: 4, // Reduced padding
+    borderRadius: 12,
+    padding: 4,
   },
   stepBtn: {
     backgroundColor: MINT,
-    width: 36, // Reduced width
-    height: 36, // Reduced height
-    borderRadius: 10, // Reduced border radius
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: MINT,
-    shadowOffset: { width: 0, height: 1 }, // Reduced shadow
-    shadowOpacity: 0.2, // Reduced shadow
-    shadowRadius: 3, // Reduced shadow
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
     elevation: 2,
   },
   stepInputContainer: {
@@ -503,64 +564,64 @@ const styles = StyleSheet.create({
   },
   stepInput: {
     backgroundColor: '#fff',
-    borderRadius: 10, // Reduced border radius
-    paddingVertical: 6, // Reduced padding
-    paddingHorizontal: 16, // Reduced padding
-    fontSize: 20, // Reduced font size
+    borderRadius: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    fontSize: 20,
     fontWeight: '700',
     color: TEXT,
     textAlign: 'center',
-    minWidth: 70, // Reduced min width
+    minWidth: 70,
     borderWidth: 2,
     borderColor: '#F0F0F0',
   },
 
-  // Gap Inputs (Reduced Size)
+  // Gap Inputs
   gapInputsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#F8F9FA',
-    borderRadius: 12, // Reduced border radius
-    padding: 12, // Reduced padding
+    borderRadius: 12,
+    padding: 12,
   },
   gapInputWrapper: {
     flex: 1,
     alignItems: 'center',
   },
   inputLabel: {
-    fontSize: 10, // Reduced font size
+    fontSize: 10,
     fontWeight: '600',
     color: '#999',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-    marginBottom: 6, // Reduced margin
+    marginBottom: 6,
   },
   gapInput: {
     backgroundColor: '#fff',
-    borderRadius: 10, // Reduced border radius
-    paddingVertical: 10, // Reduced padding
-    paddingHorizontal: 14, // Reduced padding
-    fontSize: 18, // Reduced font size
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    fontSize: 18,
     fontWeight: '700',
     color: TEXT,
     textAlign: 'center',
     width: '100%',
     borderWidth: 2,
     borderColor: '#F0F0F0',
-    marginBottom: 4, // Reduced margin
+    marginBottom: 4,
   },
   inputUnit: {
-    fontSize: 11, // Reduced font size
+    fontSize: 11,
     fontWeight: '600',
     color: '#666',
   },
   gapSeparator: {
-    marginHorizontal: 10, // Reduced margin
-    paddingTop: 16, // Reduced padding
+    marginHorizontal: 10,
+    paddingTop: 16,
   },
   gapSeparatorText: {
-    fontSize: 22, // Reduced font size
+    fontSize: 22,
     fontWeight: '700',
     color: '#CCC',
   },
@@ -658,7 +719,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    // Background remains MINT for contrast
     backgroundColor: `${MINT}20`, 
     justifyContent: 'center',
     alignItems: 'center',

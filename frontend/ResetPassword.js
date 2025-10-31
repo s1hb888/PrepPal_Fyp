@@ -68,7 +68,9 @@ const ResetPassword = ({ navigation }) => {
     if (!token.trim() || !password.trim() || !confirmPassword.trim())
       return Alert.alert('Error', 'All fields are required.');
 
-    if (password.length < 6) return Alert.alert('Error', 'Password must be at least 6 characters.');
+   if (password.length < 8 || password.length > 12)
+  return Alert.alert('Error', 'Password must be at least 8 characters and maximum of 12 characters.');
+
     if (password !== confirmPassword) return Alert.alert('Error', 'Passwords do not match.');
 
     try {

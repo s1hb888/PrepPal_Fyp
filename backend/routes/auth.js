@@ -17,6 +17,8 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const emailExistence = require('email-existence');
 
+const dns = require('dns');
+
 router.post('/register', async (req, res) => {
   const { email, password, kidName, kidAge, role, city, area } = req.body;
   if (!email || !password || !kidName || !kidAge || !city || !area)
@@ -25,19 +27,25 @@ router.post('/register', async (req, res) => {
   try {
     // Check if email already exists in DB
     const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ message: 'Email is already registered.' });
+    if (existingUser)
+      return res.status(400).json({ message: 'Email account already exist.' });
 
-    // Check if email actually exists (MX record)
-    const emailExists = await new Promise((resolve) => {
-      emailExistence.check(email, (err, exists) => {
-        if (err) return resolve(false);
-        resolve(exists);
-      });
-    });
+    // ✅ Check if email domain has MX records (valid mail server)
+    try {
+  const domain = email.split('@')[1];
+  if (!domain) {
+    return res.status(400).json({ message: 'Invalid email format. Please enter a valid email address.' });
+  }
 
-    if (!emailExists) {
-      return res.status(400).json({ message: 'Email address does not exist.' });
-    }
+  const mxRecords = await dns.promises.resolveMx(domain);
+  if (!mxRecords || mxRecords.length === 0) {
+    return res.status(400).json({ message: 'Email address not found.' });
+  }
+} catch (err) {
+  console.error('DNS check failed:', err);
+  return res.status(400).json({ message: 'Email address not found.' });
+}
+
 
     // Generate verification token
     const verificationToken = crypto.randomBytes(32).toString('hex');
@@ -74,12 +82,13 @@ router.post('/register', async (req, res) => {
 
     await sendVerificationEmail({ to: email, token: verificationToken });
 
-    return res.status(201).json({ message: 'Verification link sent to your email.', userId: savedUser._id });
+    return res.status(201).json({ message: 'Verification link sent to your email. Please check your inbox.' });
   } catch (error) {
     console.error('Error saving user:', error);
     return res.status(500).json({ message: 'Server error, please try again later.' });
   }
 });
+
 
 // -----------------------
 // Email Verification

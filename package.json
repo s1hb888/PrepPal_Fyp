@@ -152,6 +152,7 @@
     "ee-first": "^1.1.1",
     "electron-to-chromium": "^1.5.213",
     "email-existence": "^0.1.6",
+    "email-validator": "^2.0.4",
     "emoji-regex": "^9.2.2",
     "emojis-list": "^3.0.0",
     "encodeurl": "^2.0.0",

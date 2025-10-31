@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, Alert, ScrollView, Image, StyleSheet, Modal } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, Image, StyleSheet, Modal } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
@@ -69,8 +69,8 @@ const ProfileScreen = ({ navigation }) => {
       });
 
       if (response.data.success) {
-        setImage(`${response.data.imageUrl}?t=${Date.now()}`); // bust cache
-        fetchProfile(); // refresh other details if needed
+        setImage(`${response.data.imageUrl}?t=${Date.now()}`);
+        fetchProfile();
         Alert.alert('Success', 'Profile image updated successfully');
       }
       
@@ -82,7 +82,7 @@ const ProfileScreen = ({ navigation }) => {
 
   const handleSave = async () => {
     if (!kidName || !kidAge) {
-      Alert.alert('Error', "Please enter your kid’s name and age.");
+      Alert.alert('Error', "Please enter your kid's name and age.");
       return;
     }
 
@@ -177,7 +177,7 @@ const ProfileScreen = ({ navigation }) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
+    <View style={styles.container}>
       <View style={styles.profileInfo}>
         <TouchableOpacity onPress={() => setShowImageOptions(true)} style={styles.imageWrapper}>
           {image ? (
@@ -186,7 +186,7 @@ const ProfileScreen = ({ navigation }) => {
             <View style={styles.profileImage} />
           )}
           <View style={styles.editIconWrapper}>
-            <Feather name="edit-2" size={16}  />
+           <Feather name="edit-2" size={16} color="#fff" />
           </View>
         </TouchableOpacity>
       </View>
@@ -336,25 +336,24 @@ const ProfileScreen = ({ navigation }) => {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleDeleteAccount} style={styles.deleteButton}>
-          <MaterialIcons name="delete" size={20} style={{ marginRight: 8 }} />
+          <MaterialIcons name="delete" size={20} color="#fff" style={{ marginRight: 8 }} />
           <Text style={styles.buttonText}>Delete Account</Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
 
 const styles = StyleSheet.create({
-  scrollContainer: {
-    flexGrow: 1,
+  container: {
+    flex: 1,
     backgroundColor: '#fff',
-    paddingBottom: 40,
   },
   profileInfo: {
     alignItems: 'center',
-    marginTop: 110,
-    marginBottom: 20,
+    marginTop: 35,
+    marginBottom: 15,
   },
   imageWrapper: {
     position: 'relative',
@@ -397,28 +396,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#000',
   },
-  saveButton: {
-    backgroundColor: 'rgb(160,240,220)',
-    padding: 15,
-    borderRadius: 12,
-    marginBottom: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  deleteButton: {
-    backgroundColor: '#EF3349',
-    padding: 15,
-    borderRadius: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop:-6,
-  },
-  buttonText: {
-    fontWeight: 'bold',
-    fontSize: 18,
-  },
+saveButton: {
+  backgroundColor: 'rgb(160,240,220)', // Mint
+  padding: 15,
+  borderRadius: 12,
+  marginBottom: 15,
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+ deleteButton: {
+  backgroundColor: '#EF3349', // Red
+  padding: 15,
+  borderRadius: 12,
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginTop: -6,
+},
+buttonText: {
+  fontWeight: 'bold',
+  fontSize: 18,
+  color: '#000', // Black text for mint button
+},
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -439,25 +439,33 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 modalButton: {
-  backgroundColor: 'rgb(160,240,220)', // Mint green
+  backgroundColor: 'rgb(160,240,220)',
   padding: 12,
   marginVertical: 6,
   borderRadius: 8,
   width: '100%',
   alignItems: 'center',
 },
+modalButtonText: {
+  fontWeight: 'bold',
+  fontSize: 16,
+},
 previewModalContainer: {
   flex: 1,
-  justifyContent: 'center', // 👈 center vertically
-  alignItems: 'center',     // 👈 center horizontally
+  justifyContent: 'center',
+  alignItems: 'center',
   backgroundColor: 'rgba(0,0,0,0.4)',
 },
-
+deleteButtonText: {
+  fontWeight: 'bold',
+  fontSize: 18,
+  color: '#fff', 
+},
 previewModalContent: {
   backgroundColor: '#fff',
-  width: '85%',               // 👈 smaller width
+  width: '85%',
   padding: 20,
-  borderRadius: 20,           // 👈 uniform rounded corners
+  borderRadius: 20,
   alignItems: 'center',
 },
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   Image,
@@ -28,29 +28,29 @@ const VegetableScreen = () => {
   const [currentShadowVegetable, setCurrentShadowVegetable] = useState(null);
   const [selectedVegetable, setSelectedVegetable] = useState(null);
   const [animationStarted, setAnimationStarted] = useState(false);
-  const [buzzerSound, setBuzzerSound] = useState(null);
+  const [incorrectVegetable, setIncorrectVegetable] = useState(null);
 
+  const buzzerSound = useRef(null);
   const translateX = new Animated.Value(0);
   const translateY = new Animated.Value(0);
 
   useEffect(() => {
+    const loadBuzzer = async () => {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../assets/sounds/buzzer.mp3')
+      );
+      buzzerSound.current = sound;
+    };
+    loadBuzzer();
+
     axios.get(`${API_BASE_URL}/api/vegetables`).then(res => {
       setVegetables(res.data);
       generateNewSet(res.data);
     });
 
-    const loadBuzzer = async () => {
-      const { sound } = await Audio.Sound.createAsync(
-        require('../assets/sounds/buzzer.mp3')
-      );
-      setBuzzerSound(sound);
-    };
-
-    loadBuzzer();
-
     return () => {
-      if (buzzerSound) {
-        buzzerSound.unloadAsync();
+      if (buzzerSound.current) {
+        buzzerSound.current.unloadAsync();
       }
     };
   }, []);
@@ -66,9 +66,10 @@ const VegetableScreen = () => {
     setCurrentShadowVegetable(shadow);
   };
 
-  const handleSelect = (vegetable) => {
+  const handleSelect = async (vegetable) => {
     if (vegetable.word === currentShadowVegetable.word) {
       setSelectedVegetable(vegetable);
+      setIncorrectVegetable(null);
       Speech.speak(vegetable.sound_text);
       animateImageToShadow();
 
@@ -90,9 +91,13 @@ const VegetableScreen = () => {
         }
       }, 3000);
     } else {
-      if (buzzerSound) {
-        buzzerSound.replayAsync();
+      if (buzzerSound.current) {
+        await buzzerSound.current.replayAsync();
       }
+      setIncorrectVegetable(vegetable);
+      setTimeout(() => {
+        setIncorrectVegetable(null);
+      }, 800);
       setSelectedVegetable(null);
     }
   };
@@ -101,6 +106,16 @@ const VegetableScreen = () => {
     setAnimationStarted(true);
     Animated.spring(translateX, { toValue: 0, useNativeDriver: true }).start();
     Animated.spring(translateY, { toValue: 0, useNativeDriver: true }).start();
+  };
+
+  const getContainerStyle = (vegetable) => {
+    if (selectedVegetable && selectedVegetable.word === vegetable.word && vegetable.word === currentShadowVegetable.word) {
+      return [styles.vegetableContainer, styles.correctContainer];
+    }
+    if (incorrectVegetable && incorrectVegetable.word === vegetable.word) {
+      return [styles.vegetableContainer, styles.incorrectContainer];
+    }
+    return styles.vegetableContainer;
   };
 
   return (
@@ -128,7 +143,7 @@ const VegetableScreen = () => {
         {displayVegetables.map((veg, index) => {
           const gradient = colorGradients[index % colorGradients.length];
           return (
-            <TouchableOpacity key={index} onPress={() => handleSelect(veg)} style={styles.vegetableContainer}>
+            <TouchableOpacity key={index} onPress={() => handleSelect(veg)} style={getContainerStyle(veg)}>
               <LinearGradient colors={gradient} style={styles.vegetableCard}>
                 <Image source={{ uri: veg.image_url }} style={styles.vegetableImage} />
                 <Text style={styles.vegetableName}>{veg.word}</Text>
@@ -145,7 +160,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 20,
     backgroundColor: '#FFFDF8',
   },
 
@@ -153,6 +168,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '700',
     marginBottom: 15,
+    marginTop:30,
     textAlign: 'center',
   },
 
@@ -189,12 +205,25 @@ const styles = StyleSheet.create({
 
   vegetableContainer: {
     marginBottom: 20,
+    borderRadius: 22,
+    borderWidth: 4,
+    borderColor: 'transparent',
+  },
+
+  correctContainer: {
+    borderColor: '#4CAF50',
+    backgroundColor: '#4CAF50',
+  },
+
+  incorrectContainer: {
+    borderColor: '#F44336',
+    backgroundColor: '#F44336',
   },
 
   vegetableCard: {
     width: 130,
     height: 150,
-    borderRadius: 22,
+    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 10,

@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   userName: {
-    color: '#fff',
+    color: '#000 ',
     fontSize: 22,
     fontWeight: '700',
     textShadowColor: 'rgba(0,0,0,0.1)',
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   userEmail: {
-    color: '#fff',
+    color: '#000',
     fontSize: 14,
     opacity: 0.95,
     textAlign: 'center',

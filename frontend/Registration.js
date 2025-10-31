@@ -7,7 +7,6 @@ import {
   StyleSheet,
   ScrollView,
   Modal,
-  // Removed TouchableWithoutFeedback from imports and use
 } from 'react-native';
 import { Ionicons, FontAwesome5, FontAwesome } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -37,6 +36,8 @@ const Registration = ({ navigation }) => {
   const [successMsg, setSuccessMsg] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [focusedField, setFocusedField] = useState(null);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorModalMessage, setErrorModalMessage] = useState('');
 
   const handleRegister = async () => {
     setErrors({});
@@ -58,8 +59,16 @@ const Registration = ({ navigation }) => {
       newErrors.password = 'Password must have 8+ chars, uppercase, digit & special char.';
     if (kidName && !/^[A-Za-z ]+$/.test(kidName.trim()))
       newErrors.kidName = 'Kid name must contain only alphabets and spaces.';
+    
+    if (kidName && (kidName.trim().length < 8 || kidName.trim().length > 30))
+      newErrors.kidName = "Name must be between 8 and 30 characters.";
+
     if (kidAge && (parseInt(kidAge) < 3 || parseInt(kidAge) > 5))
       newErrors.kidAge = "Kid's age should be between 3 and 5.";
+
+    if (!city || !area) {
+      newErrors.location = "city and area are required.";
+    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -77,14 +86,37 @@ const Registration = ({ navigation }) => {
         area,
       });
 
-      console.log('Backend response:', response.data);
-
-      setSuccessMsg("Verification link sent to your email. Please check your inbox.");
-      setShowSuccessModal(true);
+      if (response.data.message === "Email account already exist.") {
+        setErrorModalMessage("This email is already registered. Please use a different email or login.");
+        setShowErrorModal(true);
+      } else if (response.data.message === "Email address does not exist.") {
+        setErrorModalMessage("Invalid email address. Please check and try again.");
+        setShowErrorModal(true);
+      } else if (response.data.message === "Verification link sent.") {
+        setSuccessMsg("Verification link sent to your email. Please check your inbox and verify your account.");
+        setShowSuccessModal(true);
+        setTimeout(() => {
+          setShowSuccessModal(false);
+          navigation.navigate("Login");
+        }, 3000);
+      } else {
+        setSuccessMsg("Registration successful! Please check your email for verification.");
+        setShowSuccessModal(true);
+        setTimeout(() => {
+          setShowSuccessModal(false);
+          navigation.navigate("Login");
+        }, 3000);
+      }
     } catch (error) {
-      console.error('Axios error:', error.response || error);
-      const msg = error.response?.data?.message || 'Registration failed.';
-      setErrors({ server: msg });
+      console.error('Registration error:', error.response?.data || error.message);
+
+      if (error.response?.data?.message) {
+        setErrorModalMessage(error.response.data.message);
+        setShowErrorModal(true);
+      } else {
+        setErrorModalMessage("Registration failed. Please try again later.");
+        setShowErrorModal(true);
+      }
     }
   };
 
@@ -211,15 +243,13 @@ const Registration = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Removed TouchableWithoutFeedback wrapper */}
       <ScrollView 
         contentContainerStyle={styles.scrollContent} 
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Header Section (Top Card) */}
+        {/* Header Section */}
         <LinearGradient colors={['#A0F0DC', '#7BE7CE']} style={styles.header}>
-          {/* Bubbles added here */}
           <View style={styles.bubble1} />
           <View style={styles.bubble2} />
           <View style={styles.bubble3} />
@@ -236,7 +266,7 @@ const Registration = ({ navigation }) => {
           <Text style={styles.welcomeSubtitle}>Join PrepPal and start your child's learning journey</Text>
         </LinearGradient>
 
-        {/* Form Card - Overlaps Header Card */}
+        {/* Form Card */}
         <View style={styles.formCard}>
           {/* Child Information Section */}
           <View style={styles.section}>
@@ -303,15 +333,7 @@ const Registration = ({ navigation }) => {
             </View>
           )}
 
-          {/* Server Error */}
-          {errors.server && (
-            <View style={[styles.errorContainer, { backgroundColor: '#FFE5E5', padding: 12, borderRadius: 8, marginTop: 12 }]}>
-              <Ionicons name="alert-circle" size={18} color="#EF3349" />
-              <Text style={[styles.errorText, { marginLeft: 8 }]}>{errors.server}</Text>
-            </View>
-          )}
-
-          {/* Sign Up Button - Mint Color */}
+          {/* Sign Up Button */}
           <LinearGradient 
             colors={['#A0F0DC', '#7BE7CE']}
             style={styles.signUpButton}
@@ -339,7 +361,7 @@ const Registration = ({ navigation }) => {
           onRequestClose={() => setShowTermsModal(false)}
         >
           <View style={styles.modalOverlay}>
-            <View style={styles.modernModal}>
+            <View style={styles.termsModal}>
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Terms & Conditions</Text>
                 <TouchableOpacity onPress={() => setShowTermsModal(false)}>
@@ -399,7 +421,6 @@ const Registration = ({ navigation }) => {
                 </View>
               </ScrollView>
 
-              {/* Got It Button - Mint Color */}
               <LinearGradient
                 colors={['#A0F0DC', '#7BE7CE']}
                 style={styles.modalCloseButton}
@@ -412,7 +433,7 @@ const Registration = ({ navigation }) => {
           </View>
         </Modal>
 
-        {/* Success Modal */}
+        {/* Professional Success Modal */}
         <Modal
           transparent
           visible={showSuccessModal}
@@ -420,28 +441,67 @@ const Registration = ({ navigation }) => {
           onRequestClose={() => setShowSuccessModal(false)}
         >
           <View style={styles.modalOverlay}>
-            <View style={styles.modernModal}>
-              <View style={styles.successIconContainer}>
+            <View style={styles.professionalModal}>
+              <View style={styles.iconCircleContainer}>
                 <LinearGradient
-                  colors={['#A0F0DC', '#7BE7CE']}
+                  colors={['#23B26D', '#1E9A5C']}
                   style={styles.successIconCircle}
                 >
-                  <Ionicons name="checkmark" size={40} color="#fff" />
+                  <Ionicons name="checkmark" size={50} color="#fff" />
                 </LinearGradient>
               </View>
-              <Text style={styles.successTitle}>Account Created!</Text>
-              <Text style={styles.successMessage}>{successMsg}</Text>
+              
+              <Text style={styles.professionalTitle}>Account Created!</Text>
+              <Text style={styles.professionalMessage}>{successMsg}</Text>
+              
               <LinearGradient
-                colors={['#A0F0DC', '#7BE7CE']}
-                style={styles.successButton}
+                colors={['#23B26D', '#1E9A5C']}
+                style={styles.professionalButton}
               >
                 <TouchableOpacity
                   onPress={() => {
                     setShowSuccessModal(false);
                     navigation?.navigate('Login');
                   }}
+                  style={styles.professionalButtonTouchable}
                 >
-                  <Text style={styles.successButtonText}>Continue to Login</Text>
+                  <Text style={styles.professionalButtonText}>Continue to Login</Text>
+                </TouchableOpacity>
+              </LinearGradient>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Professional Error Modal */}
+        <Modal
+          transparent
+          visible={showErrorModal}
+          animationType="fade"
+          onRequestClose={() => setShowErrorModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.professionalModal}>
+              <View style={styles.iconCircleContainer}>
+                <LinearGradient
+                  colors={['#EF3349', '#D12A3D']}
+                  style={styles.errorIconCircle}
+                >
+                  <Ionicons name="close" size={50} color="#fff" />
+                </LinearGradient>
+              </View>
+              
+              <Text style={styles.professionalTitle}>Registration Failed</Text>
+              <Text style={styles.professionalMessage}>{errorModalMessage}</Text>
+              
+              <LinearGradient
+                colors={['#EF3349', '#D12A3D']}
+                style={styles.professionalButton}
+              >
+                <TouchableOpacity
+                  onPress={() => setShowErrorModal(false)}
+                  style={styles.professionalButtonTouchable}
+                >
+                  <Text style={styles.professionalButtonText}>Try Again</Text>
                 </TouchableOpacity>
               </LinearGradient>
             </View>
@@ -452,380 +512,412 @@ const Registration = ({ navigation }) => {
   );
 };
 
-// ... (styles remain the same)
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-      },
-      scrollContent: {
-        flexGrow: 1,
-        paddingBottom: 20, 
-      },
-      header: {
-        alignItems: 'center',
-        paddingTop: 60,
-        paddingBottom: 60,
-        paddingHorizontal: 20,
-        overflow: 'hidden', 
-      },
-      bubble1: {
-        position: 'absolute',
-        top: 20,
-        left: -30,
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        backgroundColor: 'rgba(255, 255, 255, 0.2)',
-        zIndex: 0,
-      },
-      bubble2: {
-        position: 'absolute',
-        bottom: -50,
-        right: 50,
-        width: 150,
-        height: 150,
-        borderRadius: 75,
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        zIndex: 0,
-      },
-      bubble3: {
-        position: 'absolute',
-        top: 80,
-        right: -20,
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        backgroundColor: 'rgba(255, 255, 255, 0.3)',
-        zIndex: 0,
-      },
-      logoContainer: {
-        marginBottom: 20,
-        zIndex: 1,
-      },
-      logoCircle: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        justifyContent: 'center',
-        alignItems: 'center',
-        elevation: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-      },
-      welcomeTitle: {
-        fontSize: 32,
-        fontWeight: 'bold',
-        color: '#fff',
-        marginBottom: 8,
-        zIndex: 1,
-      },
-      welcomeSubtitle: {
-        fontSize: 16,
-        color: 'rgba(255,255,255,0.9)',
-        textAlign: 'center',
-        paddingHorizontal: 20,
-        zIndex: 1,
-      },
-      formCard: {
-        backgroundColor: '#fff',
-        borderTopLeftRadius: 30,
-        borderTopRightRadius: 30,
-        padding: 24,
-        paddingBottom: 40,
-        elevation: 10, 
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -5 }, 
-        shadowOpacity: 0.15,
-        shadowRadius: 10,
-        marginTop: -30, 
-        zIndex: 2, 
-      },
-      section: {
-        marginBottom: 20,
-      },
-      sectionHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 16,
-      },
-      sectionIconContainer: {
-        width: 36,
-        height: 36,
-        borderRadius: 10,
-        backgroundColor: '#A0F0DC', 
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 10,
-      },
-      sectionTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#000',
-      },
-      fieldContainer: {
-        marginBottom: 16,
-      },
-      fieldLabel: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#333',
-        marginBottom: 8,
-      },
-      modernInput: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#F8F9FA',
-        borderRadius: 12,
-        borderWidth: 2,
-        borderColor: 'transparent',
-        height: 56,
-      },
-      inputFocused: {
-        borderColor: '#A0F0DC', 
-        backgroundColor: '#fff',
-      },
-      inputError: {
-        borderColor: '#EF3349',
-      },
-      iconContainer: {
-        width: 48,
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-      textInput: {
-        flex: 1,
-        fontSize: 16,
-        color: '#000',
-        paddingRight: 12,
-      },
-      dropdownText: {
-        flex: 1,
-        fontSize: 16,
-        paddingRight: 12,
-      },
-      eyeButton: {
-        padding: 12,
-      },
-      modernDropdown: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        marginTop: 8,
-        elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        borderWidth: 1,
-        borderColor: '#E0E0E0',
-      },
-      dropdownOption: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
-      },
-      dropdownOptionText: {
-        fontSize: 16,
-        color: '#000',
-      },
-      checkboxContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 20,
-        marginBottom: 8,
-      },
-      modernCheckbox: {
-        width: 24,
-        height: 24,
-        borderRadius: 6,
-        borderWidth: 2,
-        borderColor: '#A0F0DC', 
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 12,
-      },
-      checkboxChecked: {
-        backgroundColor: '#A0F0DC', 
-      },
-      checkboxText: {
-        fontSize: 14,
-        color: '#666',
-        flex: 1,
-      },
-      termsLink: {
-        color: '#A0F0DC', 
-        fontWeight: '600',
-      },
-      errorContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 6,
-      },
-      errorText: {
-        color: '#EF3349',
-        fontSize: 13,
-        marginLeft: 4,
-      },
-      signUpButton: {
-        borderRadius: 12,
-        marginTop: 24,
-        elevation: 4,
-        shadowColor: '#A0F0DC',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-      },
-      buttonTouchable: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 16,
-      },
-      signUpButtonText: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#000',
-      },
-      loginContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 24,
-      },
-      loginText: {
-        fontSize: 15,
-        color: '#666',
-      },
-      loginLink: {
-        fontSize: 15,
-        color: '#A0F0DC', 
-        fontWeight: '600',
-      },
-      modalOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-      },
-      modernModal: {
-        backgroundColor: '#fff',
-        borderRadius: 24,
-        padding: 24,
-        width: '100%',
-        maxWidth: 400,
-        maxHeight: '80%',
-      },
-      modalHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 20,
-      },
-      modalTitle: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: '#000',
-      },
-      modalContent: {
-        maxHeight: 400,
-      },
-      termCard: {
-        flexDirection: 'row',
-        backgroundColor: '#F8F9FA',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 12,
-      },
-      termIconCircle: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: '#A0F0DC', 
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 12,
-      },
-      termTextContainer: {
-        flex: 1,
-      },
-      termTitle: {
-        fontSize: 15,
-        fontWeight: '600',
-        color: '#000',
-        marginBottom: 4,
-      },
-      termDescription: {
-        fontSize: 14,
-        color: '#666',
-        lineHeight: 20,
-      },
-      modalCloseButton: {
-        borderRadius: 12,
-        marginTop: 20,
-        alignItems: 'center',
-        elevation: 3,
-        shadowColor: '#A0F0DC',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-      },
-      modalCloseText: {
-        color: '#000',
-        fontSize: 16,
-        fontWeight: '600',
-        paddingVertical: 14,
-      },
-      successIconContainer: {
-        alignItems: 'center',
-        marginBottom: 20,
-      },
-      successIconCircle: {
-        width: 80,
-        height: 80,
-        borderRadius: 40,
-        justifyContent: 'center',
-        alignItems: 'center',
-        elevation: 8,
-        shadowColor: '#A0F0DC',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-      },
-      successTitle: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#000',
-        textAlign: 'center',
-        marginBottom: 12,
-      },
-      successMessage: {
-        fontSize: 16,
-        color: '#666',
-        textAlign: 'center',
-        lineHeight: 24,
-        marginBottom: 24,
-      },
-      successButton: {
-        borderRadius: 12,
-        alignItems: 'center',
-        elevation: 3,
-        shadowColor: '#A0F0DC',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-      },
-      successButtonText: {
-        color: '#000',
-        fontSize: 16,
-        fontWeight: '600',
-        paddingVertical: 14,
-      },
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 20, 
+  },
+  header: {
+    alignItems: 'center',
+    paddingTop: 60,
+    paddingBottom: 60,
+    paddingHorizontal: 20,
+    overflow: 'hidden', 
+  },
+  bubble1: {
+    position: 'absolute',
+    top: 20,
+    left: -30,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    zIndex: 0,
+  },
+  bubble2: {
+    position: 'absolute',
+    bottom: -50,
+    right: 50,
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    zIndex: 0,
+  },
+  bubble3: {
+    position: 'absolute',
+    top: 80,
+    right: -20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    zIndex: 0,
+  },
+  logoContainer: {
+    marginBottom: 20,
+    zIndex: 1,
+  },
+  logoCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  welcomeTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 8,
+    zIndex: 1,
+  },
+  welcomeSubtitle: {
+    fontSize: 16,
+    color: '#000',
+    textAlign: 'center',
+    paddingHorizontal: 20,
+    zIndex: 1,
+  },
+  formCard: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    padding: 24,
+    paddingBottom: 40,
+    elevation: 10, 
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -5 }, 
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    marginTop: -30, 
+    zIndex: 2, 
+  },
+  section: {
+    marginBottom: 20,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  sectionIconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#A0F0DC', 
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000',
+  },
+  fieldContainer: {
+    marginBottom: 16,
+  },
+  fieldLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+  },
+  modernInput: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: 'transparent',
+    height: 56,
+  },
+  inputFocused: {
+    borderColor: '#A0F0DC', 
+    backgroundColor: '#fff',
+  },
+  inputError: {
+    borderColor: '#EF3349',
+  },
+  iconContainer: {
+    width: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  textInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#000',
+    paddingRight: 12,
+  },
+  dropdownText: {
+    flex: 1,
+    fontSize: 16,
+    paddingRight: 12,
+  },
+  eyeButton: {
+    padding: 12,
+  },
+  modernDropdown: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    marginTop: 8,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  dropdownOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  dropdownOptionText: {
+    fontSize: 16,
+    color: '#000',
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 8,
+  },
+  modernCheckbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: '#A0F0DC', 
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  checkboxChecked: {
+    backgroundColor: '#A0F0DC', 
+  },
+  checkboxText: {
+    fontSize: 14,
+    color: '#666',
+    flex: 1,
+  },
+  termsLink: {
+    color: '#A0F0DC', 
+    fontWeight: '600',
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
+  },
+  errorText: {
+    color: '#EF3349',
+    fontSize: 13,
+    marginLeft: 4,
+  },
+  signUpButton: {
+    borderRadius: 12,
+    marginTop: 24,
+    elevation: 4,
+    shadowColor: '#A0F0DC',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  buttonTouchable: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 16,
+  },
+  signUpButtonText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  loginContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 24,
+  },
+  loginText: {
+    fontSize: 15,
+    color: '#666',
+  },
+  loginLink: {
+    fontSize: 15,
+    color: '#A0F0DC', 
+    fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  termsModal: {
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    paddingHorizontal: 24,
+    paddingVertical: 20,
+    width: '100%',
+    maxWidth: 380,
+    maxHeight: '85%',
+  },
+  modalContent: {
+    flexGrow: 0,
+    paddingBottom: 10,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  termCard: {
+    flexDirection: 'row',
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+  },
+  termIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#A0F0DC', 
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  termTextContainer: {
+    flex: 1,
+  },
+  termTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#000',
+    marginBottom: 4,
+  },
+  termDescription: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
+  },
+  modalCloseButton: {
+    borderRadius: 12,
+    marginTop: 20,
+    alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#A0F0DC',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  modalCloseText: {
+    color: '#000',
+    fontSize: 16,
+    fontWeight: '600',
+    paddingVertical: 14,
+  },
+  // Professional Modal Styles
+  professionalModal: {
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    padding: 32,
+    width: '100%',
+    maxWidth: 380,
+    alignItems: 'center',
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+  },
+  iconCircleContainer: {
+    marginBottom: 24,
+  },
+  successIconCircle: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: '#23B26D',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+  },
+  errorIconCircle: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: '#EF3349',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+  },
+  professionalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#000',
+    textAlign: 'center',
+    marginBottom: 12,
+  },
+  professionalMessage: {
+    fontSize: 15,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: 28,
+    paddingHorizontal: 8,
+  },
+  professionalButton: {
+    width: '100%',
+    borderRadius: 14,
+    overflow: 'hidden',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+  },
+  professionalButtonTouchable: {
+    width: '100%',
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  professionalButtonText: {
+    color: '#fff',
+    fontSize: 17,
+    fontWeight: '700',
+  },
 });
 
 export default Registration;

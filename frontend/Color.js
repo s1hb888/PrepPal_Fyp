@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   container: { 
     flex: 1, 
     backgroundColor: "#FFFDF8", 
-    paddingTop: Platform.OS === "android" ? 30 : 0 
+    paddingTop: Platform.OS === "android" ? 50 : 0 
   },
   heading: {
     fontSize: 24,

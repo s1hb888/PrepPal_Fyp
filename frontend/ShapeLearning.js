@@ -194,9 +194,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: 'rgb(160,240,220)',
+    marginTop:-20,
     paddingHorizontal: 20,
     paddingVertical: 10,
-    paddingTop: StatusBar.currentHeight || 40,
+    paddingTop: StatusBar.currentHeight || 30,
   },
   headerText: {
     fontSize: 28,
@@ -213,14 +214,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 185,
-    marginTop: 90,
+    marginTop: 85,
   },
   bottomScrollContainer: {
     position: 'absolute',
     bottom: 10,
     left: 0,
     right: 0,
-    paddingVertical: 10,
+    paddingVertical: 5,
     backgroundColor: '#D1FAE5',
   },
   shapeScrollHorizontal: {

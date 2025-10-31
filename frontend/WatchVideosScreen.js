@@ -109,94 +109,95 @@ const WatchVideoScreen = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        <View style={styles.container}>
           <Text style={styles.heading}>Explore Videos</Text>
 
-         <LinearGradient
-  colors={['#FFC1CC', '#FFB6C1']}
-  style={styles.searchInputWrapper}
->
-  <View style={styles.searchInputInner}>
-    <TextInput
-      placeholder="Search by title..."
-      style={styles.searchInput}
-      value={searchTerm}
-      onChangeText={setSearchTerm}
-      placeholderTextColor="#555"
-    />
-  </View>
-</LinearGradient>
+          <LinearGradient
+            colors={['#FFC1CC', '#FFB6C1']}
+            style={styles.searchInputWrapper}
+          >
+            <View style={styles.searchInputInner}>
+              <TextInput
+                placeholder="Search by title..."
+                style={styles.searchInput}
+                value={searchTerm}
+                onChangeText={setSearchTerm}
+                placeholderTextColor="#555"
+              />
+            </View>
+          </LinearGradient>
 
-<ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.buttonRow}>
-  {['All', 'Academic Learning', 'General Knowledge'].map((cat) => {
-    const isSelected = category === cat;
-    return (
-      <TouchableOpacity
-        key={cat}
-        onPress={() => setCategory(cat)}
-        style={[
-          styles.outlinedButton,
-          isSelected && styles.selectedButton,
-        ]}
-      >
-        <Text style={isSelected ? styles.selectedButtonText : styles.outlinedText}>
-          {cat}
-        </Text>
-      </TouchableOpacity>
-    );
-  })}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.buttonRow}>
+            {['All', 'Academic Learning', 'General Knowledge'].map((cat) => {
+              const isSelected = category === cat;
+              return (
+                <TouchableOpacity
+                  key={cat}
+                  onPress={() => setCategory(cat)}
+                  style={[
+                    styles.outlinedButton,
+                    isSelected && styles.selectedButton,
+                  ]}
+                >
+                  <Text style={isSelected ? styles.selectedButtonText : styles.outlinedText}>
+                    {cat}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
 
-  {['asc', 'desc'].map((order) => {
-    const isSelected = sortOrder === order;
-    return (
-      <TouchableOpacity
-        key={order}
-        onPress={() => setSortOrder(order)}
-        style={[
-          styles.outlinedButton,
-          isSelected && styles.selectedButton,
-        ]}
-      >
-        <Text style={isSelected ? styles.selectedButtonText : styles.outlinedText}>
-          {order === 'asc' ? 'Title A-Z' : 'Title Z-A'}
-        </Text>
-      </TouchableOpacity>
-    );
-  })}
-</ScrollView>
+            {['asc', 'desc'].map((order) => {
+              const isSelected = sortOrder === order;
+              return (
+                <TouchableOpacity
+                  key={order}
+                  onPress={() => setSortOrder(order)}
+                  style={[
+                    styles.outlinedButton,
+                    isSelected && styles.selectedButton,
+                  ]}
+                >
+                  <Text style={isSelected ? styles.selectedButtonText : styles.outlinedText}>
+                    {order === 'asc' ? 'Title A-Z' : 'Title Z-A'}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
 
+          <ScrollView 
+            style={styles.videoList}
+            contentContainerStyle={styles.videoListContent}
+            keyboardShouldPersistTaps="handled"
+          >
+            {loading ? (
+              <ActivityIndicator size="large" color="#2BCB9A" />
+            ) : (
+              filteredVideos.map((item, index) => (
+                <TouchableOpacity
+                  key={item._id || index}
+                  onPress={() => setSelectedIndex(index)}
+                  activeOpacity={0.9}
+                  style={styles.cardWrapper}
+                >
+                  <LinearGradient colors={getCardGradient(index)} style={styles.card}>
+                    <Image source={{ uri: item.thumbnail }} style={styles.thumbnail} />
+                    <LinearGradient
+                      colors={['#FFC1CC', '#FFB6C1']}
+                      style={styles.playIconGradient}
+                    >
+                      <FontAwesome name="play" size={24} color="#fff" />
+                    </LinearGradient>
 
-
-
-
-          {loading ? (
-            <ActivityIndicator size="large" color="#2BCB9A" />
-          ) : (
-            filteredVideos.map((item, index) => (
-  <TouchableOpacity
-    key={item._id || index}
-    onPress={() => setSelectedIndex(index)}
-    activeOpacity={0.9}
-    style={styles.cardWrapper}
-  >
-    <LinearGradient colors={getCardGradient(index)} style={styles.card}>
-      <Image source={{ uri: item.thumbnail }} style={styles.thumbnail} />
-      <LinearGradient
-  colors={['#FFC1CC', '#FFB6C1']}
-  style={styles.playIconGradient}
->
-  <FontAwesome name="play" size={24} color="#fff" />
-</LinearGradient>
-
-      <View style={{ flex: 1 }}>
-        <Text style={styles.videoTitle}>{item.title}</Text>
-        <Text style={styles.tapToPlay}>Tap to play</Text>
-      </View>
-    </LinearGradient>
-  </TouchableOpacity>
-))
-
-          )}
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.videoTitle}>{item.title}</Text>
+                      <Text style={styles.tapToPlay}>Tap to play</Text>
+                    </View>
+                  </LinearGradient>
+                </TouchableOpacity>
+              ))
+            )}
+          </ScrollView>
 
           {selectedIndex !== null && (
             <Modal visible animationType="fade" transparent>
@@ -254,7 +255,7 @@ const WatchVideoScreen = () => {
               </View>
             </Modal>
           )}
-        </ScrollView>
+        </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
@@ -272,16 +273,17 @@ const getCardGradient = (index) => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     padding: 16,
     backgroundColor: '#fff',
   },
   heading: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#EF3349',
+    color: '#111010',
     marginBottom: 10,
+    marginTop: 30,
     textAlign: 'center',
-     color: 'rgb(255, 182, 193)',
   },
   searchInputWrapper: {
     borderRadius: 12,
@@ -298,40 +300,43 @@ const styles = StyleSheet.create({
   buttonRow: {
     flexDirection: 'row',
     marginBottom: 12,
-    flexWrap: 'wrap',
+    maxHeight: 40,
   },
-outlinedButton: {
-  paddingVertical: 6,
-  paddingHorizontal: 14,
-  borderRadius: 20,
-  borderWidth: 1.5,
-  borderColor: '#FFE680', // Pink border
-  backgroundColor: '#fff', // White background
-  marginRight: 8,
-  marginBottom: 8,
-},
-
-outlinedText: {
-  fontSize: 12,
-  color: '#fffff', // Pink text to match border
-  fontWeight: 'bold',
-},
-
-selectedButton: {
-  backgroundColor: '#FFE680', // Yellow background for selected
-  borderColor: '#FFE680',
-},
-
-selectedButtonText: {
-  fontSize: 12,
-  color: '#000', // Black text on yellow
-  fontWeight: 'bold',
-},
-
-
+  outlinedButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: '#FFE680',
+    backgroundColor: '#fff',
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  outlinedText: {
+    fontSize: 12,
+    color: '#000',
+    fontWeight: 'bold',
+  },
+  selectedButton: {
+    backgroundColor: '#FFE680',
+    borderColor: '#FFE680',
+  },
+  selectedButtonText: {
+    fontSize: 12,
+    color: '#000',
+    fontWeight: 'bold',
+  },
+  videoList: {
+    flex: 1,
+  },
+  videoListContent: {
+    paddingBottom: 16,
+  },
+  cardWrapper: {
+    marginBottom: 12,
+  },
   card: {
     flexDirection: 'row',
-    marginBottom: 12,
     padding: 10,
     borderRadius: 10,
     elevation: 3,
@@ -344,17 +349,16 @@ selectedButtonText: {
     marginRight: 10,
   },
   playIconGradient: {
-  width: 40,
-  height: 40,
-  borderRadius: 20,
-  justifyContent: 'center',
-  alignItems: 'center',
-  position: 'absolute',
-  top: 15,
-  left: 40,
-  zIndex: 1,
-},
-
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'absolute',
+    top: 15,
+    left: 40,
+    zIndex: 1,
+  },
   videoTitle: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -414,13 +418,6 @@ selectedButtonText: {
     fontWeight: 'bold',
     marginHorizontal: 6,
   },
-  cardWrapper: {
-  marginBottom: 12,
-},
-cardWrapper: {
-  marginBottom: 12,
-},
-
 });
 
 export default WatchVideoScreen;

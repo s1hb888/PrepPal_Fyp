@@ -42,7 +42,6 @@ import WatchVideoScreen from './frontend/WatchVideosScreen';
 import LearnIslamicStudies from './frontend/LearnIslamicStudies';
 import BasicQuestionsScreen from './frontend/BasicQuestionsScreen';
 import DuaScreen from './frontend/DuaScreen';
-import WorshipPracticeScreen from './frontend/WorshipPracticeScreen';
 
 /* PARENT / SHARED */
 import Settings from './frontend/Settings';
@@ -77,7 +76,6 @@ const includedScreens = [
   'WatchVideoScreen',
   'LearnIslamicStudies',
   'DuaScreen',
-  'WorshipPracticeScreen',
   'BasicQuestionsScreen',
   'QuizScreen',
   'CountingScreen',
@@ -155,7 +153,6 @@ export default function App() {
           <Stack.Screen name="WatchVideoScreen" component={WatchVideoScreen} />
           <Stack.Screen name="LearnIslamicStudies" component={LearnIslamicStudies} />
           <Stack.Screen name="DuaScreen" component={DuaScreen} />
-          <Stack.Screen name="WorshipPracticeScreen" component={WorshipPracticeScreen} />
           <Stack.Screen name="BasicQuestionsScreen" component={BasicQuestionsScreen} />
           <Stack.Screen name="QuizScreen" component={QuizScreen} />
           <Stack.Screen name="CountingScreen" component={CountingScreen} />

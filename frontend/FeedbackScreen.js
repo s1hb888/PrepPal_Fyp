@@ -10,6 +10,8 @@ import {
   Modal,
   ScrollView,
   Animated,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { FontAwesome, Feather, MaterialIcons } from '@expo/vector-icons';
 import axios from 'axios';
@@ -169,35 +171,38 @@ export default function FeedbackScreen() {
     !alreadySubmitted;
 
   const ratingCategories = [
-  { 
-    field: 'appEaseOfUse', 
-    title: 'Ease of Use', 
-    desc: 'How intuitive and user-friendly is the navigation?',
-    icon: 'touch-app' // ✅ Replaced "mobile" → "touch-app" (represents usability)
-  },
-  { 
-    field: 'performanceRating', 
-    title: 'Performance & Reliability', 
-    desc: 'Speed, responsiveness, and stability of the app',
-    icon: 'speed' // ✅ Better than "dashboard" for app performance
-  },
-  { 
-    field: 'designSatisfaction', 
-    title: 'Visual Design & Appeal', 
-    desc: 'Child-friendly interface and overall aesthetics',
-    icon: 'color-lens' // ✅ Better than "palette" for UI design
-  },
-  { 
-    field: 'featureUsefulness', 
-    title: 'Feature Value', 
-    desc: 'Effectiveness of tools in supporting your kid’s learning',
-    icon: 'extension'// ✅ Symbolizes value and usefulness
-  },
-];
-
+    { 
+      field: 'appEaseOfUse', 
+      title: 'Ease of Use', 
+      desc: 'How intuitive and user-friendly is the navigation?',
+      icon: 'touch-app'
+    },
+    { 
+      field: 'performanceRating', 
+      title: 'Performance & Reliability', 
+      desc: 'Speed, responsiveness, and stability of the app',
+      icon: 'speed'
+    },
+    { 
+      field: 'designSatisfaction', 
+      title: 'Visual Design & Appeal', 
+      desc: 'Child-friendly interface and overall aesthetics',
+      icon: 'color-lens'
+    },
+    { 
+      field: 'featureUsefulness', 
+      title: 'Feature Value', 
+      desc: 'Effectiveness of tools in supporting your child learning',
+      icon: 'extension'
+    },
+  ];
 
   return (
-    <View style={styles.fullContainer}>
+    <KeyboardAvoidingView 
+      style={styles.fullContainer}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={0}
+    >
       <View style={styles.header}>
         <TouchableOpacity onPress={() => {}} style={styles.backButton}>
           <Feather name="arrow-left" size={20} color="#555" />
@@ -224,7 +229,12 @@ export default function FeedbackScreen() {
         )}
       </View>
 
-      <ScrollView style={styles.contentContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.contentContainer} 
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={styles.scrollContentContainer}
+      >
         {alreadySubmitted && (
           <View style={styles.submittedBanner}>
             <MaterialIcons name="check-circle" size={20} color="#2BCB9A" />
@@ -408,7 +418,7 @@ export default function FeedbackScreen() {
           Your feedback is confidential and used solely to enhance PrepPal
         </Text>
 
-        <View style={{ height: 20 }} />
+        <View style={{ height: 80 }} />
       </ScrollView>
 
       {/* Success Modal */}
@@ -434,7 +444,7 @@ export default function FeedbackScreen() {
           </View>
         </View>
       </Modal>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -500,6 +510,9 @@ const styles = StyleSheet.create({
     borderRadius: 3,
   },
   contentContainer: { flex: 1, padding: 16 },
+  scrollContentContainer: { 
+    paddingBottom: 20,
+  },
   submittedBanner: {
     flexDirection: 'row',
     alignItems: 'center',
