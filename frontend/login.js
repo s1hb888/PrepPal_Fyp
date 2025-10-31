@@ -8,6 +8,8 @@ import {
   Image,
   Modal,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { RadioButton } from 'react-native-paper';
@@ -121,8 +123,14 @@ const Login = ({ navigation }) => {
   };
 
   return (
-    <View style={[styles.gradientBackground]}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+    <KeyboardAvoidingView
+      style={styles.gradientBackground}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.appBar}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back-outline" size={24} color={RED} />
@@ -183,7 +191,7 @@ const Login = ({ navigation }) => {
         </View>
         {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
 
-        <TouchableOpacity onPress={() => navigation.navigate('ResetPassword')}> 
+        <TouchableOpacity onPress={() => navigation.navigate('ResetPassword')}>
           <Text style={styles.forgotPassword}>Forgot Password?</Text>
         </TouchableOpacity>
 
@@ -197,7 +205,7 @@ const Login = ({ navigation }) => {
           </Text>
         </TouchableOpacity>
 
-        {/* Professional Success Modal */}
+        {/* Success Modal */}
         {successModalVisible && (
           <Modal transparent animationType="fade">
             <View style={styles.modalOverlay}>
@@ -210,7 +218,7 @@ const Login = ({ navigation }) => {
                     <Ionicons name="checkmark" size={50} color="#fff" />
                   </LinearGradient>
                 </View>
-                
+
                 <Text style={styles.professionalTitle}>Login Successful!</Text>
                 <Text style={styles.professionalMessage}>Welcome back! Redirecting you now...</Text>
               </View>
@@ -218,7 +226,7 @@ const Login = ({ navigation }) => {
           </Modal>
         )}
 
-        {/* Professional Error Modal */}
+        {/* Error Modal */}
         {errorModalVisible && (
           <Modal transparent animationType="fade">
             <View style={styles.modalOverlay}>
@@ -231,16 +239,16 @@ const Login = ({ navigation }) => {
                     <Ionicons name="close" size={50} color="#fff" />
                   </LinearGradient>
                 </View>
-                
+
                 <Text style={styles.professionalTitle}>Login Failed</Text>
                 <Text style={styles.professionalMessage}>{errorMessage}</Text>
-                
+
                 <LinearGradient
                   colors={[RED, '#D12A3D']}
                   style={styles.professionalButton}
                 >
-                  <TouchableOpacity 
-                    onPress={() => setErrorModalVisible(false)} 
+                  <TouchableOpacity
+                    onPress={() => setErrorModalVisible(false)}
                     style={styles.professionalButtonTouchable}
                   >
                     <Text style={styles.professionalButtonText}>Try Again</Text>
@@ -251,7 +259,7 @@ const Login = ({ navigation }) => {
           </Modal>
         )}
 
-        {/* Professional Lock Modal */}
+        {/* Lock Modal */}
         {lockModalVisible && (
           <Modal transparent animationType="fade">
             <View style={styles.modalOverlay}>
@@ -264,16 +272,16 @@ const Login = ({ navigation }) => {
                     <Ionicons name="lock-closed" size={50} color="#fff" />
                   </LinearGradient>
                 </View>
-                
+
                 <Text style={styles.professionalTitle}>Screen Time Limit Reached</Text>
                 <Text style={styles.professionalMessage}>{lockReason}</Text>
-                
+
                 <LinearGradient
                   colors={[RED, '#D12A3D']}
                   style={styles.professionalButton}
                 >
-                  <TouchableOpacity 
-                    onPress={() => setLockModalVisible(false)} 
+                  <TouchableOpacity
+                    onPress={() => setLockModalVisible(false)}
                     style={styles.professionalButtonTouchable}
                   >
                     <Text style={styles.professionalButtonText}>OK</Text>
@@ -283,9 +291,8 @@ const Login = ({ navigation }) => {
             </View>
           </Modal>
         )}
-
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -308,90 +315,16 @@ const styles = StyleSheet.create({
   buttonText: { color: TEXT, fontWeight: 'bold', fontSize: 16 },
   signupText: { textAlign: 'center', fontSize: 14, color: TEXT },
   signupLink: { color: RED, fontWeight: 'bold' },
-  
-  // Professional Modal Styles
-  modalOverlay: { 
-    flex: 1, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    paddingHorizontal: 20,
-  },
-  professionalModal: { 
-    backgroundColor: '#fff', 
-    borderRadius: 24, 
-    padding: 32, 
-    width: '100%',
-    maxWidth: 380,
-    alignItems: 'center',
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-  },
-  iconCircleContainer: {
-    marginBottom: 24,
-  },
-  successIconCircle: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 8,
-    shadowColor: GREEN,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-  },
-  errorIconCircle: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 8,
-    shadowColor: RED,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-  },
-  professionalTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000',
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  professionalMessage: {
-    fontSize: 15,
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: 22,
-    marginBottom: 28,
-    paddingHorizontal: 8,
-  },
-  professionalButton: {
-    width: '100%',
-    borderRadius: 14,
-    overflow: 'hidden',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-  },
-  professionalButtonTouchable: {
-    width: '100%',
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  professionalButtonText: {
-    color: '#fff',
-    fontSize: 17,
-    fontWeight: '700',
-  },
+  modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 20 },
+  professionalModal: { backgroundColor: '#fff', borderRadius: 24, padding: 32, width: '100%', maxWidth: 380, alignItems: 'center', elevation: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.3, shadowRadius: 20 },
+  iconCircleContainer: { marginBottom: 24 },
+  successIconCircle: { width: 90, height: 90, borderRadius: 45, justifyContent: 'center', alignItems: 'center', elevation: 8, shadowColor: GREEN, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 12 },
+  errorIconCircle: { width: 90, height: 90, borderRadius: 45, justifyContent: 'center', alignItems: 'center', elevation: 8, shadowColor: RED, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 12 },
+  professionalTitle: { fontSize: 24, fontWeight: 'bold', color: '#000', textAlign: 'center', marginBottom: 12 },
+  professionalMessage: { fontSize: 15, color: '#666', textAlign: 'center', lineHeight: 22, marginBottom: 28, paddingHorizontal: 8 },
+  professionalButton: { width: '100%', borderRadius: 14, overflow: 'hidden', elevation: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 6 },
+  professionalButtonTouchable: { width: '100%', paddingVertical: 16, alignItems: 'center' },
+  professionalButtonText: { color: '#fff', fontSize: 17, fontWeight: '700' },
 });
 
 export default Login;
