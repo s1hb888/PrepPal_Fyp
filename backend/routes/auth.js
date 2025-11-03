@@ -1,5 +1,5 @@
 
-const mongoose = require('mongoose');
+
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
@@ -17,8 +17,6 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const emailExistence = require('email-existence');
 
-const dns = require('dns');
-
 router.post('/register', async (req, res) => {
   const { email, password, kidName, kidAge, role, city, area } = req.body;
   if (!email || !password || !kidName || !kidAge || !city || !area)
@@ -27,25 +25,19 @@ router.post('/register', async (req, res) => {
   try {
     // Check if email already exists in DB
     const existingUser = await User.findOne({ email });
-    if (existingUser)
-      return res.status(400).json({ message: 'Email account already exist.' });
+    if (existingUser) return res.status(400).json({ message: 'Email is already registered.' });
 
-    // ✅ Check if email domain has MX records (valid mail server)
-    try {
-  const domain = email.split('@')[1];
-  if (!domain) {
-    return res.status(400).json({ message: 'Invalid email format. Please enter a valid email address.' });
-  }
+    // Check if email actually exists (MX record)
+    const emailExists = await new Promise((resolve) => {
+      emailExistence.check(email, (err, exists) => {
+        if (err) return resolve(false);
+        resolve(exists);
+      });
+    });
 
-  const mxRecords = await dns.promises.resolveMx(domain);
-  if (!mxRecords || mxRecords.length === 0) {
-    return res.status(400).json({ message: 'Email address not found.' });
-  }
-} catch (err) {
-  console.error('DNS check failed:', err);
-  return res.status(400).json({ message: 'Email address not found.' });
-}
-
+    if (!emailExists) {
+      return res.status(400).json({ message: 'Email address does not exist.' });
+    }
 
     // Generate verification token
     const verificationToken = crypto.randomBytes(32).toString('hex');
@@ -82,13 +74,12 @@ router.post('/register', async (req, res) => {
 
     await sendVerificationEmail({ to: email, token: verificationToken });
 
-    return res.status(201).json({ message: 'Verification link sent to your email. Please check your inbox.' });
+    return res.status(201).json({ message: 'Verification link sent to your email.', userId: savedUser._id });
   } catch (error) {
     console.error('Error saving user:', error);
     return res.status(500).json({ message: 'Server error, please try again later.' });
   }
 });
-
 
 // -----------------------
 // Email Verification
@@ -299,30 +290,6 @@ router.post('/reset-password', async (req, res) => {
   }
 });
 
-
-// POST /api/user/save-fcm-token
-router.post('/save-expo-token', async (req, res) => {
-  try {
-    const { userId, expoToken } = req.body;
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ success: false, message: 'Invalid userId' });
-    }
-
-    // User schema me save karo
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { expoToken },
-      { new: true }
-    );
-
-    return res.json({ success: true, expoToken: user.expoToken });
-  } catch (err) {
-    console.error('Save Expo token error:', err);
-    return res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-
 // -----------------------------------------------------------------------------
 // POST /api/auth/logout
 // -----------------------------------------------------------------------------
@@ -371,10 +338,10 @@ router.put('/update/numbers/access', verifyToken, async (req, res) => {
     const updated = await UserAccess.findOneAndUpdate(
       { user_id: userId },
       { $set: { 'access.numbers': numbers } },
-      { new: true }
+      { new: true, upsert: true }
     );
 
-    return res.json({ message: 'Access updated successfully', updated });
+    return res.json({ message: 'Number access updated successfully', updated });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
@@ -382,17 +349,18 @@ router.put('/update/numbers/access', verifyToken, async (req, res) => {
 });
 
 
+
 // Update Urdu Access
 router.put('/update/urdu/access', verifyToken, async (req, res) => {
   const userId = req.user.id;
-  const { urdu } = req.body;
-
+  const { alphabets } = req.body;
+  console.log(req.body);
   if (!userId) return res.status(400).json({ message: 'User ID not found in token' });
 
   try {
     const updated = await UserAccess.findOneAndUpdate(
       { user_id: userId },
-      { $set: { 'access.urdu_alphabets': urdu } },
+      { $set: { 'access.urdu_alphabets': alphabets } },
       { new: true }
     );
 
@@ -404,6 +372,7 @@ router.put('/update/urdu/access', verifyToken, async (req, res) => {
 });
 
 // Update Alphabets Access
+// routes/access.js (or wherever your route file is)
 router.put('/update/alphabets/access', verifyToken, async (req, res) => {
   const userId = req.user.id;
   const { alphabets } = req.body;
@@ -411,20 +380,25 @@ router.put('/update/alphabets/access', verifyToken, async (req, res) => {
   if (!userId) return res.status(400).json({ message: 'User ID not found in token' });
 
   try {
+    // alphabets should be array of objects like:
+    // [{ item_id: "ABC123", min_attempts: 3, min_time_avg: 2, min_correct_avg: 80 }, ...]
+
     const updated = await UserAccess.findOneAndUpdate(
       { user_id: userId },
       { $set: { 'access.alphabets': alphabets } },
-      { new: true }
+      { new: true, upsert: true }
     );
 
-    return res.json({ message: 'Access updated successfully', updated });
+    return res.json({ message: 'Alphabet access updated successfully', updated });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
+
 // Get Alphabets Access
+// routes/accessRoutes.js
 router.get('/access/alphabets', verifyToken, async (req, res) => {
   const userId = req.user.id;
 
@@ -434,10 +408,33 @@ router.get('/access/alphabets', verifyToken, async (req, res) => {
 
   try {
     const userAccess = await UserAccess.findOne({ user_id: userId });
-    let alphabetIds = userAccess?.access?.alphabets || [];
-    let alphabets = !alphabetIds.length ? await Alphabet.find({}) : await Alphabet.find({ _id: { $in: alphabetIds } });
+    const accessSettings = userAccess?.access?.alphabets || [];
 
-    return res.json(alphabets);
+    // Fetch ALL alphabets
+    const alphabets = await Alphabet.find({});
+
+    // Merge alphabets with user-specific access settings
+    const enriched = alphabets.map((alphabet) => {
+      const access = accessSettings.find(
+        (a) => a.item_id?.toString() === alphabet._id.toString()
+      );
+
+      return {
+        _id: alphabet._id,
+        alphabet: alphabet.alphabet,
+        word: alphabet.word,
+        image_url: alphabet.image_url,
+        active: access?.active ?? true, // default: true if not set
+        min_attempts: access?.min_attempts ?? 3,
+        min_time_avg: access?.min_time_avg ?? 2.0,
+        min_correct_avg: access?.min_correct_avg ?? 80,
+      };
+    });
+
+    // Show only active ones
+//    const filtered = enriched.filter((item) => item.active);
+
+    return res.json(enriched);
   } catch (err) {
     console.error('Error fetching alphabet access:', err);
     res.status(500).json({ message: 'Server error' });
@@ -453,16 +450,41 @@ router.get('/access/numbers', verifyToken, async (req, res) => {
   }
 
   try {
+    // Fetch user's access settings
     const userAccess = await UserAccess.findOne({ user_id: userId });
-    let numbersIds = userAccess?.access?.numbers || [];
-    let numbers = !numbersIds.length ? await Number.find({}) : await Number.find({ _id: { $in: numbersIds } });
+    const accessSettings = userAccess?.access?.numbers || [];
 
-    return res.json(numbers);
+    // Fetch ALL Numbers
+    const numbers = await Number.find({}); // Assuming model is named "Number"
+
+    // Merge Numbers with user-specific access settings
+    const enriched = numbers.map((num) => {
+      const access = accessSettings.find(
+        (a) => a.item_id?.toString() === num._id.toString()
+      );
+
+      return {
+        _id: num._id,
+        number: num.number,          // e.g. "1", "2", "3"
+        word: num.word,              // e.g. "One", "Two"
+        image_url: num.image_url,    // Image for number
+        active: access?.active ?? true, // Default: true if not set
+        min_attempts: access?.min_attempts ?? 3,
+        min_time_avg: access?.min_time_avg ?? 2.0,
+        min_correct_avg: access?.min_correct_avg ?? 80,
+      };
+    });
+
+    // Optional: filter out inactive items
+    // const filtered = enriched.filter((item) => item.active);
+
+    return res.json(enriched);
   } catch (err) {
-    console.error('Error fetching numbers access:', err);
+    console.error('Error fetching number access:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 // Get Urdu Access
 router.get('/access/urdu', verifyToken, async (req, res) => {
@@ -473,15 +495,40 @@ router.get('/access/urdu', verifyToken, async (req, res) => {
   }
 
   try {
+    // Fetch user's access settings
     const userAccess = await UserAccess.findOne({ user_id: userId });
-    let urduIds = userAccess?.access?.urdu_alphabets || [];
-    let urdu = !urduIds.length ? await Urdu.find({}) : await Urdu.find({ _id: { $in: urduIds } });
+    const accessSettings = userAccess?.access?.urdu_alphabets || [];
 
-    return res.json(urdu);
+    // Fetch ALL Urdu alphabets
+    const urduAlphabets = await Urdu.find({});
+
+    // Merge Urdu alphabets with user-specific access settings
+    const enriched = urduAlphabets.map((alphabet) => {
+      const access = accessSettings.find(
+        (a) => a.item_id?.toString() === alphabet._id.toString()
+      );
+
+      return {
+        _id: alphabet._id,
+        alphabet: alphabet.alphabet, // Urdu letter
+        word: alphabet.word,         // Urdu word (e.g., "الف → انار")
+        image_url: alphabet.image_url,
+        active: access?.active ?? true, // Default: true if not set
+        min_attempts: access?.min_attempts ?? 3,
+        min_time_avg: access?.min_time_avg ?? 2.0,
+        min_correct_avg: access?.min_correct_avg ?? 80,
+      };
+    });
+
+    // Show only active ones (optional — uncomment if needed)
+    // const filtered = enriched.filter((item) => item.active);
+
+    return res.json(enriched);
   } catch (err) {
-    console.error('Error fetching urdu access:', err);
+    console.error('Error fetching Urdu alphabet access:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 module.exports = router;

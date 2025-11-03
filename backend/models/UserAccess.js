@@ -2,6 +2,14 @@
 
 const mongoose = require('mongoose');
 
+const AccessSettingsSchema = new mongoose.Schema({
+  item_id: { type: mongoose.Schema.Types.ObjectId, refPath: 'accessType' }, // refPath allows reuse
+  min_attempts: { type: Number, default: 3 },
+  min_time_avg: { type: Number, default: 2.0 },
+  min_correct_avg: { type: Number, default: 80 },
+  active: { type: Boolean, default: true }
+});
+
 const UserAccessSchema = new mongoose.Schema({
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
@@ -13,15 +21,15 @@ const UserAccessSchema = new mongoose.Schema({
     default: false
   },
   access: {
-    numbers: [{ type: mongoose.Schema.Types.ObjectId }],
-    alphabets: [{ type: mongoose.Schema.Types.ObjectId }],
-    urdu_alphabets: [{ type: mongoose.Schema.Types.ObjectId }],
-    animals: [{ type: mongoose.Schema.Types.ObjectId }],
-    fruits: [{ type: mongoose.Schema.Types.ObjectId }],
-    vegetables: [{ type: mongoose.Schema.Types.ObjectId }],
-    body_parts: [{ type: mongoose.Schema.Types.ObjectId }],
-    shapes: [{ type: mongoose.Schema.Types.ObjectId }],
-    counting: [{ type: mongoose.Schema.Types.ObjectId }]
+    numbers: [AccessSettingsSchema],
+    alphabets: [AccessSettingsSchema],
+    urdu_alphabets: [AccessSettingsSchema],
+    animals: [AccessSettingsSchema],
+    fruits: [AccessSettingsSchema],
+    vegetables: [AccessSettingsSchema],
+    body_parts: [AccessSettingsSchema],
+    shapes: [AccessSettingsSchema],
+    counting: [AccessSettingsSchema]
   }
 });
 

@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const Quiz = require('../models/Quiz');
 const NumberModel = require('../models/Number');
+const UserAccess = require('../models/UserAccess');
 const UrduModel = require('../models/Urdu');
 const AlphabetModel = require('../models/Alphabet');
 const Performance = require('../models/Performance');
@@ -44,31 +45,83 @@ router.post('/generate', verifyToken, async (req, res) => {
   if (!Model || !field) return res.status(400).json({ message: `Invalid subject: ${subject}` });
 
   try {
-    // 1️⃣ Fetch user's performance for this subject
-    const perfRecords = await Performance.find({ userId, subject });
+    // 🗺️ Map subject → access key
+    const accessKeyMap = {
+      Alphabet: 'alphabets',
+      Urdu: 'urdu_alphabets',
+      Number: 'numbers'
+    };
+    const accessKey = accessKeyMap[subject] || subject.toLowerCase();
+
+    // 1️⃣ Load user access and performance
+    const mongoose = require('mongoose');
+    const [userAccess, perfRecords] = await Promise.all([
+      UserAccess.findOne({ user_id: new mongoose.Types.ObjectId(userId) }).lean(),
+      Performance.find({ userId, subject })
+    ]);
+
+    console.log(`🎯 Access for ${subject}:`, userAccess?._id ? 'Found ✅' : 'Not Found ❌');
+    console.log(`📘 Performance records for ${subject}:`, perfRecords.length);
+
     let itemsToUse = [];
 
     if (!perfRecords || perfRecords.length === 0) {
-      // First-time user → pick all items
+      // 🧩 First-time user → pick all items that are active in user access (if exists)
       const allDocs = await Model.find({}, { [field]: 1 });
-      itemsToUse = allDocs.map(d => d[field]);
-      console.log(`ℹ️ First-time user: picking all ${subject} items`, itemsToUse);
+      const activeAccessItems = userAccess?.access?.[accessKey]
+        ?.filter(a => a.active)
+        ?.map(a => a.item_id.toString()) || [];
+
+      if (activeAccessItems.length > 0) {
+        // Only include docs that match active item_ids
+        itemsToUse = allDocs
+          .filter(d => activeAccessItems.includes(d._id.toString()))
+          .map(d => d[field]);
+      } else {
+        // No user access data → fallback to all items
+        itemsToUse = allDocs.map(d => d[field]);
+      }
+
+      console.log(`🟢 First-time user: ${itemsToUse.length} active ${subject} items`);
     } else {
-      // Existing user → pick only items with done=false
-      itemsToUse = perfRecords.filter(r => !r.done).map(r => r.item);
-      console.log(`ℹ️ Existing user: picking ${subject} items with done=false`, itemsToUse);
+      // 🧩 Existing user → only pick items with done=false
+      const pendingItems = perfRecords.filter(r => !r.done).map(r => r.item);
+
+      // Apply active filter from user access
+      const activeAccessItems = userAccess?.access?.[accessKey]
+        ?.filter(a => a.active)
+        ?.map(a => a.item_id.toString()) || [];
+
+      if (activeAccessItems.length > 0) {
+        // Match item text against DB _id of active access items
+        const activeDocs = await Model.find({ _id: { $in: activeAccessItems } }, { [field]: 1 });
+        const activeItemTexts = activeDocs.map(d => d[field]);
+
+        itemsToUse = pendingItems.filter(item => activeItemTexts.includes(item));
+      } else {
+        // No user access filtering available → fallback to done=false items
+        itemsToUse = pendingItems;
+      }
+
+      console.log(`🟡 Existing user: ${itemsToUse.length} active pending ${subject} items`);
     }
 
-    // 2️⃣ If no items to pick → all items mastered
+    // 2️⃣ If no items to pick → all done
     if (itemsToUse.length === 0) {
       return res.status(200).json({
-        message: `✅ All ${subject} items are already mastered 🎯`,
+        message: `✅ All ${subject} items are already mastered or inactive 🎯`,
         quiz: [],
       });
     }
 
     // 3️⃣ Generate quiz via AI
-    const aiSubject = subject === 'Number' ? 'math' : subject === 'Alphabet' ? 'english' : 'urdu';
+    const aiSubject =
+      subject === 'Number'
+        ? 'math'
+        : subject === 'Alphabet'
+        ? 'english'
+        : 'urdu';
+
     console.log(`🧠 Generating quiz for user=${userId}, subject=${subject}, items:`, itemsToUse);
 
     const quizQuestions = await generateQuiz(aiSubject, itemsToUse);
@@ -98,6 +151,7 @@ router.post('/generate', verifyToken, async (req, res) => {
 });
 
 
+
 /* ---------------- COMPLETE endpoint ----------------
    - If provided { quizId, answers }, updates that quiz first.
    - Then recalculates performance for ALL subjects for this user from quizzes (or ResultModel fallback).
@@ -112,7 +166,7 @@ router.post('/complete', verifyToken, async (req, res) => {
   try {
     console.log(`🔁 /complete called for user=${userId} (quizId=${quizId || 'none'})`);
 
-    // 1) If quizId + answers are provided, update that quiz first
+    // 1️⃣ Update quiz if answers provided
     if (quizId && Array.isArray(answers)) {
       const quiz = await Quiz.findOne({ _id: quizId, userId });
       if (!quiz) return res.status(404).json({ message: 'Quiz not found for updating.' });
@@ -120,13 +174,20 @@ router.post('/complete', verifyToken, async (req, res) => {
       quiz.questions = quiz.questions.map((q, idx) => {
         const userAns = answers.find((a) => {
           if (!a) return false;
-          if (a.questionId) return a.questionId.toString() === (q._id ? q._id.toString() : '') || a.questionId === String(idx);
+          if (a.questionId)
+            return (
+              a.questionId.toString() === (q._id ? q._id.toString() : '') ||
+              a.questionId === String(idx)
+            );
           return a.index === idx;
         });
+
         if (userAns) {
           q.userAnswer = userAns.answer;
-          q.isCorrect = String(userAns.answer).trim().toLowerCase() === String(q.correctAnswer).trim().toLowerCase();
-          q.timeTaken = userAns.timeTaken || 0; // stored in ms
+          q.isCorrect =
+            String(userAns.answer).trim().toLowerCase() ===
+            String(q.correctAnswer).trim().toLowerCase();
+          q.timeTaken = userAns.timeTaken || 0;
         }
         return q;
       });
@@ -135,54 +196,65 @@ router.post('/complete', verifyToken, async (req, res) => {
       console.log(`✅ Quiz ${quizId} updated with provided answers.`);
     }
 
-    // 2) Fetch all quizzes for this user
+    // 2️⃣ Fetch all quizzes
     let allQuizzes = await Quiz.find({ userId });
-    if (!allQuizzes || allQuizzes.length === 0) {
+    if (!allQuizzes?.length)
       return res.status(404).json({ message: 'No quizzes found for this user.' });
-    }
 
-    // 3) If no answered questions exist inside quizzes, try ResultModel fallback
-    let anyAnswered = allQuizzes.some(qz => qz.questions.some(q => q.userAnswer !== undefined || q.isCorrect !== undefined));
+    // 3️⃣ Ensure answers exist
+    let anyAnswered = allQuizzes.some((qz) =>
+      qz.questions.some((q) => q.userAnswer !== undefined || q.isCorrect !== undefined)
+    );
 
     if (!anyAnswered && ResultModel) {
-      console.log('ℹ️ No answers in quizzes. Trying to apply from Result collection...');
+      console.log('ℹ️ No answers in quizzes. Applying from ResultModel...');
       const results = await ResultModel.find({ userId }).lean().limit(500);
-      if (results && results.length) {
+      if (results?.length) {
         let applied = 0;
         for (const r of results) {
           if (!r.quizId || !Array.isArray(r.answers)) continue;
           const quizToUpdate = await Quiz.findOne({ _id: r.quizId, userId });
           if (!quizToUpdate) continue;
+
           quizToUpdate.questions = quizToUpdate.questions.map((q, idx) => {
-            const a = r.answers.find(ans => {
+            const a = r.answers.find((ans) => {
               if (!ans) return false;
-              if (ans.questionId) return ans.questionId.toString() === (q._id ? q._id.toString() : '') || ans.questionId === String(idx);
+              if (ans.questionId)
+                return (
+                  ans.questionId.toString() === (q._id ? q._id.toString() : '') ||
+                  ans.questionId === String(idx)
+                );
               return ans.index === idx;
             });
             if (a) {
               q.userAnswer = a.answer;
-              q.isCorrect = String(a.answer).trim().toLowerCase() === String(q.correctAnswer).trim().toLowerCase();
+              q.isCorrect =
+                String(a.answer).trim().toLowerCase() ===
+                String(q.correctAnswer).trim().toLowerCase();
               q.timeTaken = a.timeTaken || 0;
             }
             return q;
           });
+
           await quizToUpdate.save();
           applied++;
         }
-        console.log(`🔁 Applied answers from Result collection to ${applied} quizzes.`);
-        // refresh allQuizzes
+        console.log(`🔁 Applied answers from ResultModel to ${applied} quizzes.`);
         allQuizzes = await Quiz.find({ userId });
-        anyAnswered = allQuizzes.some(qz => qz.questions.some(q => q.userAnswer !== undefined || q.isCorrect !== undefined));
+        anyAnswered = allQuizzes.some((qz) =>
+          qz.questions.some((q) => q.userAnswer !== undefined || q.isCorrect !== undefined)
+        );
       }
     }
 
     if (!anyAnswered) {
       return res.status(400).json({
-        message: 'No answered questions found in quizzes. Provide answers or ensure results exist to compute performance.'
+        message:
+          'No answered questions found in quizzes. Provide answers or ensure results exist to compute performance.',
       });
     }
 
-    // 4) Group quizzes by subject
+    // 4️⃣ Group quizzes by subject
     const subjectsMap = {};
     for (const qz of allQuizzes) {
       if (!qz.subject) continue;
@@ -190,82 +262,113 @@ router.post('/complete', verifyToken, async (req, res) => {
       subjectsMap[qz.subject].push(qz);
     }
 
-    // 5) Rebuild full performance for this user (include unattempted items)
-    const allPerformance = [];
+    // 5️⃣ Fetch user access config
+    const mongoose = require('mongoose');
+    const userAccess = await UserAccess.findOne({
+      user_id: new mongoose.Types.ObjectId(userId),
+    }).lean();
 
-    for (const [subject, quizzes] of Object.entries(subjectsMap)) {
-      // choose model and field for this subject
-      const Model = subjectModels[subject];
-      const field = subjectFields[subject];
-      if (!Model || !field) {
-        console.warn(`⚠️ Unknown subject model for "${subject}", skipping.`);
-        continue;
-      }
+    console.log('🎯 Loaded userAccess:', userAccess?._id ? 'Found ✅' : 'Not Found ❌', userAccess);
+const allPerformance = [];
 
-      // fetch all items from model (to include items with zero attempts)
-      const allDocs = await Model.find({}, { [field]: 1, min_attempts: 1, min_correct_avg: 1, min_time_avg: 1 });
-      // aggregate attempted stats from quizzes for this subject
-      const perfMap = {};
-      for (const qz of quizzes) {
-        for (const q of qz.questions) {
-          // consider only answered questions (userAnswer/isCorrect present)
-          if (q.userAnswer === undefined && q.isCorrect === undefined) continue;
-          const key = q.correctAnswer;
-          if (!perfMap[key]) perfMap[key] = { attempts: 0, correct: 0, timeMs: 0 };
-          perfMap[key].attempts++;
-          if (q.isCorrect) perfMap[key].correct++;
-          perfMap[key].timeMs += q.timeTaken || 0;
-        }
-      }
+// 🗺️ Map subject → access key
+const accessKeyMap = {
+  Alphabet: 'alphabets',
+  Urdu: 'urdu_alphabets',
+  Number: 'numbers'
+};
 
-      // for every model item, compute stats (attempts may be zero)
-      for (const doc of allDocs) {
-        const key = doc[field];
-        const stats = perfMap[key] || { attempts: 0, correct: 0, timeMs: 0 };
-        const attempts = stats.attempts;
-        const correct = stats.correct;
-        const avgTimeSec = attempts ? stats.timeMs / attempts / 1000 : 0;
-        const accuracy = attempts ? (correct / attempts) * 100 : 0;
+// 6️⃣ Subject-wise performance
+for (const [subject, quizzes] of Object.entries(subjectsMap)) {
+  const Model = subjectModels[subject];
+  const field = subjectFields[subject];
+  if (!Model || !field) {
+    console.warn(`⚠️ Unknown subject model for "${subject}", skipping.`);
+    continue;
+  }
 
-        const meetsCriteria =
-          attempts >= (doc.min_attempts || 0) &&
-          accuracy >= (doc.min_correct_avg || 0) &&
-          avgTimeSec <= (doc.min_time_avg || Infinity);
+  const allDocs = await Model.find({}, { [field]: 1, min_attempts: 1, min_correct_avg: 1, min_time_avg: 1 });
 
-        allPerformance.push({
-          userId,
-          subject,
-          item: key,
-          attempts,
-          correct,
-          accuracy: +accuracy.toFixed(2),
-          avgTimeSec: +avgTimeSec.toFixed(2),
-          lastUpdated: new Date(),
-          done: Boolean(meetsCriteria),
-        });
-      }
-
-      console.log(`📘 ${subject}: processed ${allDocs.length} items (attempted+unattempted).`);
+  // 🧠 Aggregate user performance
+  const perfMap = {};
+  for (const qz of quizzes) {
+    for (const q of qz.questions) {
+      if (q.userAnswer === undefined && q.isCorrect === undefined) continue;
+      const key = q.correctAnswer;
+      if (!perfMap[key]) perfMap[key] = { attempts: 0, correct: 0, timeMs: 0 };
+      perfMap[key].attempts++;
+      if (q.isCorrect) perfMap[key].correct++;
+      perfMap[key].timeMs += q.timeTaken || 0;
     }
+  }
 
-    // 6) Replace old performance for this user with freshly computed ones
+  // 🎯 Pick correct access list depending on subject
+  const accessKey = accessKeyMap[subject] || subject.toLowerCase();
+  const subjectAccessList = userAccess?.access?.[accessKey] || [];
+  console.log(`📘 ${subject}: Found ${subjectAccessList.length} user access items.`);
+
+  // 🧩 Compute performance for every doc
+  for (const doc of allDocs) {
+    const key = doc[field];
+    const stats = perfMap[key] || { attempts: 0, correct: 0, timeMs: 0 };
+    const attempts = stats.attempts;
+    const correct = stats.correct;
+    const avgTimeSec = attempts ? stats.timeMs / attempts / 1000 : 0;
+    const accuracy = attempts ? (correct / attempts) * 100 : 0;
+
+    // 🧩 User-specific criteria
+    const userAccessItem = subjectAccessList.find(
+      (a) => a.item_id?.toString() === doc._id.toString()
+    );
+
+    const minAttempts = userAccessItem?.min_attempts ?? doc.min_attempts ?? 3;
+    const minCorrect = userAccessItem?.min_correct_avg ?? doc.min_correct_avg ?? 80;
+    const minTime = userAccessItem?.min_time_avg ?? doc.min_time_avg ?? 2.0;
+    const isActive = userAccessItem?.active ?? true;
+
+    const meetsCriteria =
+      isActive && attempts >= minAttempts && accuracy >= minCorrect && avgTimeSec <= minTime;
+
+    allPerformance.push({
+      userId,
+      subject,
+      item: key,
+      attempts,
+      correct,
+      accuracy: +accuracy.toFixed(2),
+      avgTimeSec: +avgTimeSec.toFixed(2),
+      done: Boolean(meetsCriteria),
+      lastUpdated: new Date(),
+      criteria: { minAttempts, minCorrect, minTime, isActive },
+    });
+  }
+
+  console.log(`📗 ${subject}: Processed ${allDocs.length} items.`);
+}
+
+
+    // 7️⃣ Replace performance
     await Performance.deleteMany({ userId });
     if (allPerformance.length > 0) {
       await Performance.insertMany(allPerformance);
       console.log(`💾 Inserted ${allPerformance.length} performance records for user=${userId}`);
     } else {
-      console.log('⚠️ No performance records to insert (unexpected).');
+      console.log('⚠️ No performance records to insert.');
     }
 
-    return res.status(200).json({
-      message: '✅ Performance refreshed for all items with done flag.',
+    res.status(200).json({
+      message: '✅ Performance refreshed with user-level criteria.',
       subjectsProcessed: Object.keys(subjectsMap).length,
-      recordsInserted: allPerformance.length
+      recordsInserted: allPerformance.length,
     });
   } catch (err) {
     console.error('❌ Performance refresh error:', err);
-    return res.status(500).json({ message: 'Failed to refresh performance.', error: err.message });
+    res.status(500).json({
+      message: 'Failed to refresh performance.',
+      error: err.message,
+    });
   }
 });
+
 
 module.exports = router;

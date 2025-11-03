@@ -51,8 +51,8 @@ Restrict strictly to letters from ا to ی only.
 ${allowedList}
 Make questions about:
 - Identifying letters ("یہ کون سا حرف ہے؟") → MUST have imageUrl showing the letter.
-- Sequence before/after ("ب کے بعد کون آتا ہے؟")
-- Missing letters ("ا _ ت")
+- Sequence before/after ("ب کے بعد کون سا حرف آتا ہے؟")
+- Missing letters ("الف اور ت کے درمیان کون سا حرف آتا ہے؟")
 ${variation}`;
   } else if (/^english$/i.test(subject)) {
     return `${baseInstruction}
@@ -61,8 +61,9 @@ Restrict strictly to CAPITAL letters A to Z only.
 ${allowedList}
 Make questions about:
 - Identifying letters ("Which letter is this?") → MUST have imageUrl showing the letter.
-- Sequence before/after ("What comes after C?")
-- Missing letters ("A _ C")
+- Sequence after ("What comes after C?")
+- Sequence before ("What comes before C?")
+- Missing letters ("Which letter comes between A and C?)
 - Picture-based: e.g. show an image of "CAT" and ask "Which letter does this word start with?"
 ${variation}`;
   } else if (/^(math|maths)$/i.test(subject)) {
@@ -72,9 +73,11 @@ Restrict strictly to numbers 1 through 10 only.
 ${allowedList}
 Make questions about:
 - Identifying numbers 1-10 → MUST have imageUrl if asking "Which number is this?")
-- Before/after in sequence ("What comes before 7?")
-- Fill in missing number ("1, 2, _ , 4")
-- Counting items ("How many apples are there?")
+- Before in sequence ("What comes before 7?")
+- After in sequence ("What comes after 7?")
+- Fill in missing number ("What number comes between 1 and 2")
+- Include questions like ("How many objects are there")
+- Don't include any object or things name like star,apples instead use words like objects,items
 ${variation}`;
   } else {
     return `${baseInstruction}Subject: ${subject}. ${allowedList} ${variation}`;

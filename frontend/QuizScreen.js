@@ -123,7 +123,26 @@ export default function QuizScreen({ route }) {
       Alert.alert("Error", "Failed to save or refresh results.");
     }
   };
+const playSound = async (isCorrect) => {
+  try {
+    const soundObject = new Audio.Sound();
+    const soundPath = isCorrect
+      ? require('../assets/sounds/answer-correct.mp3')
+      : require('../assets/sounds/buzzer-new.mp3');
 
+    await soundObject.loadAsync(soundPath);
+    await soundObject.playAsync();
+
+    // Optional: unload sound after playing to free memory
+    soundObject.setOnPlaybackStatusUpdate(status => {
+      if (status.didJustFinish) {
+        soundObject.unloadAsync();
+      }
+    });
+  } catch (error) {
+    console.log('Error playing sound:', error);
+  }
+};
   const handleAnswer = (optionClicked) => {
     if (selected || finished) return;
     const q = cleanQuiz[current];
@@ -144,12 +163,8 @@ export default function QuizScreen({ route }) {
     };
     setAnswers(nextAnswers);
     setFeedback(isCorrect ? "✅ Correct!" : "❌ Wrong!");
-    Speech.speak(
-      isCorrect
-        ? subjectLower === "urdu" ? "صحیح!" : "Correct!"
-        : subjectLower === "urdu" ? "غلط!" : "Wrong!",
-      { language: subjectLower === "urdu" ? "ur" : "en" }
-    );
+    playSound(isCorrect);
+
 
     setTimeout(() => {
       setFeedback(null);
@@ -311,7 +326,12 @@ export default function QuizScreen({ route }) {
             <View style={styles.resultsBubble3} />
             
             <View style={styles.resultsContent}>
-              <Ionicons name="trophy" size={80} color={RED} />
+              {score > 7 ? (
+  <Ionicons name="trophy" size={80} color={GREEN} />
+) : (
+  <Ionicons name="trophy" size={80} color={RED} />
+)}
+              
               <Text style={styles.completionTitle}>Quiz Complete!</Text>
               <Text style={styles.completionScore}>
                 Your Score: {score}/{cleanQuiz.length}
