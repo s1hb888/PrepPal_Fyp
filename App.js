@@ -51,7 +51,7 @@ import UrduAccessScreen from './frontend/UrduAccessScreen';
 import AlphabetsAccessScreen from './frontend/AlphabetsAccessScreen';
 import AccessManagement from './frontend/AccessManagement';
 import ScreenTimeControl from './frontend/ScreenTimeControl';
-
+import BodyPartQuizzes from './frontend/BodyPartQuizzes';
 const Stack = createStackNavigator();
 
 /** ✅ ONLY kid routes here – lock modal shows on these */
@@ -156,6 +156,7 @@ export default function App() {
           <Stack.Screen name="BasicQuestionsScreen" component={BasicQuestionsScreen} />
           <Stack.Screen name="QuizScreen" component={QuizScreen} />
           <Stack.Screen name="CountingScreen" component={CountingScreen} />
+          <Stack.Screen name="BodyPartQuizzes" component={BodyPartQuizzes} />
         </Stack.Navigator>
       </NavigationContainer>
     </SessionProvider>

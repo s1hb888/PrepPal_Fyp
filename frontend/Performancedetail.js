@@ -19,12 +19,12 @@ const PerformanceDetail = ({ route, navigation }) => {
   const [loading, setLoading] = useState(true);
 
   // ✅ Same reward logic from PerformanceReport
-  const getReward = (accuracy, avgTime, completionRate) => {
-    if (accuracy >= 90 && avgTime <= 1 && completionRate >= 90) {
+  const getReward = (accuracy, avgTime) => {
+    if (accuracy >= 90 && avgTime <= 1 ) {
       return { grade: 'Gold', emoji: '🥇', color: '#FFD700', message: 'Excellent Performance!' };
-    } else if (accuracy >= 85 && avgTime <= 1.5 && completionRate >= 85) {
+    } else if (accuracy >= 85 && avgTime <= 1.5 ) {
       return { grade: 'Silver', emoji: '🥈', color: '#C0C0C0', message: 'Great Job!' };
-    } else if (accuracy >= 80 && avgTime <= 2 && completionRate >= 80) {
+    } else if (accuracy >= 80 && avgTime <= 2 ) {
       return { grade: 'Bronze', emoji: '🥉', color: '#CD7F32', message: 'Good try!' };
     } else {
       return { grade: 'Participant', emoji: '🎯', color: '#89CFF0', message: 'Keep practicing!' };
@@ -105,8 +105,7 @@ const PerformanceDetail = ({ route, navigation }) => {
             data.map((item, index) => {
               const reward = getReward(
                 item.accuracy,
-                item.avgTimeSec,
-                item.completionRate || item.accuracy
+                item.avgTimeSec
               );
               return (
                 <View key={index} style={styles.wordCard}>

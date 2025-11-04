@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
 const axios = require("axios");
+
 require('dotenv').config();
 
 // ----------------- ROUTES -----------------
@@ -26,6 +27,8 @@ const duaRoutes = require('./routes/duas');
 const basicQuestionsRoute = require('./routes/basicQuestions');
 const countingRoutes = require("./routes/counting");
 const performanceRoutes = require("./routes/performance");
+const quizBodyPartRoutes = require("./routes/quizBodyPart");
+
 
 // ----------------- MODELS -----------------
 const User = require('./models/User');
@@ -63,7 +66,7 @@ app.use('/api/basic-questions', basicQuestionsRoute);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/counting', countingRoutes);
 app.use('/api/performance', performanceRoutes);
-
+app.use("/api/quizBodyParts", quizBodyPartRoutes);
 
 // ----------------- EXPORTS -----------------
 module.exports = { app };

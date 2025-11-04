@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// screens/Assessments.js
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -10,43 +11,41 @@ import {
   UIManager,
   ActivityIndicator,
   Alert,
-} from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { LinearGradient } from 'expo-linear-gradient';
-import API_BASE_URL from './config';
-import axios from 'axios';
-import { useNavigation } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+} from "react-native";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { LinearGradient } from "expo-linear-gradient";
+import API_BASE_URL from "./config";
+import axios from "axios";
+import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// ✅ Enable layout animation for Android
-if (Platform.OS === 'android') {
+if (Platform.OS === "android") {
   UIManager.setLayoutAnimationEnabledExperimental &&
     UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-// ✅ Quiz Categories
 const categories = [
   {
-    id: '1',
-    title: 'Academic Courses',
-    icon: 'school',
+    id: "1",
+    title: "Academic Courses",
+    icon: "school",
     assessments: [
-      { id: '1-1', title: 'English', icon: 'alphabet-latin' },
-      { id: '1-2', title: 'Urdu', customIcon: 'ا ب' },
-      { id: '1-3', title: 'Maths', icon: 'calculator-variant' },
+      { id: "1-1", title: "English", icon: "alphabet-latin" },
+      { id: "1-2", title: "Urdu", customIcon: "ا ب" },
+      { id: "1-3", title: "Maths", icon: "calculator-variant" },
     ],
   },
   {
-    id: '2',
-    title: 'General Knowledge',
-    icon: 'earth',
+    id: "2",
+    title: "General Knowledge",
+    icon: "earth",
     assessments: [
-      { id: '2-1', title: 'Fruits', icon: 'fruit-cherries' },
-      { id: '2-2', title: 'Vegetables', icon: 'carrot' },
-      { id: '2-3', title: 'Body Parts', icon: 'arm-flex' },
-      { id: '2-4', title: 'Colors', icon: 'palette' },
-      { id: '2-5', title: 'Shapes', icon: 'shape' },
-      { id: '2-6', title: 'Counting', icon: 'counter' },
+      { id: "2-1", title: "Fruits", icon: "fruit-cherries" },
+      { id: "2-2", title: "Vegetables", icon: "carrot" },
+      { id: "2-3", title: "Body Parts", icon: "arm-flex" },
+      { id: "2-4", title: "Colors", icon: "palette" },
+      { id: "2-5", title: "Shapes", icon: "shape" },
+      { id: "2-6", title: "Counting", icon: "counter" },
     ],
   },
 ];
@@ -61,103 +60,90 @@ const Assessments = () => {
     setExpandedMenu((prev) => (prev === id ? null : id));
   };
 
-  // ✅ Decode JWT Token to extract userId
-  const decodeToken = (token) => {
+  const subjectMap = {
+    English: "Alphabet",
+    Urdu: "Urdu",
+    Maths: "Number",
+  };
+
+  const handleSubjectQuiz = async (subject) => {
     try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
+      setLoading(true);
+      const token = await AsyncStorage.getItem("token");
+      if (!token) {
+        Alert.alert("Unauthorized", "Please login first.");
+        return;
+      }
+
+      const backendSubject = subjectMap[subject] || subject;
+
+      const response = await axios.post(
+        `${API_BASE_URL}/api/quiz/generate`,
+        { subject: backendSubject },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
       );
-      return JSON.parse(jsonPayload);
-    } catch (e) {
-      console.error('❌ Error decoding token:', e);
-      return null;
+
+      const { quiz, quizId } = response.data;
+      if (!quiz || !Array.isArray(quiz)) {
+        Alert.alert("Error", "No quiz generated from Gemini.");
+        return;
+      }
+
+      Alert.alert("✅ Success", `${subject} quiz generated!`);
+      navigation.navigate("QuizScreen", { subject, quizText: quiz, quizId });
+    } catch (error) {
+      console.error("❌ Quiz API error:", error);
+      Alert.alert("Error", "Failed to generate quiz. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
- const subjectMap = {
-  English: 'Alphabet',
-  Urdu: 'Urdu',
-  Maths: 'Number',
-};
+  const renderSubItem = (item, parentTitle) => {
+    const isAcademic = parentTitle === "Academic Courses";
 
-const handleSubjectQuiz = async (subject) => {
-  try {
-    setLoading(true);
-
-    const token = await AsyncStorage.getItem('token');
-    if (!token) {
-      Alert.alert('Unauthorized', 'Please login first.');
-      return;
-    }
-
-    const backendSubject = subjectMap[subject] || subject;
-
-    const response = await axios.post(
-      `${API_BASE_URL}/api/quiz/generate`,
-      { subject: backendSubject },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      }
+    return (
+      <TouchableOpacity
+        key={item.id}
+        style={styles.subMenuItem}
+        onPress={() => {
+          if (isAcademic) {
+            handleSubjectQuiz(item.title);
+          } else {
+            if (item.title === "Body Parts") {
+              // ✅ Navigate to BodyPartQuizzes screen
+              navigation.navigate("BodyPartQuizzes");
+            } else {
+              Alert.alert(
+                "Coming Soon",
+                `${item.title} quizzes not available yet`
+              );
+            }
+          }
+        }}
+      >
+        {item.customIcon ? (
+          <Text style={styles.customUrduIcon}>{item.customIcon}</Text>
+        ) : (
+          <Icon name={item.icon} size={22} color="#EF3349" />
+        )}
+        <Text style={styles.subMenuText}>{item.title}</Text>
+      </TouchableOpacity>
     );
+  };
 
-    const { quiz, quizId } = response.data;
-    if (!quiz || !Array.isArray(quiz)) {
-      Alert.alert('Error', 'No quiz generated from Gemini.');
-      return;
-    }
-
-    Alert.alert('✅ Success', `${subject} quiz generated!`);
-    console.log(quiz);
-    navigation.navigate('QuizScreen', { subject, quizText: quiz, quizId });
-
-  } catch (error) {
-    console.error('❌ Quiz API error:', error);
-    Alert.alert('Error', 'Failed to generate quiz. Please try again.');
-  } finally {
-    setLoading(false);
-  }
-};
-
-  // ✅ Sub-item rendering
- const renderSubItem = (item, parentTitle) => {
-  const isAcademic = parentTitle === 'Academic Courses';
-
-  return (
-    <TouchableOpacity
-      key={item.id}
-      style={styles.subMenuItem}
-      onPress={() =>
-        isAcademic
-          ? handleSubjectQuiz(item.title)
-          : Alert.alert('Coming Soon', `${item.title} quizzes not available yet`)
-      }
-    >
-      {item.customIcon ? (
-        <Text style={styles.customUrduIcon}>{item.customIcon}</Text>
-      ) : (
-        <Icon name={item.icon} size={22} color="#EF3349" />
-      )}
-      <Text style={styles.subMenuText}>{item.title}</Text>
-    </TouchableOpacity>
-  );
-};
-
-  // ✅ Main category rendering
   const renderItem = ({ item }) => {
-    const isGK = item.title === 'General Knowledge';
+    const isGK = item.title === "General Knowledge";
     return (
       <View style={styles.menuContainer}>
         <TouchableOpacity onPress={() => toggleMenu(item.id)}>
           <LinearGradient
-            colors={isGK ? ['#A0F0DC', '#7BE7CE'] : ['#FFC1CC', '#FFB6C1']}
+            colors={isGK ? ["#A0F0DC", "#7BE7CE"] : ["#FFC1CC", "#FFB6C1"]}
             style={styles.menuItem}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
@@ -165,16 +151,18 @@ const handleSubjectQuiz = async (subject) => {
             <Icon name={item.icon} size={26} color="#EF3349" />
             <Text style={styles.menuText}>{item.title}</Text>
             <Icon
-              name={expandedMenu === item.id ? 'chevron-up' : 'chevron-down'}
+              name={expandedMenu === item.id ? "chevron-up" : "chevron-down"}
               size={22}
               color="#EF3349"
-              style={{ marginLeft: 'auto' }}
+              style={{ marginLeft: "auto" }}
             />
           </LinearGradient>
         </TouchableOpacity>
 
         {expandedMenu === item.id &&
-          item.assessments.map((subItem) => renderSubItem(subItem, item.title))}
+          item.assessments.map((subItem) =>
+            renderSubItem(subItem, item.title)
+          )}
       </View>
     );
   };
@@ -186,9 +174,9 @@ const handleSubjectQuiz = async (subject) => {
       </Text>
 
       {loading && (
-        <View style={{ alignItems: 'center', marginVertical: 10 }}>
+        <View style={{ alignItems: "center", marginVertical: 10 }}>
           <ActivityIndicator size="large" color="#EF3349" />
-          <Text style={{ marginTop: 10, color: '#EF3349', fontWeight: '600' }}>
+          <Text style={{ marginTop: 10, color: "#EF3349", fontWeight: "600" }}>
             Generating Quiz...
           </Text>
         </View>
@@ -205,62 +193,56 @@ const handleSubjectQuiz = async (subject) => {
   );
 };
 
-// ✅ Styles
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-  },
+  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
   title: {
     paddingTop: 40,
     fontSize: 26,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 30,
-    textAlign: 'center',
-    color: '#EF3349',
+    textAlign: "center",
+    color: "#EF3349",
   },
-  customUrduIcon: {
-  fontSize: 22,
-  color: '#EF3349',
-  fontWeight: 'bold',
-  fontFamily: Platform.OS === 'ios' ? 'Geeza Pro' : 'sans-serif', // Urdu-compatible font
-},
-
   menuContainer: {
     marginBottom: 16,
     borderRadius: 14,
-    overflow: 'hidden',
+    overflow: "hidden",
     elevation: 4,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 16,
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
   menuText: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#000',
+    fontWeight: "bold",
+    color: "#000",
     marginLeft: 16,
     flex: 1,
   },
   subMenuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 14,
-    backgroundColor: '#E0F7F2',
+    backgroundColor: "#E0F7F2",
     borderTopWidth: 1,
-    borderTopColor: '#ccc',
+    borderTopColor: "#ccc",
     paddingLeft: 24,
   },
   subMenuText: {
     marginLeft: 12,
     fontSize: 16,
-    color: '#000',
-    fontWeight: '600',
+    color: "#000",
+    fontWeight: "600",
+  },
+  customUrduIcon: {
+    fontSize: 22,
+    color: "#EF3349",
+    fontWeight: "bold",
+    fontFamily: Platform.OS === "ios" ? "Geeza Pro" : "sans-serif",
   },
 });
 
