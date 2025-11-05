@@ -1,0 +1,138 @@
+[
+  {
+    "quiz_title": "Fruit Race Quiz",
+    "questions": [
+      {
+        "question": "Which fruit will win the race?",
+        "options": [
+          { "word": "Melon", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fmelon-removebg-preview.png?alt=media&token=848dddfa-9077-4486-8809-956a0a7af68e", "sound_text": "Melon" },
+          { "word": "Apple", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fapple-removebg-preview.png?alt=media&token=8deb731f-1642-496a-a407-88843dbaf3dd", "sound_text": "Apple" },
+          { "word": "Banana", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fbanana-removebg-preview.png?alt=media&token=d2415207-7a0a-4e45-9dd1-9199030e158d", "sound_text": "Banana" },
+          { "word": "Cherry", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fcherry-removebg-preview.png?alt=media&token=97e15b76-4443-481b-a79d-bb490b8c0ebe", "sound_text": "Cherry" }
+        ],
+        "winner": "Melon"
+      },
+      {
+        "question": "Which fruit will win the race?",
+        "options": [
+          { "word": "Apple", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fapple-removebg-preview.png?alt=media&token=8deb731f-1642-496a-a407-88843dbaf3dd", "sound_text": "Apple" },
+          { "word": "Mango", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fmango-removebg-preview.png?alt=media&token=a41e449a-2546-400c-9c28-85dc3c30cfa4", "sound_text": "Mango" },
+          { "word": "Orange", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Forange-removebg-preview.png?alt=media&token=f423bf4b-3380-4b3c-9c5c-1ff2f6142d63", "sound_text": "Orange" },
+          { "word": "Grapes", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fgrapes-removebg-preview.png?alt=media&token=3b542bb5-a178-45a4-9373-2c6aa63785fe", "sound_text": "Grapes" }
+        ],
+        "winner": "Apple"
+      },
+      {
+        "question": "Which fruit will win the race?",
+        "options": [
+          { "word": "Banana", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fbanana-removebg-preview.png?alt=media&token=d2415207-7a0a-4e45-9dd1-9199030e158d", "sound_text": "Banana" },
+          { "word": "Cherry", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fcherry-removebg-preview.png?alt=media&token=97e15b76-4443-481b-a79d-bb490b8c0ebe", "sound_text": "Cherry" },
+          { "word": "Guava", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fguava-removebg-preview%20(1).png?alt=media&token=25a24b67-f24b-47e9-86ae-6415b9493926", "sound_text": "Guava" },
+          { "word": "Papaya", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fpapaya-removebg-preview.png?alt=media&token=1c4ec018-2cf2-4f73-b9b2-900c84d63d40", "sound_text": "Papaya" }
+        ],
+        "winner": "Banana"
+      },
+      {
+        "question": "Which fruit will win the race?",
+        "options": [
+          { "word": "Cherry", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fcherry-removebg-preview.png?alt=media&token=97e15b76-4443-481b-a79d-bb490b8c0ebe", "sound_text": "Cherry" },
+          { "word": "Grapes", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fgrapes-removebg-preview.png?alt=media&token=3b542bb5-a178-45a4-9373-2c6aa63785fe", "sound_text": "Grapes" },
+          { "word": "Orange", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Forange-removebg-preview.png?alt=media&token=f423bf4b-3380-4b3c-9c5c-1ff2f6142d63", "sound_text": "Orange" },
+          { "word": "Papaya", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fpapaya-removebg-preview.png?alt=media&token=1c4ec018-2cf2-4f73-b9b2-900c84d63d40", "sound_text": "Papaya" }
+        ],
+        "winner": "Cherry"
+      },
+      {
+        "question": "Which fruit will win the race?",
+        "options": [
+          { "word": "Grapes", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fgrapes-removebg-preview.png?alt=media&token=3b542bb5-a178-45a4-9373-2c6aa63785fe", "sound_text": "Grapes" },
+          { "word": "Guava", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fguava-removebg-preview%20(1).png?alt=media&token=25a24b67-f24b-47e9-86ae-6415b9493926", "sound_text": "Guava" },
+          { "word": "Mango", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fmango-removebg-preview.png?alt=media&token=a41e449a-2546-400c-9c28-85dc3c30cfa4", "sound_text": "Mango" },
+          { "word": "Melon", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fmelon-removebg-preview.png?alt=media&token=848dddfa-9077-4486-8809-956a0a7af68e", "sound_text": "Melon" }
+        ],
+        "winner": "Guava"
+      },
+      {
+        "question": "Which fruit will win the race?",
+        "options": [
+          { "word": "Mango", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fmango-removebg-preview.png?alt=media&token=a41e449a-2546-400c-9c28-85dc3c30cfa4", "sound_text": "Mango" },
+          { "word": "Apple", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fapple-removebg-preview.png?alt=media&token=8deb731f-1642-496a-a407-88843dbaf3dd", "sound_text": "Apple" },
+          { "word": "Papaya", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fpapaya-removebg-preview.png?alt=media&token=1c4ec018-2cf2-4f73-b9b2-900c84d63d40", "sound_text": "Papaya" },
+          { "word": "Peach", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fpeach-removebg-preview.png?alt=media&token=45af6eb4-659a-486d-ac97-6616b7d7d58e", "sound_text": "Peach" }
+        ],
+        "winner": "Mango"
+      },
+      {
+        "question": "Which fruit will win the race?",
+        "options": [
+          { "word": "Orange", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Forange-removebg-preview.png?alt=media&token=f423bf4b-3380-4b3c-9c5c-1ff2f6142d63", "sound_text": "Orange" },
+          { "word": "Pineapple", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fpineapple-removebg-preview.png?alt=media&token=e7eab323-6e08-4f28-84cb-e5dfa76d3e3a", "sound_text": "Pineapple" },
+          { "word": "Banana", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fbanana-removebg-preview.png?alt=media&token=d2415207-7a0a-4e45-9dd1-9199030e158d", "sound_text": "Banana" },
+          { "word": "Apple", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fapple-removebg-preview.png?alt=media&token=8deb731f-1642-496a-a407-88843dbaf3dd", "sound_text": "Apple" }
+        ],
+        "winner": "Orange"
+      },
+      {
+        "question": "Which fruit will win the race?",
+        "options": [
+          { "word": "Papaya", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fpapaya-removebg-preview.png?alt=media&token=1c4ec018-2cf2-4f73-b9b2-900c84d63d40", "sound_text": "Papaya" },
+          { "word": "Strawberry", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fstrawberry-removebg-preview.png?alt=media&token=cf7872be-459c-4dd1-b9ce-ff49fb5558c4", "sound_text": "Strawberry" },
+          { "word": "Grapes", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fgrapes-removebg-preview.png?alt=media&token=3b542bb5-a178-45a4-9373-2c6aa63785fe", "sound_text": "Grapes" },
+          { "word": "Orange", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Forange-removebg-preview.png?alt=media&token=f423bf4b-3380-4b3c-9c5c-1ff2f6142d63", "sound_text": "Orange" }
+        ],
+        "winner": "Papaya"
+      },
+      {
+        "question": "Which fruit will win the race?",
+        "options": [
+          { "word": "Peach", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fpeach-removebg-preview.png?alt=media&token=45af6eb4-659a-486d-ac97-6616b7d7d58e", "sound_text": "Peach" },
+          { "word": "Pear", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fpear-removebg-preview.png?alt=media&token=20d3f3ac-ffb7-419d-9f8e-4f3e472ebdb6", "sound_text": "Pear" },
+          { "word": "Melon", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fmelon-removebg-preview.png?alt=media&token=848dddfa-9077-4486-8809-956a0a7af68e", "sound_text": "Melon" },
+          { "word": "Banana", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fbanana-removebg-preview.png?alt=media&token=d2415207-7a0a-4e45-9dd1-9199030e158d", "sound_text": "Banana" }
+        ],
+        "winner": "Peach"
+      },
+      {
+        "question": "Which fruit will win the race?",
+        "options": [
+          { "word": "Pear", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fpear-removebg-preview.png?alt=media&token=20d3f3ac-ffb7-419d-9f8e-4f3e472ebdb6", "sound_text": "Pear" },
+          { "word": "Pineapple", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fpineapple-removebg-preview.png?alt=media&token=e7eab323-6e08-4f28-84cb-e5dfa76d3e3a", "sound_text": "Pineapple" },
+          { "word": "Apple", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fapple-removebg-preview.png?alt=media&token=8deb731f-1642-496a-a407-88843dbaf3dd", "sound_text": "Apple" },
+          { "word": "Mango", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fmango-removebg-preview.png?alt=media&token=a41e449a-2546-400c-9c28-85dc3c30cfa4", "sound_text": "Mango" }
+        ],
+        "winner": "Pear"
+      },
+      {
+        "question": "Which fruit will win the race?",
+        "options": [
+          { "word": "Pineapple", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fpineapple-removebg-preview.png?alt=media&token=e7eab323-6e08-4f28-84cb-e5dfa76d3e3a", "sound_text": "Pineapple" },
+          { "word": "Orange", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Forange-removebg-preview.png?alt=media&token=f423bf4b-3380-4b3c-9c5c-1ff2f6142d63", "sound_text": "Orange" },
+          { "word": "Strawberry", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fstrawberry-removebg-preview.png?alt=media&token=cf7872be-459c-4dd1-b9ce-ff49fb5558c4", "sound_text": "Strawberry" },
+          { "word": "Banana", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fbanana-removebg-preview.png?alt=media&token=d2415207-7a0a-4e45-9dd1-9199030e158d", "sound_text": "Banana" }
+        ],
+        "winner": "Pineapple"
+      },
+      {
+        "question": "Which fruit will win the race?",
+        "options": [
+          { "word": "Strawberry", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fstrawberry-removebg-preview.png?alt=media&token=cf7872be-459c-4dd1-b9ce-ff49fb5558c4", "sound_text": "Strawberry" },
+          { "word": "Watermelon", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fwatermelon-removebg-preview.png?alt=media&token=a08d9912-06a2-4f26-86d2-8b777bc81421", "sound_text": "Watermelon" },
+          { "word": "Papaya", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fpapaya-removebg-preview.png?alt=media&token=1c4ec018-2cf2-4f73-b9b2-900c84d63d40", "sound_text": "Papaya" },
+          { "word": "Mango", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fmango-removebg-preview.png?alt=media&token=a41e449a-2546-400c-9c28-85dc3c30cfa4", "sound_text": "Mango" }
+        ],
+        "winner": "Strawberry"
+      },
+      {
+        "question": "Which fruit will win the race?",
+        "options": [
+          { "word": "Watermelon", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fwatermelon-removebg-preview.png?alt=media&token=a08d9912-06a2-4f26-86d2-8b777bc81421", "sound_text": "Watermelon" },
+          { "word": "Peach", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fpeach-removebg-preview.png?alt=media&token=45af6eb4-659a-486d-ac97-6616b7d7d58e", "sound_text": "Peach" },
+          { "word": "Apple", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fapple-removebg-preview.png?alt=media&token=8deb731f-1642-496a-a407-88843dbaf3dd", "sound_text": "Apple" },
+          { "word": "Banana", "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fbanana-removebg-preview.png?alt=media&token=d2415207-7a0a-4e45-9dd1-9199030e158d", "sound_text": "Banana" }
+        ],
+        "winner": "Watermelon"
+      }
+    ]
+  }
+]
+

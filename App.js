@@ -42,7 +42,11 @@ import WatchVideoScreen from './frontend/WatchVideosScreen';
 import LearnIslamicStudies from './frontend/LearnIslamicStudies';
 import BasicQuestionsScreen from './frontend/BasicQuestionsScreen';
 import DuaScreen from './frontend/DuaScreen';
-
+import BodyPartQuizzes from './frontend/BodyPartQuizzes';
+import FruitQuizzes from "./frontend/FruitQuizzes";
+import VegetableQuizzes from "./frontend/VegetableQuizzes";
+import ColorQuizzes from "./frontend/ColorQuizzes";
+import CountingQuizzes from './frontend/CountingQuizzes';
 /* PARENT / SHARED */
 import Settings from './frontend/Settings';
 import AboutUs from './frontend/AboutUs';
@@ -51,7 +55,8 @@ import UrduAccessScreen from './frontend/UrduAccessScreen';
 import AlphabetsAccessScreen from './frontend/AlphabetsAccessScreen';
 import AccessManagement from './frontend/AccessManagement';
 import ScreenTimeControl from './frontend/ScreenTimeControl';
-import BodyPartQuizzes from './frontend/BodyPartQuizzes';
+
+
 const Stack = createStackNavigator();
 
 /** ✅ ONLY kid routes here – lock modal shows on these */
@@ -157,6 +162,10 @@ export default function App() {
           <Stack.Screen name="QuizScreen" component={QuizScreen} />
           <Stack.Screen name="CountingScreen" component={CountingScreen} />
           <Stack.Screen name="BodyPartQuizzes" component={BodyPartQuizzes} />
+          <Stack.Screen name="FruitQuizzes" component={FruitQuizzes} options={{ title: "🍎 Fruit Quiz" }}/>
+          <Stack.Screen name="VegetableQuizzes" component={VegetableQuizzes} options={{ title: "🥕 Vegetable Quiz" }}/>
+           <Stack.Screen name="ColorQuizzes" component={ColorQuizzes} options={{ title: "Color Quiz" }}/>
+            <Stack.Screen name="CountingQuizzes" component={CountingQuizzes} options={{ title: "Color Quiz" }}/>
         </Stack.Navigator>
       </NavigationContainer>
     </SessionProvider>

@@ -46,6 +46,7 @@ const categories = [
       { id: "2-4", title: "Colors", icon: "palette" },
       { id: "2-5", title: "Shapes", icon: "shape" },
       { id: "2-6", title: "Counting", icon: "counter" },
+      { id: "2-7", title: "Vowels", icon: "format-letter-case" },
     ],
   },
 ];
@@ -115,14 +116,31 @@ const Assessments = () => {
           if (isAcademic) {
             handleSubjectQuiz(item.title);
           } else {
-            if (item.title === "Body Parts") {
-              // ✅ Navigate to BodyPartQuizzes screen
-              navigation.navigate("BodyPartQuizzes");
-            } else {
-              Alert.alert(
-                "Coming Soon",
-                `${item.title} quizzes not available yet`
-              );
+            // ✅ General Knowledge Navigation Logic
+            switch (item.title) {
+              case "Body Parts":
+                navigation.navigate("BodyPartQuizzes");
+                break;
+              case "Fruits":
+                navigation.navigate("FruitQuizzes");
+                break;
+              case "Vegetables":
+                navigation.navigate("VegetableQuizzes");
+                break;
+              case "Colors":
+                navigation.navigate("ColorQuizzes");
+                break;
+              case "Shapes":
+                navigation.navigate("ShapeQuizzes");
+                break;
+              case "Counting":
+                navigation.navigate("CountingQuizzes");
+                break;
+              case "Vowels":
+                navigation.navigate("VowelQuizzes");
+                break;
+              default:
+                Alert.alert("Coming Soon", `${item.title} quizzes not available yet`);
             }
           }
         }}

@@ -13,14 +13,13 @@ import * as Speech from "expo-speech";
 import { Audio } from "expo-av";
 import * as FileSystem from "expo-file-system";
 import API_BASE_URL from "./config";
-import Ionicons from "@expo/vector-icons/Ionicons";
 
 const LEMONFOX_API_KEY = "JVTxkQ2MhlB2s3wyynOS5FW0fz9xLetf";
 
 const normalizeRaw = (text = "") =>
   text.toString().toLowerCase().replace(/[\s.,!?؛،؟]/g, "").trim();
 
-const BodyPartQuizzes = () => {
+const CountingQuizzes = () => {
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
@@ -29,11 +28,27 @@ const BodyPartQuizzes = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [score, setScore] = useState(0);
 
+  // Fetch and normalize quizzes
   useEffect(() => {
     const fetchQuizzes = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/quizBodyParts/`);
-        setQuizzes(response.data);
+        const response = await axios.get(`${API_BASE_URL}/api/quizCounting/`);
+        console.log("Fetched quizzes:", response);
+
+        // Normalize quizzes so each image has a `url` key
+        const normalized = response.data.map((quiz) => ({
+          ...quiz,
+          questions: quiz.questions.map((q) => ({
+            ...q,
+            images: Array.isArray(q.images)
+              ? q.images.map((img) => ({
+                  url: img.url || img.image_url || img, // fallback for different API formats
+                }))
+              : [],
+          })),
+        }));
+
+        setQuizzes(normalized);
       } catch (err) {
         console.error(err);
         Alert.alert("Error", "Failed to load quizzes.");
@@ -41,19 +56,28 @@ const BodyPartQuizzes = () => {
         setLoading(false);
       }
     };
+
     fetchQuizzes();
   }, []);
 
+  // Speak current question
   useEffect(() => {
     if (quizzes.length > 0) {
-      const q = quizzes[currentQuizIndex].questions[currentQuestionIndex];
-      if (q?.question) Speech.speak(q.question);
+      const currentQuestion =
+        quizzes[currentQuizIndex]?.questions[currentQuestionIndex];
+      if (currentQuestion?.question) Speech.speak(currentQuestion.question);
     }
   }, [currentQuizIndex, currentQuestionIndex, quizzes]);
 
+  // Start recording
   const startRecording = async () => {
     try {
-      await Audio.requestPermissionsAsync();
+      const { status } = await Audio.requestPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permission required", "Microphone permission not granted!");
+        return;
+      }
+
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: true,
         playsInSilentModeIOS: true,
@@ -66,10 +90,11 @@ const BodyPartQuizzes = () => {
       setIsRecording(true);
     } catch (err) {
       console.error("Recording error:", err);
-      Alert.alert("Error", "Recording permission not granted.");
+      Alert.alert("Error", "Could not start recording.");
     }
   };
 
+  // Stop recording and send to LemonFox
   const stopRecording = async () => {
     try {
       if (!recording) return;
@@ -84,6 +109,7 @@ const BodyPartQuizzes = () => {
     }
   };
 
+  // LemonFox transcription
   const sendToLemonFox = async (uri) => {
     try {
       const formData = new FormData();
@@ -101,8 +127,8 @@ const BodyPartQuizzes = () => {
       const spoken = normalizeRaw(data.text || "");
       console.log("Spoken:", spoken);
 
-      const currentQuiz = quizzes[currentQuizIndex];
-      const currentQuestion = currentQuiz.questions[currentQuestionIndex];
+      const currentQuestion =
+        quizzes[currentQuizIndex]?.questions[currentQuestionIndex];
       const correctAnswer = normalizeRaw(currentQuestion.answer);
 
       if (spoken.includes(correctAnswer)) {
@@ -119,16 +145,19 @@ const BodyPartQuizzes = () => {
     }
   };
 
+  // Move to next question
   const handleNext = () => {
+    const currentQuiz = quizzes[currentQuizIndex];
     const isLastQuestion =
-      currentQuestionIndex === quizzes[currentQuizIndex].questions.length - 1;
+      currentQuestionIndex === currentQuiz.questions.length - 1;
+
     if (isLastQuestion) {
       const isLastQuiz = currentQuizIndex === quizzes.length - 1;
       if (isLastQuiz) {
         Speech.speak(`You finished! Score: ${score}`);
         Alert.alert(
           "Quiz Complete",
-          `You scored ${score} out of ${quizzes[currentQuizIndex].questions.length}`
+          `You scored ${score} out of ${currentQuiz.questions.length}`
         );
       } else {
         setCurrentQuizIndex((p) => p + 1);
@@ -146,7 +175,7 @@ const BodyPartQuizzes = () => {
       </View>
     );
 
-  if (quizzes.length === 0)
+  if (!quizzes.length)
     return (
       <View style={styles.center}>
         <Text>No quizzes found.</Text>
@@ -155,18 +184,25 @@ const BodyPartQuizzes = () => {
 
   const currentQuiz = quizzes[currentQuizIndex];
   const currentQuestion = currentQuiz.questions[currentQuestionIndex];
+  const images = currentQuestion?.images || [];
 
   return (
     <View style={styles.container}>
       <Text style={styles.score}>Score: {score}</Text>
       <Text style={styles.quizTitle}>{currentQuiz.quiz_title}</Text>
+      <Text style={styles.questionText}>{currentQuestion.question}</Text>
 
-      <View style={styles.questionCard}>
-        <Text style={styles.questionText}>{currentQuestion.question}</Text>
-        {currentQuestion.image_url && (
-          <Image source={{ uri: currentQuestion.image_url }} style={styles.image} />
-        )}
-      </View>
+      {images.length > 0 ? (
+        <View style={styles.optionsRow}>
+          {images.map((imgObj, i) => (
+            <Image key={i} source={{ uri: imgObj.url }} style={styles.image} />
+          ))}
+        </View>
+      ) : (
+        <Text style={{ textAlign: "center", marginVertical: 20 }}>
+          No images available
+        </Text>
+      )}
 
       {!isRecording ? (
         <TouchableOpacity style={styles.recordBtn} onPress={startRecording}>
@@ -183,73 +219,41 @@ const BodyPartQuizzes = () => {
 
 // ---------------------- Styles ----------------------
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    padding: 20, 
-    backgroundColor: "#F9F9F9" 
+  container: { flex: 1, padding: 20, backgroundColor: "#F9F9F9" },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  score: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#FFD54F",
+    marginBottom: 10,
+    textAlign: "center",
+    paddingTop: 20,
   },
-  center: { 
-    flex: 1, 
-    justifyContent: "center", 
-    alignItems: "center" 
+  quizTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#FFB6C1",
+    marginBottom: 20,
+    textAlign: "center",
   },
-  score: { 
-    fontSize: 22, 
-    fontWeight: "bold", 
-    color: "#FFD54F", 
-    marginBottom: 10, 
-    textAlign: "center", 
-    paddingTop: 20, // Added top padding
+  questionText: { fontSize: 18, color: "#333", marginBottom: 10, textAlign: "center" },
+  optionsRow: { flexDirection: "row", justifyContent: "space-around", marginVertical: 20 },
+  image: { width: 100, height: 100, resizeMode: "contain", borderRadius: 10 },
+  recordBtn: {
+    marginTop: 30,
+    backgroundColor: "#FFD54F",
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: "center",
   },
-  quizTitle: { 
-    fontSize: 24, 
-    fontWeight: "bold", 
-    color: "#FFB6C1", 
-    marginBottom: 20, 
-    textAlign: "center" 
+  stopBtn: {
+    marginTop: 30,
+    backgroundColor: "#FFB6C1",
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: "center",
   },
-  questionCard: { 
-    backgroundColor: "#7BE7CE", 
-    borderRadius: 15, 
-    padding: 20, 
-    alignItems: "center", 
-    shadowColor: "#000", 
-    shadowOpacity: 0.1, 
-    shadowOffset: { width: 0, height: 2 }, 
-    elevation: 3 
-  },
-  questionText: { 
-    fontSize: 18, 
-    color: "#333", 
-    marginBottom: 10, 
-    textAlign: "center" 
-  },
-  image: { 
-    width: "100%", 
-    height: 180, 
-    resizeMode: "contain", 
-    borderRadius: 10, 
-    marginBottom: 10 
-  },
-  recordBtn: { 
-    marginTop: 30, 
-    backgroundColor: "#FFD54F", 
-    paddingVertical: 14, 
-    borderRadius: 10, 
-    alignItems: "center" 
-  },
-  stopBtn: { 
-    marginTop: 30, 
-    backgroundColor: "#FFB6C1", 
-    paddingVertical: 14, 
-    borderRadius: 10, 
-    alignItems: "center" 
-  },
-  recordText: { 
-    color: "#fff", 
-    fontSize: 16, 
-    fontWeight: "bold" 
-  },
+  recordText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
 });
 
-export default BodyPartQuizzes;
+export default CountingQuizzes;

@@ -1,0 +1,211 @@
+[
+  {
+    "_id": {
+      "$oid": "6902b4cc86e7882287635b2e"
+    },
+    "quiz_title": "Shapes",
+    "questions": [
+      {
+        "shapeName": "Triangle",
+        "hints": [
+          {
+            "text": "I have 3 sides.",
+            "_id": {
+              "$oid": "6902b4cc86e7882287635b30"
+            }
+          },
+          {
+            "text": "I look like a slice of pizza.",
+            "_id": {
+              "$oid": "6902b4cc86e7882287635b31"
+            }
+          }
+        ],
+        "_id": {
+          "$oid": "6902b4cc86e7882287635b2f"
+        }
+      },
+      {
+        "shapeName": "Square",
+        "hints": [
+          {
+            "text": "I have 4 equal sides.",
+            "_id": {
+              "$oid": "6902b51986e7882287635b3c"
+            }
+          },
+          {
+            "text": "I look like a box or a window.",
+            "_id": {
+              "$oid": "6902b51986e7882287635b3d"
+            }
+          }
+        ],
+        "_id": {
+          "$oid": "6902b51986e7882287635b3b"
+        }
+      },
+      {
+        "shapeName": "Circle",
+        "hints": [
+          {
+            "text": "I have no corners or sides.",
+            "_id": {
+              "$oid": "6902b60186e7882287635b40"
+            }
+          },
+          {
+            "text": "I look like a ball or a coin.",
+            "_id": {
+              "$oid": "6902b60186e7882287635b41"
+            }
+          }
+        ],
+        "_id": {
+          "$oid": "6902b60186e7882287635b3f"
+        }
+      },
+      {
+        "shapeName": "Ellipse",
+        "hints": [
+          {
+            "text": "I look like a stretched circle.",
+            "_id": {
+              "$oid": "6902b60986e7882287635b45"
+            }
+          },
+          {
+            "text": "You can find me in an egg shape.",
+            "_id": {
+              "$oid": "6902b60986e7882287635b46"
+            }
+          }
+        ],
+        "_id": {
+          "$oid": "6902b60986e7882287635b44"
+        }
+      },
+      {
+        "shapeName": "Heart",
+        "hints": [
+          {
+            "text": "I am a shape made to look like the real heart inside your chest.",
+            "_id": {
+              "$oid": "6902b61086e7882287635b49"
+            }
+          },
+          {
+            "text": "The real one beats every second to keep you healthy and strong.",
+            "_id": {
+              "$oid": "6902b61086e7882287635b4a"
+            }
+          }
+        ],
+        "_id": {
+          "$oid": "6902b61086e7882287635b48"
+        }
+      },
+      {
+        "shapeName": "Hexagon",
+        "hints": [
+          {
+            "text": "I have 6 sides.",
+            "_id": {
+              "$oid": "6902b61786e7882287635b4d"
+            }
+          },
+          {
+            "text": "Bees use me to make honeycombs.",
+            "_id": {
+              "$oid": "6902b61786e7882287635b4e"
+            }
+          }
+        ],
+        "_id": {
+          "$oid": "6902b61786e7882287635b4c"
+        }
+      },
+      {
+        "shapeName": "Octagon",
+        "hints": [
+          {
+            "text": "I have 8 sides.",
+            "_id": {
+              "$oid": "6902b61e86e7882287635b51"
+            }
+          },
+          {
+            "text": "I look like a stop sign.",
+            "_id": {
+              "$oid": "6902b61e86e7882287635b52"
+            }
+          }
+        ],
+        "_id": {
+          "$oid": "6902b61e86e7882287635b50"
+        }
+      },
+      {
+        "shapeName": "Rectangle",
+        "hints": [
+          {
+            "text": "I have 4 sides, opposite sides are equal.",
+            "_id": {
+              "$oid": "6902b62586e7882287635b55"
+            }
+          },
+          {
+            "text": "I look like a door or a book.",
+            "_id": {
+              "$oid": "6902b62586e7882287635b56"
+            }
+          }
+        ],
+        "_id": {
+          "$oid": "6902b62586e7882287635b54"
+        }
+      },
+      {
+        "shapeName": "Rhombus",
+        "hints": [
+          {
+            "text": "I have 4 equal sides like a square.",
+            "_id": {
+              "$oid": "6902b62c86e7882287635b59"
+            }
+          },
+          {
+            "text": "I look like a tilted square or a diamond.",
+            "_id": {
+              "$oid": "6902b62c86e7882287635b5a"
+            }
+          }
+        ],
+        "_id": {
+          "$oid": "6902b62c86e7882287635b58"
+        }
+      },
+      {
+        "shapeName": "Star",
+        "hints": [
+          {
+            "text": "I have 5 or more points.",
+            "_id": {
+              "$oid": "6902b63386e7882287635b5d"
+            }
+          },
+          {
+            "text": "You can see me shining in the sky.",
+            "_id": {
+              "$oid": "6902b63386e7882287635b5e"
+            }
+          }
+        ],
+        "_id": {
+          "$oid": "6902b63386e7882287635b5c"
+        }
+      }
+    ],
+    "__v": 1
+  }
+]

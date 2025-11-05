@@ -1,0 +1,105 @@
+[{
+  "_id": {
+    "$oid": "6902a15ea69fc438e682dfcb"
+  },
+  "quiz_title": "Color Quiz",
+  "questions": [
+    {
+      "question": "What is the color of banana?",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FFruits%2Fbanana-removebg-preview.png?alt=media&token=d2415207-7a0a-4e45-9dd1-9199030e158d",
+      "correct_answer": "Yellow",
+      "_id": {
+        "$oid": "690b0078faa1d1b6488d98c9"
+      }
+    },
+    {
+      "question": "What is the color of balloon?",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2Fcolors%2Fballoon_green-removebg-preview.png?alt=media&token=4fa0f952-5d90-4ffc-9ddc-b79213acdc9b",
+      "correct_answer": "Green",
+      "_id": {
+        "$oid": "690b1931faa1d1b6488d9914"
+      }
+    },
+    {
+      "question": "What is the color of cat?",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2Fcolors%2Fblack_cat-removebg-preview.png?alt=media&token=5e8dc2c0-e987-4a9a-bf90-30db058e175d",
+      "correct_answer": "Black",
+      "_id": {
+        "$oid": "690b1960faa1d1b6488d991c"
+      }
+    },
+    {
+      "question": "What is the color of butterfly?",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2Fcolors%2Fblue_butterfly-removebg-preview.png?alt=media&token=aee6d84d-afbc-4e7d-9e04-6f8bef592569",
+      "correct_answer": "Blue",
+      "_id": {
+        "$oid": "690b1987faa1d1b6488d9926"
+      }
+    },
+    {
+      "question": "What is the color of chocolate?",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2Fcolors%2Fbrown_chocolate-removebg-preview.png?alt=media&token=2184bb54-1ebb-4860-99e5-5bd0915431be",
+      "correct_answer": "Brown",
+      "_id": {
+        "$oid": "690b19a5faa1d1b6488d9932"
+      }
+    },
+    {
+      "question": "What is the color of elephant?",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2Fcolors%2Fgray_elephant-removebg-preview.png?alt=media&token=190dc034-e476-4458-809a-c007c0bb987d",
+      "correct_answer": "Gray",
+      "_id": {
+        "$oid": "690b19c4faa1d1b6488d9940"
+      }
+    },
+    {
+      "question": "What is the color of fish?",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2Fcolors%2Fnavy_fish-removebg-preview.png?alt=media&token=33ff82f3-13fa-4f31-b4df-55a75b0c7c34",
+      "correct_answer": "Blue",
+      "_id": {
+        "$oid": "690b19e7faa1d1b6488d9950"
+      }
+    },
+    {
+      "question": "What is the color of candy?",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2Fcolors%2Forange_candy-removebg-preview.png?alt=media&token=05cbfe04-88e7-4650-bb1f-693607b1f19f",
+      "correct_answer": "Orange",
+      "_id": {
+        "$oid": "690b1a0ffaa1d1b6488d9962"
+      }
+    },
+    {
+      "question": "What is the color of bottle?",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2Fcolors%2Fpink_bottle-removebg-preview.png?alt=media&token=d3df1c9b-be95-4f9f-889d-2d31846a1775",
+      "correct_answer": "Pink",
+      "_id": {
+        "$oid": "690b1a30faa1d1b6488d9976"
+      }
+    },
+    {
+      "question": "What is the coor of star?",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2Fcolors%2Fpurple_star-removebg-preview.png?alt=media&token=cd56b556-4b35-44e3-93ec-c940ca907223",
+      "correct_answer": "Purple",
+      "_id": {
+        "$oid": "690b1a4efaa1d1b6488d998c"
+      }
+    },
+    {
+      "question": "What is the color of flower?",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2Fcolors%2Fred_flower-removebg-preview.png?alt=media&token=8d49ba8d-d233-4aca-b0ab-6977d11dafe1",
+      "correct_answer": "Red",
+      "_id": {
+        "$oid": "690b1a65faa1d1b6488d99a4"
+      }
+    },
+    {
+      "question": "What is the color of cup?",
+      "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2Fcolors%2Fwhite_cup-removebg-preview.png?alt=media&token=e4add680-303a-4b70-9206-17529def246e",
+      "correct_answer": "White",
+      "_id": {
+        "$oid": "690b1a84faa1d1b6488d99be"
+      }
+    }
+  ],
+  "__v": 15
+}]

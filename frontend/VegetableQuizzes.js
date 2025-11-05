@@ -13,14 +13,13 @@ import * as Speech from "expo-speech";
 import { Audio } from "expo-av";
 import * as FileSystem from "expo-file-system";
 import API_BASE_URL from "./config";
-import Ionicons from "@expo/vector-icons/Ionicons";
 
 const LEMONFOX_API_KEY = "JVTxkQ2MhlB2s3wyynOS5FW0fz9xLetf";
 
 const normalizeRaw = (text = "") =>
   text.toString().toLowerCase().replace(/[\s.,!?؛،؟]/g, "").trim();
 
-const BodyPartQuizzes = () => {
+const VegetableQuizzes = () => {
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
@@ -32,7 +31,7 @@ const BodyPartQuizzes = () => {
   useEffect(() => {
     const fetchQuizzes = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/quizBodyParts/`);
+        const response = await axios.get(`${API_BASE_URL}/api/quizVegetables/`);
         setQuizzes(response.data);
       } catch (err) {
         console.error(err);
@@ -103,14 +102,14 @@ const BodyPartQuizzes = () => {
 
       const currentQuiz = quizzes[currentQuizIndex];
       const currentQuestion = currentQuiz.questions[currentQuestionIndex];
-      const correctAnswer = normalizeRaw(currentQuestion.answer);
+      const correctAnswer = normalizeRaw(currentQuestion.winner);
 
       if (spoken.includes(correctAnswer)) {
         Speech.speak("✅ Correct!");
         setScore((s) => s + 1);
         handleNext();
       } else {
-        Speech.speak(`❌ Wrong! Correct answer: ${currentQuestion.answer}`);
+        Speech.speak(`❌ Wrong! Correct answer: ${currentQuestion.winner}`);
         handleNext();
       }
     } catch (err) {
@@ -163,8 +162,11 @@ const BodyPartQuizzes = () => {
 
       <View style={styles.questionCard}>
         <Text style={styles.questionText}>{currentQuestion.question}</Text>
-        {currentQuestion.image_url && (
-          <Image source={{ uri: currentQuestion.image_url }} style={styles.image} />
+        {currentQuestion.options?.image_url && (
+          <Image
+            source={{ uri: currentQuestion.options.image_url }}
+            style={styles.image}
+          />
         )}
       </View>
 
@@ -181,75 +183,62 @@ const BodyPartQuizzes = () => {
   );
 };
 
-// ---------------------- Styles ----------------------
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    padding: 20, 
-    backgroundColor: "#F9F9F9" 
+  container: { flex: 1, padding: 20, backgroundColor: "#F9F9F9" },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  score: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#FFD54F",
+    marginBottom: 10,
+    textAlign: "center",
+    paddingTop: 20,
   },
-  center: { 
-    flex: 1, 
-    justifyContent: "center", 
-    alignItems: "center" 
+  quizTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#FFB6C1",
+    marginBottom: 20,
+    textAlign: "center",
   },
-  score: { 
-    fontSize: 22, 
-    fontWeight: "bold", 
-    color: "#FFD54F", 
-    marginBottom: 10, 
-    textAlign: "center", 
-    paddingTop: 20, // Added top padding
+  questionCard: {
+    backgroundColor: "#7BE7CE",
+    borderRadius: 15,
+    padding: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
-  quizTitle: { 
-    fontSize: 24, 
-    fontWeight: "bold", 
-    color: "#FFB6C1", 
-    marginBottom: 20, 
-    textAlign: "center" 
+  questionText: {
+    fontSize: 18,
+    color: "#333",
+    marginBottom: 10,
+    textAlign: "center",
   },
-  questionCard: { 
-    backgroundColor: "#7BE7CE", 
-    borderRadius: 15, 
-    padding: 20, 
-    alignItems: "center", 
-    shadowColor: "#000", 
-    shadowOpacity: 0.1, 
-    shadowOffset: { width: 0, height: 2 }, 
-    elevation: 3 
+  image: {
+    width: "100%",
+    height: 180,
+    resizeMode: "contain",
+    borderRadius: 10,
+    marginBottom: 10,
   },
-  questionText: { 
-    fontSize: 18, 
-    color: "#333", 
-    marginBottom: 10, 
-    textAlign: "center" 
+  recordBtn: {
+    marginTop: 30,
+    backgroundColor: "#FFD54F",
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: "center",
   },
-  image: { 
-    width: "100%", 
-    height: 180, 
-    resizeMode: "contain", 
-    borderRadius: 10, 
-    marginBottom: 10 
+  stopBtn: {
+    marginTop: 30,
+    backgroundColor: "#FFB6C1",
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: "center",
   },
-  recordBtn: { 
-    marginTop: 30, 
-    backgroundColor: "#FFD54F", 
-    paddingVertical: 14, 
-    borderRadius: 10, 
-    alignItems: "center" 
-  },
-  stopBtn: { 
-    marginTop: 30, 
-    backgroundColor: "#FFB6C1", 
-    paddingVertical: 14, 
-    borderRadius: 10, 
-    alignItems: "center" 
-  },
-  recordText: { 
-    color: "#fff", 
-    fontSize: 16, 
-    fontWeight: "bold" 
-  },
+  recordText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
 });
 
-export default BodyPartQuizzes;
+export default VegetableQuizzes;

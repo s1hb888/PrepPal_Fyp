@@ -28,8 +28,10 @@ const basicQuestionsRoute = require('./routes/basicQuestions');
 const countingRoutes = require("./routes/counting");
 const performanceRoutes = require("./routes/performance");
 const quizBodyPartRoutes = require("./routes/quizBodyPart");
-
-
+const quizFruitRoutes = require("./routes/quizFruit");
+const quizVegetableRoutes = require("./routes/quizVegetable");
+const quizColorRoutes = require("./routes/quizColor");
+const quizCountingRoutes = require("./routes/quizCounting");
 // ----------------- MODELS -----------------
 const User = require('./models/User');
 const Alphabet = require('./models/Alphabet');
@@ -67,7 +69,10 @@ app.use('/api/feedback', feedbackRoutes);
 app.use('/api/counting', countingRoutes);
 app.use('/api/performance', performanceRoutes);
 app.use("/api/quizBodyParts", quizBodyPartRoutes);
-
+app.use("/api/quizFruit", quizFruitRoutes);
+app.use("/api/quizVegetables", quizVegetableRoutes);
+app.use("/api/quizColor", quizColorRoutes);
+app.use("/api/quizCounting", quizCountingRoutes);
 // ----------------- EXPORTS -----------------
 module.exports = { app };
 
