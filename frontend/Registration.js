@@ -60,11 +60,13 @@ const Registration = ({ navigation }) => {
     if (kidName && !/^[A-Za-z ]+$/.test(kidName.trim()))
       newErrors.kidName = 'Kid name must contain only alphabets and spaces.';
     
-    if (kidName && (kidName.trim().length < 8 || kidName.trim().length > 30))
-      newErrors.kidName = "Name must be between 8 and 30 characters.";
+    // ✅ UPDATED: Changed from 8-30 to 3-30 characters
+    if (kidName && (kidName.trim().length < 3 || kidName.trim().length > 30))
+      newErrors.kidName = "Name must be between 3 and 30 characters.";
 
-    if (kidAge && (parseInt(kidAge) < 3 || parseInt(kidAge) > 5))
-      newErrors.kidAge = "Kid's age should be between 3 and 5.";
+    // ✅ UPDATED: Changed from 3-5 to 3-6 years
+    if (kidAge && (parseInt(kidAge) < 3 || parseInt(kidAge) > 6))
+      newErrors.kidAge = "Kid's age should be between 3 and 6.";
 
     if (!city || !area) {
       newErrors.location = "city and area are required.";
@@ -277,7 +279,8 @@ const Registration = ({ navigation }) => {
               <Text style={styles.sectionTitle}>Child Information</Text>
             </View>
             {renderInput("Child's Name", 'user', kidName, setKidName, "Enter child's name", 'default', false, 'kidName')}
-            {renderInput("Child's Age", 'calendar', kidAge, setKidAge, "Enter age (3-5)", 'numeric', false, 'kidAge')}
+            {/* ✅ UPDATED: Placeholder changed from (3-5) to (3-6) */}
+            {renderInput("Child's Age", 'calendar', kidAge, setKidAge, "Enter age (3-6)", 'numeric', false, 'kidAge')}
           </View>
 
           {/* Account Details Section */}

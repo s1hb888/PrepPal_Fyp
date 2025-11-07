@@ -212,11 +212,12 @@ const Login = ({ navigation }) => {
               <View style={styles.professionalModal}>
                 <View style={styles.iconCircleContainer}>
                   <LinearGradient
-                    colors={[GREEN, '#1E9A5C']}
-                    style={styles.successIconCircle}
-                  >
-                    <Ionicons name="checkmark" size={50} color="#fff" />
-                  </LinearGradient>
+  colors={['#A0F0DC', '#7BE7CE']}
+  style={styles.successIconCircle}
+>
+  <Ionicons name="checkmark" size={50} color="#fff" />
+</LinearGradient>
+
                 </View>
 
                 <Text style={styles.professionalTitle}>Login Successful!</Text>
