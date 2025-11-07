@@ -126,7 +126,6 @@ const Drawer = ({ visible, onClose, navigation, setSelectedTab, handleLogout, se
   const drawerItems = [
     { tab: 'Home', icon: 'home' },
     { tab: 'Profile', icon: 'user' },
-    { tab: 'Settings', icon: 'settings' },
     { tab: 'Notifications', icon: 'bell' },
     { tab: 'AboutUs', icon: 'info' },
     { tab: 'Feedback', icon: 'star' },

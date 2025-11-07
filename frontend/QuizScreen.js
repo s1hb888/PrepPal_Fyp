@@ -24,6 +24,7 @@ const PINK = "#FFC1CC";
 const MINT = "#A0F0DC";
 const YELLOW = "#FFE680";
 const LIGHT_PINK = "#FFB6C1";
+const WHITE = "#ffffff";
 
 const boxColors = [PINK, MINT, YELLOW, LIGHT_PINK];
 const LEMONFOX_API_KEY = "JVTxkQ2MhlB2s3wyynOS5FW0fz9xLetf";
@@ -320,7 +321,7 @@ const playSound = async (isCorrect) => {
       {/* Results Full Screen Overlay */}
       {finished && (
         <View style={styles.fullScreenResults}>
-          <LinearGradient colors={[PINK, LIGHT_PINK]} style={styles.fullScreenGradient}>
+          <LinearGradient colors={[ WHITE, WHITE]} style={styles.fullScreenGradient}>
             <View style={styles.resultsBubble1} />
             <View style={styles.resultsBubble2} />
             <View style={styles.resultsBubble3} />

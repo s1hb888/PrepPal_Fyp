@@ -14,7 +14,7 @@ import { Feather } from '@expo/vector-icons';
 import * as Progress from 'react-native-progress';
 
 import Profile from './Profile';
-import Settings from './Settings';
+
 import AboutUs from './AboutUs';
 import FeedbackScreen from './FeedbackScreen';
 import API_BASE_URL from './config';
@@ -207,8 +207,7 @@ const Home = ({ navigation }) => {
       switch (selectedTab) {
         case 'Profile':
           return <Profile />;
-        case 'Settings':
-          return <Settings />;
+       
         case 'AboutUs':
           return <AboutUs />;
         case 'Notifications':
@@ -267,7 +266,7 @@ const Home = ({ navigation }) => {
               thickness={10}
               showsText
               formatText={() => `${Math.round(displayProgress * 100)}%`}
-              color="#EF3349"
+              color={displayProgress > 0.8 ? '#2BCB9A' : '#EF3349'} 
               unfilledColor="#fff"
               borderWidth={0}
               textStyle={{ fontSize: 24, fontWeight: 'bold', color: '#000' }}
@@ -323,12 +322,6 @@ const Home = ({ navigation }) => {
               title: 'Limit Screen Time',
               icon: 'clock',
               screen: 'ScreenTimeControl',
-            },
-            {
-              id: '3',
-              title: 'View Results & Rewards',
-              icon: 'award',
-              screen: 'ResultsRewards',
             },
           ].map((item) => (
             <TouchableOpacity
@@ -397,7 +390,7 @@ const Home = ({ navigation }) => {
         {[
           { tab: 'Home', icon: 'home' },
           { tab: 'Profile', icon: 'user' },
-          { tab: 'Settings', icon: 'settings' },
+         
           { tab: 'Notifications', icon: 'bell' },
         ].map(({ tab, icon }) => (
           <TouchableOpacity
