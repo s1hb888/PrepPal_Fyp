@@ -30,7 +30,6 @@ const normalizeRaw = (text = "") =>
   text.toString().toLowerCase().replace(/[\s.,!?؛،؟]/g, "").trim();
 
 const { width } = Dimensions.get("window");
-// ✅ Safe track length to keep images inside screen
 const TRACK_LENGTH = width - 120;
 
 const FruitQuizzes = () => {
@@ -44,6 +43,22 @@ const FruitQuizzes = () => {
   const [highlightedWord, setHighlightedWord] = useState(null);
   const [sortedOptions, setSortedOptions] = useState([]);
   const animations = useRef([]).current;
+
+  // Preload sounds
+  const correctSound = useRef(new Audio.Sound());
+  const wrongSound = useRef(new Audio.Sound());
+
+  useEffect(() => {
+    const loadSounds = async () => {
+      try {
+        await correctSound.current.loadAsync(require("../assets/sounds/answer-correct.mp3"));
+        await wrongSound.current.loadAsync(require("../assets/sounds/buzzer-new.mp3"));
+      } catch (err) {
+        console.error("Failed to load sounds:", err);
+      }
+    };
+    loadSounds();
+  }, []);
 
   // Fetch quizzes
   useEffect(() => {
@@ -61,21 +76,27 @@ const FruitQuizzes = () => {
     fetchQuizzes();
   }, []);
 
-  // Speak question & start race
+  // Setup current question & start race immediately
   useEffect(() => {
-    if (quizzes.length > 0) {
-      const q = quizzes[currentQuizIndex].questions[currentQuestionIndex];
-      if (q?.question) Speech.speak(q.question);
-      
-      // ✅ Randomize options order
-      const shuffled = [...q.options].sort(() => Math.random() - 0.5);
-      setSortedOptions(shuffled);
-      
-      // Small delay before starting race animation
-      setTimeout(() => {
-        startRaceAnimation();
-      }, 500);
-    }
+    if (quizzes.length === 0) return;
+
+    const q = quizzes[currentQuizIndex].questions[currentQuestionIndex];
+    if (!q) return;
+
+    if (q.question) Speech.speak(q.question);
+
+    // Shuffle options
+    const shuffled = [...q.options].sort(() => Math.random() - 0.5);
+    setSortedOptions(shuffled);
+
+    // Initialize animations
+    shuffled.forEach((_, i) => {
+      if (!animations[i]) animations[i] = new Animated.Value(0);
+      else animations[i].setValue(0);
+    });
+
+    // Start the race immediately
+    startRaceAnimation(shuffled, q.winner);
   }, [currentQuizIndex, currentQuestionIndex, quizzes]);
 
   // Start recording
@@ -136,10 +157,12 @@ const FruitQuizzes = () => {
       setHighlightedWord(currentQuestion.winner);
 
       if (spoken.includes(correctAnswer)) {
-        Speech.speak("✅ Correct!");
+        await correctSound.current.replayAsync();
         setScore((s) => s + 1);
+     
       } else {
-        Speech.speak(`❌ Wrong! Correct answer is ${currentQuestion.winner}`);
+      
+        await wrongSound.current.replayAsync();
       }
 
       setTimeout(() => {
@@ -152,42 +175,15 @@ const FruitQuizzes = () => {
     }
   };
 
-  // ✅ Race animation - Winner reaches first, others slower with staggered delays
-  const startRaceAnimation = () => {
-    if (!sortedOptions || sortedOptions.length === 0) return;
-    
-    // Reset all animations
-    animations.forEach((anim) => anim.setValue(0));
-  
-    const currentQuiz = quizzes[currentQuizIndex];
-    const currentQuestion = currentQuiz.questions[currentQuestionIndex];
-    //const currentOptions = currentQuestion.options[currentQuestionIndex];
-    const winnerWord = currentQuestion.winner;
-    
-    currentQuestion.options.forEach((item, index) => {
-    console.log("**********item.word**************");
-    console.log(item.word);
-    console.log("**********winner**************");
-    console.log(winnerWord);
+  // Race animation - correct answer always wins
+  const startRaceAnimation = (options, winnerWord) => {
+    if (!options || options.length === 0) return;
+
+    options.forEach((item, index) => {
       const isWinner = item.word === winnerWord;
-      console.log("************WINNER***********");
-      console.log(isWinner);
-      var  distance;
-      var duration;
-      if(isWinner)
-      {
-        distance = TRACK_LENGTH;
-        duration =  1800 + Math.random() * 200;
-        
-      }
-      else{
-distance = TRACK_LENGTH * (0.5 + Math.random() * 0.1);
-duration =  3500 + Math.random() * 200;
-      }
-      // Winner: Goes full distance & fastest, Others: 50-60% distance & much slower
-      
-      
-      // No delay - all start together
+      const distance = isWinner ? TRACK_LENGTH : TRACK_LENGTH * (0.5 + Math.random() * 0.1);
+      const duration = isWinner ? 1800 + Math.random() * 200 : 3500 + Math.random() * 200;
+
       Animated.timing(animations[index], {
         toValue: distance,
         duration,
@@ -196,7 +192,7 @@ duration =  3500 + Math.random() * 200;
     });
   };
 
-  // Next question logic
+  // Next question
   const handleNext = () => {
     const isLastQuestion =
       currentQuestionIndex === quizzes[currentQuizIndex].questions.length - 1;
@@ -234,13 +230,6 @@ duration =  3500 + Math.random() * 200;
   const currentQuiz = quizzes[currentQuizIndex];
   const currentQuestion = currentQuiz.questions[currentQuestionIndex];
 
-  // Initialize animations for each option
-  if (sortedOptions.length !== animations.length) {
-    sortedOptions.forEach((_, i) => {
-      animations[i] = new Animated.Value(0);
-    });
-  }
-
   return (
     <View style={styles.container}>
       <Text style={styles.score}>🌟 Score: {score}</Text>
@@ -249,16 +238,12 @@ duration =  3500 + Math.random() * 200;
       <View style={styles.questionCard}>
         <Text style={styles.questionText}>{currentQuestion.question}</Text>
 
-        {/* ✅ Race Track with images moving and text staying fixed */}
         {sortedOptions.map((item, index) => (
           <View key={index} style={styles.raceTrack}>
-            {/* Moving Image */}
             <Animated.View
               style={[
                 styles.imageContainer,
-                {
-                  transform: [{ translateX: animations[index] }],
-                },
+                { transform: [{ translateX: animations[index] }] },
                 highlightedWord === item.word && styles.highlightedImage,
               ]}
             >
@@ -266,8 +251,6 @@ duration =  3500 + Math.random() * 200;
                 <Image source={{ uri: item.image_url }} style={styles.image} />
               )}
             </Animated.View>
-
-            {/* Fixed Text Label Below */}
             <Text
               style={[
                 styles.optionText,
@@ -294,107 +277,21 @@ duration =  3500 + Math.random() * 200;
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-    padding: 10,
-  },
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  score: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#7BE7CE",
-    textAlign: "center",
-    marginTop: 20,
-  },
-  quizTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#FFB6C1",
-    textAlign: "center",
-    marginVertical: 10,
-  },
-  questionCard: {
-    backgroundColor: "#FFFFFFE0",
-    borderRadius: 15,
-    padding: 15,
-    alignItems: "flex-start",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
-    width: "100%",
-  },
-  questionText: {
-    fontSize: 18,
-    color: "#333",
-    marginBottom: 15,
-    textAlign: "center",
-    width: "100%",
-  },
-  raceTrack: {
-    width: "100%",
-    marginVertical: 8,
-    alignItems: "flex-start",
-  },
-  imageContainer: {
-    backgroundColor: "#FFF",
-    borderRadius: 10,
-    padding: 8,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    elevation: 3,
-    marginBottom: 5,
-  },
-  highlightedImage: {
-    backgroundColor: "#FFD54F",
-    shadowColor: "#FFD54F",
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  image: {
-    width: 60,
-    height: 60,
-    resizeMode: "contain",
-  },
-  optionText: {
-    fontSize: 14,
-    color: "#333",
-    fontWeight: "600",
-    textAlign: "left",
-    marginLeft: 5,
-  },
-  highlightedText: {
-    color: "#FF6B6B",
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  recordBtn: {
-    marginTop: 20,
-    backgroundColor: "#7BE7CE",
-    paddingVertical: 10,
-    borderRadius: 10,
-    alignItems: "center",
-    elevation: 3,
-  },
-  stopBtn: {
-    marginTop: 20,
-    backgroundColor: "#FFB6C1",
-    paddingVertical: 10,
-    borderRadius: 10,
-    alignItems: "center",
-    elevation: 3,
-  },
-  recordText: {
-    color: "#333",
-    fontSize: 15,
-    fontWeight: "bold",
-  },
+  container: { flex: 1, backgroundColor: "#FFFFFF", padding: 10 },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  score: { fontSize: 20, fontWeight: "bold", color: "#7BE7CE", textAlign: "center", marginTop: 20 },
+  quizTitle: { fontSize: 22, fontWeight: "bold", color: "#FFB6C1", textAlign: "center", marginVertical: 10 },
+  questionCard: { backgroundColor: "#FFFFFFE0", borderRadius: 15, padding: 15, alignItems: "flex-start", shadowColor: "#000", shadowOpacity: 0.1, shadowRadius: 3, elevation: 3, width: "100%" },
+  questionText: { fontSize: 18, color: "#333", marginBottom: 15, textAlign: "center", width: "100%" },
+  raceTrack: { width: "100%", marginVertical: 8, alignItems: "flex-start" },
+  imageContainer: { backgroundColor: "#FFF", borderRadius: 10, padding: 8, shadowColor: "#000", shadowOpacity: 0.1, elevation: 3, marginBottom: 5 },
+  highlightedImage: { backgroundColor: "#FFD54F", shadowColor: "#FFD54F", shadowOpacity: 0.4, shadowRadius: 8, elevation: 6 },
+  image: { width: 60, height: 60, resizeMode: "contain" },
+  optionText: { fontSize: 14, color: "#333", fontWeight: "600", textAlign: "left", marginLeft: 5 },
+  highlightedText: { color: "#FF6B6B", fontWeight: "bold", fontSize: 16 },
+  recordBtn: { marginTop: 20, backgroundColor: "#7BE7CE", paddingVertical: 10, borderRadius: 10, alignItems: "center", elevation: 3 },
+  stopBtn: { marginTop: 20, backgroundColor: "#FFB6C1", paddingVertical: 10, borderRadius: 10, alignItems: "center", elevation: 3 },
+  recordText: { color: "#333", fontSize: 15, fontWeight: "bold" },
 });
 
 export default FruitQuizzes;

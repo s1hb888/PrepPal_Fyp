@@ -5,7 +5,7 @@
     "word": "One",
     "sound_text": "One",
     "min_attempts": 3,
-    "min_time_avg": 2.0,
+    "min_time_avg": 10,
     "min_correct_avg": 80
   },
   {
@@ -14,7 +14,7 @@
     "word": "Two",
     "sound_text": "Two",
     "min_attempts": 3,
-    "min_time_avg": 2.0,
+    "min_time_avg": 10,
     "min_correct_avg": 80
   },
   {
@@ -23,7 +23,7 @@
     "word": "Three",
     "sound_text": "Three",
     "min_attempts": 3,
-    "min_time_avg": 2.0,
+    "min_time_avg": 10,
     "min_correct_avg": 80
   },
   {
@@ -32,7 +32,7 @@
     "word": "Four",
     "sound_text": "Four",
     "min_attempts": 3,
-    "min_time_avg": 2.0,
+    "min_time_avg": 10,
     "min_correct_avg": 80
   },
   {
@@ -41,7 +41,7 @@
     "word": "Five",
     "sound_text": "Five",
     "min_attempts": 3,
-    "min_time_avg": 2.0,
+    "min_time_avg": 10,
     "min_correct_avg": 80
   },
   {
@@ -50,7 +50,7 @@
     "word": "Six",
     "sound_text": "Six",
     "min_attempts": 3,
-    "min_time_avg": 2.0,
+    "min_time_avg": 10,
     "min_correct_avg": 80
   },
   {
@@ -59,7 +59,7 @@
     "word": "Seven",
     "sound_text": "Seven",
     "min_attempts": 3,
-    "min_time_avg": 2.0,
+    "min_time_avg": 10,
     "min_correct_avg": 80
   },
   {
@@ -68,7 +68,7 @@
     "word": "Eight",
     "sound_text": "Eight",
     "min_attempts": 3,
-    "min_time_avg": 2.0,
+    "min_time_avg": 10,
     "min_correct_avg": 80
   },
   {
@@ -77,7 +77,7 @@
     "word": "Nine",
     "sound_text": "Nine",
     "min_attempts": 3,
-    "min_time_avg": 2.0,
+    "min_time_avg": 10,
     "min_correct_avg": 80
   },
   {
@@ -86,7 +86,7 @@
     "word": "Ten",
     "sound_text": "Ten",
     "min_attempts": 3,
-    "min_time_avg": 2.0,
+    "min_time_avg": 10,
     "min_correct_avg": 80
   }
 ]

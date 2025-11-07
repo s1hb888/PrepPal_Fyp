@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -7,14 +7,21 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  LayoutAnimation,
+  UIManager,
+  Platform,
 } from "react-native";
 import axios from "axios";
-import * as Speech from "expo-speech";
 import { Audio } from "expo-av";
 import * as FileSystem from "expo-file-system";
+import * as Speech from "expo-speech";
 import API_BASE_URL from "./config";
 
 const LEMONFOX_API_KEY = "JVTxkQ2MhlB2s3wyynOS5FW0fz9xLetf";
+
+if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 const normalizeRaw = (text = "") =>
   text.toString().toLowerCase().replace(/[\s.,!?؛،؟]/g, "").trim();
@@ -27,7 +34,25 @@ const VegetableQuizzes = () => {
   const [recording, setRecording] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   const [score, setScore] = useState(0);
+  const [highlightedWord, setHighlightedWord] = useState(null);
 
+  // Preload sounds
+  const correctSound = useRef(new Audio.Sound());
+  const wrongSound = useRef(new Audio.Sound());
+
+  useEffect(() => {
+    const loadSounds = async () => {
+      try {
+        await correctSound.current.loadAsync(require("../assets/sounds/answer-correct.mp3"));
+        await wrongSound.current.loadAsync(require("../assets/sounds/buzzer-new.mp3"));
+      } catch (err) {
+        console.error("Failed to load sounds:", err);
+      }
+    };
+    loadSounds();
+  }, []);
+
+  // Fetch quizzes
   useEffect(() => {
     const fetchQuizzes = async () => {
       try {
@@ -43,13 +68,17 @@ const VegetableQuizzes = () => {
     fetchQuizzes();
   }, []);
 
+  // Read question aloud when quiz or question changes
   useEffect(() => {
-    if (quizzes.length > 0) {
-      const q = quizzes[currentQuizIndex].questions[currentQuestionIndex];
-      if (q?.question) Speech.speak(q.question);
+    if (quizzes.length === 0) return;
+    const currentQuiz = quizzes[currentQuizIndex];
+    const currentQuestion = currentQuiz.questions[currentQuestionIndex];
+    if (currentQuestion?.question) {
+      Speech.speak(currentQuestion.question);
     }
   }, [currentQuizIndex, currentQuestionIndex, quizzes]);
 
+  // Start recording
   const startRecording = async () => {
     try {
       await Audio.requestPermissionsAsync();
@@ -57,7 +86,6 @@ const VegetableQuizzes = () => {
         allowsRecordingIOS: true,
         playsInSilentModeIOS: true,
       });
-
       const { recording: rec } = await Audio.Recording.createAsync(
         Audio.RecordingOptionsPresets.HIGH_QUALITY
       );
@@ -69,6 +97,7 @@ const VegetableQuizzes = () => {
     }
   };
 
+  // Stop recording
   const stopRecording = async () => {
     try {
       if (!recording) return;
@@ -83,6 +112,7 @@ const VegetableQuizzes = () => {
     }
   };
 
+  // LemonFox transcription
   const sendToLemonFox = async (uri) => {
     try {
       const formData = new FormData();
@@ -98,36 +128,41 @@ const VegetableQuizzes = () => {
 
       const data = await res.json();
       const spoken = normalizeRaw(data.text || "");
-      console.log("Spoken:", spoken);
-
       const currentQuiz = quizzes[currentQuizIndex];
       const currentQuestion = currentQuiz.questions[currentQuestionIndex];
       const correctAnswer = normalizeRaw(currentQuestion.winner);
 
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setHighlightedWord(currentQuestion.winner);
+
       if (spoken.includes(correctAnswer)) {
-        Speech.speak("✅ Correct!");
+        await correctSound.current.replayAsync();
         setScore((s) => s + 1);
-        handleNext();
       } else {
-        Speech.speak(`❌ Wrong! Correct answer: ${currentQuestion.winner}`);
-        handleNext();
+        await wrongSound.current.replayAsync();
       }
+
+      setTimeout(() => {
+        setHighlightedWord(null);
+        handleNext();
+      }, 3000);
     } catch (err) {
       console.error("Lemonfox transcription error:", err);
-      Speech.speak("Error understanding your answer.");
+      Alert.alert("Error", "Could not understand your answer.");
     }
   };
 
   const handleNext = () => {
+    const currentQuiz = quizzes[currentQuizIndex];
     const isLastQuestion =
-      currentQuestionIndex === quizzes[currentQuizIndex].questions.length - 1;
+      currentQuestionIndex === currentQuiz.questions.length - 1;
+
     if (isLastQuestion) {
       const isLastQuiz = currentQuizIndex === quizzes.length - 1;
       if (isLastQuiz) {
-        Speech.speak(`You finished! Score: ${score}`);
         Alert.alert(
           "Quiz Complete",
-          `You scored ${score} out of ${quizzes[currentQuizIndex].questions.length}`
+          `You scored ${score} out of ${currentQuiz.questions.length}`
         );
       } else {
         setCurrentQuizIndex((p) => p + 1);
@@ -145,7 +180,7 @@ const VegetableQuizzes = () => {
       </View>
     );
 
-  if (quizzes.length === 0)
+  if (!quizzes.length)
     return (
       <View style={styles.center}>
         <Text>No quizzes found.</Text>
@@ -167,6 +202,9 @@ const VegetableQuizzes = () => {
             source={{ uri: currentQuestion.options.image_url }}
             style={styles.image}
           />
+        )}
+        {highlightedWord && (
+          <Text style={styles.highlightedText}>Correct: {highlightedWord}</Text>
         )}
       </View>
 
@@ -217,6 +255,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: "center",
   },
+  highlightedText: { marginTop: 10, fontSize: 18, fontWeight: "bold", color: "#FF6B6B" },
   image: {
     width: "100%",
     height: 180,

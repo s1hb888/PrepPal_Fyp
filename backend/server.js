@@ -32,6 +32,8 @@ const quizFruitRoutes = require("./routes/quizFruit");
 const quizVegetableRoutes = require("./routes/quizVegetable");
 const quizColorRoutes = require("./routes/quizColor");
 const quizCountingRoutes = require("./routes/quizCounting");
+const quizVowelRoutes = require("./routes/quizVowel");
+const quizShapeRoute = require("./routes/quizShape");
 // ----------------- MODELS -----------------
 const User = require('./models/User');
 const Alphabet = require('./models/Alphabet');
@@ -73,6 +75,8 @@ app.use("/api/quizFruit", quizFruitRoutes);
 app.use("/api/quizVegetables", quizVegetableRoutes);
 app.use("/api/quizColor", quizColorRoutes);
 app.use("/api/quizCounting", quizCountingRoutes);
+app.use("/api/quizVowel", quizVowelRoutes);
+app.use("/api/quizShape", quizShapeRoute);
 // ----------------- EXPORTS -----------------
 module.exports = { app };
 

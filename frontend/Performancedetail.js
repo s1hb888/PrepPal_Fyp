@@ -20,11 +20,11 @@ const PerformanceDetail = ({ route, navigation }) => {
 
   // ✅ Same reward logic from PerformanceReport
   const getReward = (accuracy, avgTime) => {
-    if (accuracy >= 90 && avgTime <= 1 ) {
+    if (accuracy >= 90 && avgTime <= 5 ) {
       return { grade: 'Gold', emoji: '🥇', color: '#FFD700', message: 'Excellent Performance!' };
-    } else if (accuracy >= 85 && avgTime <= 1.5 ) {
+    } else if (accuracy >= 85 && avgTime <= 7 ) {
       return { grade: 'Silver', emoji: '🥈', color: '#C0C0C0', message: 'Great Job!' };
-    } else if (accuracy >= 80 && avgTime <= 2 ) {
+    } else if (accuracy >= 80 && avgTime <= 10 ) {
       return { grade: 'Bronze', emoji: '🥉', color: '#CD7F32', message: 'Good try!' };
     } else {
       return { grade: 'Participant', emoji: '🎯', color: '#89CFF0', message: 'Keep practicing!' };

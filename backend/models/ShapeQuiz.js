@@ -1,17 +1,18 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const hintSchema = new mongoose.Schema({
-  text: String,
+  text: { type: String, required: true }
 });
 
 const questionSchema = new mongoose.Schema({
-  shapeName: String, // Correct Answer
-  hints: [hintSchema], // Two hints
+  shapeName: { type: String, required: true },
+  imageUrl: { type: String, required: true },
+  hints: [hintSchema]
 });
 
 const shapeQuizSchema = new mongoose.Schema({
   quiz_title: { type: String, required: true },
-  questions: [questionSchema],
+  questions: [questionSchema]
 });
 
-export default mongoose.model("ShapeQuiz", shapeQuizSchema);
+module.exports = mongoose.model("ShapeQuiz", shapeQuizSchema);

@@ -39,11 +39,11 @@ const PerformanceReport = ({ navigation }) => {
 
   // 🎯 Reward Logic
   const getReward = (accuracy, avgTime, completionRate) => {
-    if (accuracy >= 90 && avgTime <= 1 && completionRate >= 90) {
+    if (accuracy >= 90 && avgTime <= 5 && completionRate >= 90) {
       return { grade: 'Gold', icon: 'award', color: '#FFD700', message: 'Excellent Performance!' };
-    } else if (accuracy >= 85 && avgTime <= 1.5 && completionRate >= 85) {
+    } else if (accuracy >= 85 && avgTime <= 7 && completionRate >= 85) {
       return { grade: 'Silver', icon: 'award', color: '#C0C0C0', message: 'Great Job!' };
-    } else if (accuracy >= 80 && avgTime <= 2 && completionRate >= 80) {
+    } else if (accuracy >= 80 && avgTime <= 10 && completionRate >= 80) {
       return { grade: 'Bronze', icon: 'award', color: '#CD7F32', message: 'Good try!' };
     } else {
       return { grade: 'Participant', icon: 'target', color: '#89CFF0', message: 'Keep practicing!' };
@@ -132,17 +132,18 @@ const PerformanceReport = ({ navigation }) => {
                   {/* Progress Circle + Quick Stats */}
                   <View style={styles.progressSection}>
                     <View style={styles.circleWrapper}>
-                      <Progress.Circle
-                        progress={item.avgAccuracy / 100}
-                        size={90}
-                        color="#EF3349"
-                        showsText
-                        formatText={() => `${item.avgAccuracy}%`}
-                        unfilledColor="#F0F0F0"
-                        borderWidth={0}
-                        thickness={9}
-                        textStyle={styles.circleText}
-                      />
+                     <Progress.Circle
+  progress={item.avgAccuracy / 100}
+  size={90}
+  color={item.avgAccuracy >= 80 ? "#2BCB9A" : "#EF3349"} // ✅ correct
+  showsText
+  formatText={() => `${item.avgAccuracy}%`}
+  unfilledColor="#F0F0F0"
+  borderWidth={0}
+  thickness={9}
+  textStyle={styles.circleText}
+/>
+
                       <Text style={styles.circleLabel}>Accuracy</Text>
                     </View>
 

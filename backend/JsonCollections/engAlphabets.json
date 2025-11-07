@@ -6,7 +6,7 @@
       "word": "Apple",
       "sound_text": "A for Apple",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -15,7 +15,7 @@
       "word": "Ball",
       "sound_text": "B for Ball",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -24,7 +24,7 @@
       "word": "Cat",
       "sound_text": "C for Cat",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -33,7 +33,7 @@
       "word": "Dog",
       "sound_text": "D for Dog",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -42,7 +42,7 @@
       "word": "Eggplant",
       "sound_text": "E for Eggplant",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -51,7 +51,7 @@
       "word": "Flower",
       "sound_text": "F for Flower",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -60,7 +60,7 @@
       "word": "Guitar",
       "sound_text": "G for Guitar",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -69,7 +69,7 @@
       "word": "Hat",
       "sound_text": "H for Hat",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -78,7 +78,7 @@
       "word": "Igloo",
       "sound_text": "I for Igloo",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -87,7 +87,7 @@
       "word": "Jacket",
       "sound_text": "J for Jacket",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -96,7 +96,7 @@
       "word": "Key",
       "sound_text": "K for Key",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -105,7 +105,7 @@
       "word": "Lemon",
       "sound_text": "L for Lemon",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -114,7 +114,7 @@
       "word": "Monkey",
       "sound_text": "M for Monkey",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -123,7 +123,7 @@
       "word": "Nail",
       "sound_text": "N for Nail",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -132,7 +132,7 @@
       "word": "Orange",
       "sound_text": "O for Orange",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -141,7 +141,7 @@
       "word": "Pear",
       "sound_text": "P for Pear",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -150,7 +150,7 @@
       "word": "Queen",
       "sound_text": "Q for Queen",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -159,7 +159,7 @@
       "word": "Rabbit",
       "sound_text": "R for Rabbit",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -168,7 +168,7 @@
       "word": "Sun",
       "sound_text": "S for Sun",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -177,7 +177,7 @@
       "word": "Tortoise",
       "sound_text": "T for Tortoise",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -186,7 +186,7 @@
       "word": "Umbrella",
       "sound_text": "U for Umbrella",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -195,7 +195,7 @@
       "word": "Van",
       "sound_text": "V for Van",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -204,7 +204,7 @@
       "word": "Watermelon",
       "sound_text": "W for Watermelon",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -213,7 +213,7 @@
       "word": "Xylophone",
       "sound_text": "X for Xylophone",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -222,7 +222,7 @@
       "word": "Yoyo",
       "sound_text": "Y for Yoyo",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     },
     {
@@ -231,7 +231,7 @@
       "word": "Zebra",
       "sound_text": "Z for Zebra",
       "min_attempts": 3,
-      "min_time_avg": 2.0,
+      "min_time_avg": 10,
       "min_correct_avg": 80
     }
   ]

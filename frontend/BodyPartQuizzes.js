@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react"; 
 import {
   View,
   Text,
@@ -9,11 +9,10 @@ import {
   Alert,
 } from "react-native";
 import axios from "axios";
-import * as Speech from "expo-speech";
 import { Audio } from "expo-av";
 import * as FileSystem from "expo-file-system";
+import * as Speech from "expo-speech";
 import API_BASE_URL from "./config";
-import Ionicons from "@expo/vector-icons/Ionicons";
 
 const LEMONFOX_API_KEY = "JVTxkQ2MhlB2s3wyynOS5FW0fz9xLetf";
 
@@ -29,6 +28,23 @@ const BodyPartQuizzes = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [score, setScore] = useState(0);
 
+  const correctSound = useRef(new Audio.Sound());
+  const wrongSound = useRef(new Audio.Sound());
+
+  // Load sounds
+  useEffect(() => {
+    const loadSounds = async () => {
+      try {
+        await correctSound.current.loadAsync(require("../assets/sounds/answer-correct.mp3"));
+        await wrongSound.current.loadAsync(require("../assets/sounds/buzzer-new.mp3"));
+      } catch (err) {
+        console.error("Failed to load sounds:", err);
+      }
+    };
+    loadSounds();
+  }, []);
+
+  // Fetch quizzes
   useEffect(() => {
     const fetchQuizzes = async () => {
       try {
@@ -44,13 +60,16 @@ const BodyPartQuizzes = () => {
     fetchQuizzes();
   }, []);
 
+  // Speak question aloud whenever current question changes
   useEffect(() => {
-    if (quizzes.length > 0) {
-      const q = quizzes[currentQuizIndex].questions[currentQuestionIndex];
-      if (q?.question) Speech.speak(q.question);
+    if (quizzes.length === 0) return;
+    const currentQuestion = quizzes[currentQuizIndex].questions[currentQuestionIndex];
+    if (currentQuestion?.question) {
+      Speech.speak(currentQuestion.question);
     }
   }, [currentQuizIndex, currentQuestionIndex, quizzes]);
 
+  // Start recording
   const startRecording = async () => {
     try {
       await Audio.requestPermissionsAsync();
@@ -70,6 +89,7 @@ const BodyPartQuizzes = () => {
     }
   };
 
+  // Stop recording
   const stopRecording = async () => {
     try {
       if (!recording) return;
@@ -84,6 +104,7 @@ const BodyPartQuizzes = () => {
     }
   };
 
+  // Send to LemonFox for transcription
   const sendToLemonFox = async (uri) => {
     try {
       const formData = new FormData();
@@ -101,31 +122,32 @@ const BodyPartQuizzes = () => {
       const spoken = normalizeRaw(data.text || "");
       console.log("Spoken:", spoken);
 
-      const currentQuiz = quizzes[currentQuizIndex];
-      const currentQuestion = currentQuiz.questions[currentQuestionIndex];
+      const currentQuestion = quizzes[currentQuizIndex].questions[currentQuestionIndex];
       const correctAnswer = normalizeRaw(currentQuestion.answer);
 
       if (spoken.includes(correctAnswer)) {
-        Speech.speak("✅ Correct!");
+        await correctSound.current.replayAsync();
         setScore((s) => s + 1);
-        handleNext();
       } else {
-        Speech.speak(`❌ Wrong! Correct answer: ${currentQuestion.answer}`);
-        handleNext();
+        await wrongSound.current.replayAsync();
       }
+
+      // Move to next question after 2 sec
+      setTimeout(() => handleNext(), 2000);
+
     } catch (err) {
       console.error("Lemonfox transcription error:", err);
-      Speech.speak("Error understanding your answer.");
+      Alert.alert("Error", "Failed to process your answer.");
     }
   };
 
+  // Handle next question
   const handleNext = () => {
     const isLastQuestion =
       currentQuestionIndex === quizzes[currentQuizIndex].questions.length - 1;
     if (isLastQuestion) {
       const isLastQuiz = currentQuizIndex === quizzes.length - 1;
       if (isLastQuiz) {
-        Speech.speak(`You finished! Score: ${score}`);
         Alert.alert(
           "Quiz Complete",
           `You scored ${score} out of ${quizzes[currentQuizIndex].questions.length}`
@@ -181,7 +203,6 @@ const BodyPartQuizzes = () => {
   );
 };
 
-// ---------------------- Styles ----------------------
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
@@ -199,7 +220,7 @@ const styles = StyleSheet.create({
     color: "#FFD54F", 
     marginBottom: 10, 
     textAlign: "center", 
-    paddingTop: 20, // Added top padding
+    paddingTop: 20,
   },
   quizTitle: { 
     fontSize: 24, 

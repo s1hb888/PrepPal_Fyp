@@ -55,8 +55,8 @@ import UrduAccessScreen from './frontend/UrduAccessScreen';
 import AlphabetsAccessScreen from './frontend/AlphabetsAccessScreen';
 import AccessManagement from './frontend/AccessManagement';
 import ScreenTimeControl from './frontend/ScreenTimeControl';
-
-
+import VowelQuizzes from "./frontend/VowelQuizzes";
+import ShapeQuizzes from "./frontend/ShapeQuizzes";
 const Stack = createStackNavigator();
 
 /** ✅ ONLY kid routes here – lock modal shows on these */
@@ -171,7 +171,9 @@ export default function App() {
           <Stack.Screen name="FruitQuizzes" component={FruitQuizzes} options={{ title: "🍎 Fruit Quiz" }}/>
           <Stack.Screen name="VegetableQuizzes" component={VegetableQuizzes} options={{ title: "🥕 Vegetable Quiz" }}/>
            <Stack.Screen name="ColorQuizzes" component={ColorQuizzes} options={{ title: "Color Quiz" }}/>
-            <Stack.Screen name="CountingQuizzes" component={CountingQuizzes} options={{ title: "Color Quiz" }}/>
+            <Stack.Screen name="CountingQuizzes" component={CountingQuizzes} options={{ title: "Counting Quiz" }}/>
+             <Stack.Screen name="VowelQuizzes" component={VowelQuizzes} options={{ title: "Vowel Quiz" }}/>
+             <Stack.Screen name="ShapeQuizzes" component={ShapeQuizzes} options={{ title: "Shape Quiz" }}/>
         </Stack.Navigator>
       </NavigationContainer>
     </SessionProvider>

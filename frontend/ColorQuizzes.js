@@ -12,9 +12,9 @@ import {
   FlatList,
 } from "react-native";
 import axios from "axios";
-import * as Speech from "expo-speech";
 import { Audio } from "expo-av";
 import * as FileSystem from "expo-file-system";
+import * as Speech from "expo-speech";
 import API_BASE_URL from "./config";
 
 const LEMONFOX_API_KEY = "JVTxkQ2MhlB2s3wyynOS5FW0fz9xLetf";
@@ -34,6 +34,22 @@ const ColorQuizzes = () => {
 
   const animValue = useRef(new Animated.Value(0)).current;
 
+  // Preload sounds
+  const correctSound = useRef(new Audio.Sound());
+  const wrongSound = useRef(new Audio.Sound());
+
+  useEffect(() => {
+    const loadSounds = async () => {
+      try {
+        await correctSound.current.loadAsync(require("../assets/sounds/answer-correct.mp3"));
+        await wrongSound.current.loadAsync(require("../assets/sounds/buzzer-new.mp3"));
+      } catch (err) {
+        console.error("Failed to load sounds:", err);
+      }
+    };
+    loadSounds();
+  }, []);
+
   useEffect(() => {
     const fetchQuizzes = async () => {
       try {
@@ -49,11 +65,17 @@ const ColorQuizzes = () => {
     fetchQuizzes();
   }, []);
 
+  // Speak question aloud whenever current question changes
+  useEffect(() => {
+    if (quizzes.length === 0) return;
+    const currentQuestion = quizzes[currentQuizIndex]?.questions[currentQuestionIndex];
+    if (currentQuestion?.question) {
+      Speech.speak(currentQuestion.question);
+    }
+  }, [currentQuizIndex, currentQuestionIndex, quizzes]);
+
   useEffect(() => {
     if (quizzes.length > 0 && quizzes[currentQuizIndex]?.questions.length > 0) {
-      const q = quizzes[currentQuizIndex].questions[currentQuestionIndex];
-      if (q?.question) Speech.speak(q.question);
-
       animValue.setValue(0); // reset animation
     }
   }, [currentQuizIndex, currentQuestionIndex, quizzes]);
@@ -100,17 +122,16 @@ const ColorQuizzes = () => {
 
       const data = await res.json();
       const spoken = normalizeRaw(data.text || "");
-      console.log("Spoken:", spoken);
 
       const currentQuiz = quizzes[currentQuizIndex];
       const currentQuestion = currentQuiz.questions[currentQuestionIndex];
       const correctAnswer = normalizeRaw(currentQuestion.correct_answer);
 
       if (spoken.includes(correctAnswer)) {
-        Speech.speak("✅ Correct!");
+        await correctSound.current.replayAsync();
         setScore((s) => s + 1);
       } else {
-        Speech.speak(`❌ Wrong! Correct answer: ${currentQuestion.correct_answer}`);
+        await wrongSound.current.replayAsync();
       }
 
       // Animate out the current question
@@ -119,12 +140,14 @@ const ColorQuizzes = () => {
         duration: 500,
         useNativeDriver: true,
       }).start(() => {
-        // Move to next question
         const isLastQuestion = currentQuestionIndex === currentQuiz.questions.length - 1;
         if (isLastQuestion) {
           const isLastQuiz = currentQuizIndex === quizzes.length - 1;
           if (isLastQuiz) {
-            Alert.alert("Quiz Complete", `You scored ${score + (spoken.includes(correctAnswer) ? 1 : 0)} out of ${currentQuiz.questions.length}`);
+            Alert.alert(
+              "Quiz Complete",
+              `You scored ${score + (spoken.includes(correctAnswer) ? 1 : 0)} out of ${currentQuiz.questions.length}`
+            );
           } else {
             setCurrentQuizIndex((p) => p + 1);
             setCurrentQuestionIndex(0);
@@ -135,7 +158,6 @@ const ColorQuizzes = () => {
       });
     } catch (err) {
       console.error("Lemonfox transcription error:", err);
-      Speech.speak("Error understanding your answer.");
     }
   };
 
@@ -162,13 +184,11 @@ const ColorQuizzes = () => {
       <Text style={styles.score}>Score: {score}</Text>
       <Text style={styles.quizTitle}>{currentQuiz.quiz_title}</Text>
 
-      {/* Current question */}
       <Animated.View style={[styles.questionCard, { transform: [{ translateX: animValue }] }]}>
         <Text style={styles.questionText}>{question.question}</Text>
         {question.image_url && <Image source={{ uri: question.image_url }} style={styles.image} />}
       </Animated.View>
 
-      {/* Upcoming questions in 2-column grid */}
       <FlatList
         data={upcomingQuestions}
         keyExtractor={(_, index) => index.toString()}

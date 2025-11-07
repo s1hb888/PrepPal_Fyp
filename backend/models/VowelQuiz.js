@@ -1,8 +1,8 @@
-// models/VowelQuiz.js
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const questionSchema = new mongoose.Schema({
   question: { type: String, required: true },
+  image_url: { type: String, required: true },
   correct_answer: { type: String, required: true },
 });
 
@@ -11,4 +11,4 @@ const vowelQuizSchema = new mongoose.Schema({
   questions: [questionSchema],
 });
 
-export default mongoose.model("VowelQuiz", vowelQuizSchema);
+module.exports = mongoose.model("VowelQuiz", vowelQuizSchema);
