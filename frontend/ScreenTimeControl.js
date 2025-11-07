@@ -36,19 +36,12 @@ const Stepper = ({ value, setValue, min = 0, max = 999 }) => (
         value={value}
         onChangeText={(val) => {
           if (/^\d*$/.test(val)) {
-            const num = +val || 0;
-            if (num >= min && num <= max) {
-              setValue(val);
-            } else if (val === '') {
-              setValue('');
-            }
+            setValue(val);
           }
         }}
         onBlur={() => {
           if (value === '' || +value < min) {
             setValue(min.toString());
-          } else if (+value > max) {
-            setValue(max.toString());
           }
         }}
         maxLength={3}
@@ -65,10 +58,10 @@ const Stepper = ({ value, setValue, min = 0, max = 999 }) => (
 
 const ScreenTimeControl = () => {
   const [userId, setUserId] = useState('');
-  const [dailyUsageLimit, setDailyUsageLimit] = useState(''); 
-  const [sessionDuration, setSessionDuration] = useState('');
-  const [gapMinutes, setGapMinutes] = useState('');
-  const [gapHours, setGapHours] = useState('');
+  const [dailyUsageLimit, setDailyUsageLimit] = useState('2');
+  const [sessionDuration, setSessionDuration] = useState('30');
+  const [gapHours, setGapHours] = useState('1');
+  const [gapMinutes, setGapMinutes] = useState('0');
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [errors, setErrors] = useState({});
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -96,10 +89,10 @@ const ScreenTimeControl = () => {
       const json = await res.json();
       if (res.ok && json.data) {
         const d = json.data;
-        setDailyUsageLimit(d.dailyUsageLimit?.toString() || ''); 
-        setSessionDuration(d.sessionDuration?.toString() || '');
-        setGapMinutes(((d.nextSessionGap || 0) % 60).toString());
-        setGapHours(Math.floor((d.nextSessionGap || 0) / 60).toString());
+        setDailyUsageLimit(d.dailyUsageLimit?.toString() || '2'); 
+        setSessionDuration(d.sessionDuration?.toString() || '30');
+        setGapMinutes(((d.nextSessionGap || 60) % 60).toString());
+        setGapHours(Math.floor((d.nextSessionGap || 60) / 60).toString());
         setNotificationsEnabled(d.notificationsEnabled ?? true);
       }
     } catch (e) {
@@ -132,50 +125,33 @@ const ScreenTimeControl = () => {
     const err = {};
     let ok = true;
 
-    // Validate Number of Sessions (1-4)
+    // Only validate for negative values and required fields
     const numSessions = +dailyUsageLimit || 0;
     if (!dailyUsageLimit || dailyUsageLimit === '') {
       err.daily = 'Number of sessions is required';
       ok = false;
-    } else if (numSessions < 1 || numSessions > 4) {
-      err.daily = 'Number of sessions must be between 1 and 4';
+    } else if (numSessions < 0) {
+      err.daily = 'Number of sessions cannot be negative';
       ok = false;
     }
 
-    // Validate Session Duration (15-30 minutes)
     const sessionDur = +sessionDuration || 0;
     if (!sessionDuration || sessionDuration === '') {
       err.session = 'Session duration is required';
       ok = false;
-    } else if (sessionDur < 15 || sessionDur > 30) {
-      err.session = 'Session duration must be between 15 and 30 minutes';
+    } else if (sessionDur < 0) {
+      err.session = 'Session duration cannot be negative';
       ok = false;
     }
 
-    // Validate Gap Between Sessions (30-120 minutes, only if sessions >= 2)
-    const totalGapMinutes = (+gapMinutes || 0) + (+gapHours || 0) * 60;
-    
-    if (numSessions >= 2) {
-      if (!gapMinutes && !gapHours) {
-        err.gap = 'Gap between sessions is required when sessions ≥ 2';
-        ok = false;
-      } else if (totalGapMinutes < 30) {
-        err.gap = 'Gap must be at least 30 minutes (0.5 hours)';
-        ok = false;
-      } else if (totalGapMinutes > 120) {
-        err.gap = 'Gap cannot exceed 120 minutes (2 hours)';
-        ok = false;
-      }
-    }
-
-    // Validate numeric input for gap fields
+    // Validate gap - only check for negative values
     if (gapMinutes && (!/^\d+$/.test(gapMinutes) || +gapMinutes < 0)) {
-      err.gap = 'Only positive numbers allowed';
+      err.gap = 'Minutes cannot be negative';
       ok = false;
     }
 
     if (gapHours && (!/^\d+$/.test(gapHours) || +gapHours < 0)) {
-      err.gap = 'Only positive numbers allowed';
+      err.gap = 'Hours cannot be negative';
       ok = false;
     }
 
@@ -228,12 +204,12 @@ const ScreenTimeControl = () => {
               <View style={styles.cardHeaderText}>
                 <Text style={styles.cardTitle}>Number of Sessions</Text>
                 <Text style={styles.cardDescription}>
-                  How many sessions per day (1-4)
+                  Set how many sessions per day
                 </Text>
               </View>
             </View>
             <View style={styles.cardContent}>
-              <Stepper value={dailyUsageLimit} setValue={setDailyUsageLimit} min={1} max={4} />
+              <Stepper value={dailyUsageLimit} setValue={setDailyUsageLimit} min={0} max={999} />
             </View>
             {errors.daily && (
               <View style={styles.errorContainer}>
@@ -252,12 +228,12 @@ const ScreenTimeControl = () => {
               <View style={styles.cardHeaderText}>
                 <Text style={styles.cardTitle}>Session Duration (min)</Text>
                 <Text style={styles.cardDescription}>
-                  Duration of each session (15-30 minutes)
+                  Set duration for each session 
                 </Text>
               </View>
             </View>
             <View style={styles.cardContent}>
-              <Stepper value={sessionDuration} setValue={setSessionDuration} min={15} max={30} />
+              <Stepper value={sessionDuration} setValue={setSessionDuration} min={0} max={999} />
             </View>
             {errors.session && (
               <View style={styles.errorContainer}>
@@ -276,7 +252,7 @@ const ScreenTimeControl = () => {
               <View style={styles.cardHeaderText}>
                 <Text style={styles.cardTitle}>Gap Between Sessions</Text>
                 <Text style={styles.cardDescription}>
-                  Gap between sessions (30-120 min)
+                  Set time gap between sessions 
                 </Text>
               </View>
             </View>
@@ -292,17 +268,12 @@ const ScreenTimeControl = () => {
                     value={gapHours}
                     onChangeText={(val) => {
                       if (/^\d*$/.test(val)) {
-                        const totalMin = (+val || 0) * 60 + (+gapMinutes || 0);
-                        if (totalMin <= 120 || val === '') {
-                          setGapHours(val);
-                        }
+                        setGapHours(val);
                       }
                     }}
                     onBlur={() => {
-                      const totalMin = (+gapHours || 0) * 60 + (+gapMinutes || 0);
-                      if (totalMin > 120) {
-                        setGapHours('2');
-                        setGapMinutes('0');
+                      if (gapHours === '') {
+                        setGapHours('0');
                       }
                     }}
                   />
@@ -312,28 +283,21 @@ const ScreenTimeControl = () => {
                   <Text style={styles.gapSeparatorText}>:</Text>
                 </View>
                 <View style={styles.gapInputWrapper}>
-                  <Text style={styles.inputLabel}>Minutes*</Text>
+                  <Text style={styles.inputLabel}>Minutes</Text>
                   <TextInput
                     style={styles.gapInput}
-                    placeholder="30"
+                    placeholder="0"
                     placeholderTextColor="#999"
                     keyboardType="numeric"
                     value={gapMinutes}
                     onChangeText={(val) => {
                       if (/^\d*$/.test(val)) {
-                        const totalMin = (+gapHours || 0) * 60 + (+val || 0);
-                        if (totalMin <= 120 || val === '') {
-                          setGapMinutes(val);
-                        }
+                        setGapMinutes(val);
                       }
                     }}
                     onBlur={() => {
-                      const totalMin = (+gapHours || 0) * 60 + (+gapMinutes || 0);
-                      if (totalMin > 120) {
-                        setGapHours('2');
+                      if (gapMinutes === '') {
                         setGapMinutes('0');
-                      } else if (!gapMinutes && !gapHours && (+dailyUsageLimit >= 2)) {
-                        setGapMinutes('30');
                       }
                     }}
                   />
@@ -399,7 +363,6 @@ const ScreenTimeControl = () => {
             <View style={styles.modalIconContainer}>
               <View style={styles.modalIconCircle}>
                 <Feather name="check" size={40} color="#23B26D" />
-
               </View>
             </View>
             <Text style={styles.modalTitle}>Success!</Text>

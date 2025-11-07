@@ -1,0 +1,127 @@
+[
+  {
+    "quiz_title": "Shapes",
+    "questions": [
+      {
+        "shapeName": "Triangle",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FShapesQuizzes%2Ftriangle_pizza-removebg-preview.png?alt=media&token=98eb4953-0812-4536-bd1f-04f51583feb9",
+        "hints": [
+          {
+            "text": "I look like a pizza slice, who am I?"
+          },
+          {
+            "text": "I have 3 sides, who am I?"
+          }
+        ]
+      },
+      {
+        "shapeName": "Square",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FShapesQuizzes%2Fsquare_box-removebg-preview.png?alt=media&token=bd44a851-5faf-4f39-ad16-85dfd4120397",
+        "hints": [
+          {
+            "text": "I look like a box or a window, who am I?"
+          },
+          {
+            "text": "I have 4 equal sides, who am I?"
+          }
+        ]
+      },
+      {
+        "shapeName": "Circle",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FShapesQuizzes%2Fcircle_ball-removebg-preview.png?alt=media&token=d237b5cd-4d69-4722-9761-fe35451f03f4",
+        "hints": [
+          {
+            "text": "I look like a ball or a coin, who am I?"
+          },
+          {
+            "text": "I have no corners or sides, who am I?"
+          }
+        ]
+      },
+      {
+        "shapeName": "Ellipse",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FShapesQuizzes%2Fellipse_watermelon-removebg-preview.png?alt=media&token=19ea5432-1dc7-4e55-b68c-da696a8cbb5b",
+        "hints": [
+          {
+            "text": "I look like an egg, who am I?"
+          },
+          {
+            "text": "I look like a stretched circle, who am I?"
+          }
+        ]
+      },
+      {
+        "shapeName": "Heart",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FShapesQuizzes%2Fheart-removebg-preview.png?alt=media&token=9d9db28e-7e1a-4deb-b1ef-4f0ebd3b2294",
+        "hints": [
+          {
+            "text": "I am a shape made to look like your real heart, who am I?"
+          },
+          {
+            "text": "I show love and care, who am I?"
+          }
+        ]
+      },
+      {
+        "shapeName": "Hexagon",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FShapesQuizzes%2Fhexagon.jpg?alt=media&token=1686da34-6f9a-442c-b396-05190c69692d",
+        "hints": [
+          {
+            "text": "Bees use me to make honeycombs, who am I?"
+          },
+          {
+            "text": "I have 6 sides, who am I?"
+          }
+        ]
+      },
+      {
+        "shapeName": "Octagon",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FShapesQuizzes%2Foctagon-removebg-preview.png?alt=media&token=3c2299c3-4e30-409c-afcf-abf88d199fda",
+        "hints": [
+          {
+            "text": "I look like a stop sign, who am I?"
+          },
+          {
+            "text": "I have 8 sides, who am I?"
+          }
+        ]
+      },
+      {
+        "shapeName": "Rectangle",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FShapesQuizzes%2Frectangle%20door.PNG?alt=media&token=c9fe5f1e-bee0-436a-8b11-abb9d0a5f56c",
+        "hints": [
+          {
+            "text": "I look like a door or a book, who am I?"
+          },
+          {
+            "text": "I have 4 sides, opposite sides are equal, who am I?"
+          }
+        ]
+      },
+      {
+        "shapeName": "Rhombus",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FShapesQuizzes%2Frhombus-removebg-preview.png?alt=media&token=a4319e9d-88e5-4569-a239-95ef29079d20",
+        "hints": [
+          {
+            "text": "I look like a tilted square or a diamond, who am I?"
+          },
+          {
+            "text": "I have 4 equal sides like a square, who am I?"
+          }
+        ]
+      },
+      {
+        "shapeName": "Star",
+        "imageUrl": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FShapesQuizzes%2Fstar-removebg-preview.png?alt=media&token=b01f6f86-1584-4fc6-8748-774d3a6aad9b",
+        "hints": [
+          {
+            "text": "You can see me shining in the sky, who am I?"
+          },
+          {
+            "text": "I have 5 or more points, who am I?"
+          }
+        ]
+      }
+    ]
+  }
+]

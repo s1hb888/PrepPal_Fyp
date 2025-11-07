@@ -84,6 +84,12 @@ const includedScreens = [
   'BasicQuestionsScreen',
   'QuizScreen',
   'CountingScreen',
+  'VowelQuizzes',
+  'VegetableQuizzes',
+  'CountingQuizzes',
+  'FruitQuizzes',
+  'GK',
+  'ShapeQuizzes',
 ];
 
 export default function App() {
