@@ -18,6 +18,7 @@ const ProfileScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [showImageOptions, setShowImageOptions] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -81,41 +82,62 @@ const ProfileScreen = ({ navigation }) => {
   };
 
   const handleSave = async () => {
-    if (!kidName || !kidAge) {
-      Alert.alert('Error', "Please enter your kid's name and age.");
-      return;
-    }
+  // Trim inputs to avoid spaces counting
+  const trimmedKidName = kidName.trim();
+  const kidAgeNumber = parseInt(kidAge, 10);
 
-    if (password && !validatePassword(password)) {
-      Alert.alert('Error', 'Weak password. Must include uppercase, number & special char.');
-      return;
-    }
+  // Validate kid's name
+  if (!trimmedKidName || trimmedKidName.length < 3 || trimmedKidName.length > 30) {
+    Alert.alert(
+      'Error',
+      "Kid's name must be between 3 and 30 characters."
+    );
+    return;
+  }
 
-    try {
-      setLoading(true);
-      const token = await AsyncStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}/api/update`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ password, kidName, kidAge }),
-      });
+  // Validate kid's age
+  if (isNaN(kidAgeNumber) || kidAgeNumber < 3 || kidAgeNumber > 6) {
+    Alert.alert(
+      'Error',
+      "Kid's age must be a number between 3 and 6."
+    );
+    return;
+  }
 
-      const result = await response.json();
-      if (response.ok) {
-        Alert.alert('Success', result.message);
-      } else {
-        Alert.alert('Error', result.message || 'Update failed');
-      }
-    } catch (error) {
-      console.error('Update Error:', error);
-      Alert.alert('Error', 'Server error. Try again.');
-    } finally {
-      setLoading(false);
+  // Validate password if entered
+  if (password && !validatePassword(password)) {
+    Alert.alert(
+      'Error',
+      'Weak password. Must include uppercase, number & special character.'
+    );
+    return;
+  }
+
+  try {
+    setLoading(true);
+    const token = await AsyncStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/api/update`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ password, kidName: trimmedKidName, kidAge: kidAgeNumber }),
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+      Alert.alert('Success', result.message);
+    } else {
+      Alert.alert('Error', result.message || 'Update failed');
     }
-  };
+  } catch (error) {
+    console.error('Update Error:', error);
+    Alert.alert('Error', 'Server error. Try again.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleDeleteAccount = async () => {
     Alert.alert('Confirm Deletion', 'Are you sure you want to delete your account?', [
@@ -304,14 +326,27 @@ const ProfileScreen = ({ navigation }) => {
         <Text style={styles.label}>Email</Text>
         <TextInput value={email} editable={false} style={styles.input} />
 
-        <Text style={styles.label}>Password</Text>
-        <TextInput
-          placeholder="Enter new password (optional)"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          style={styles.input}
-        />
+        <View style={{ position: 'relative', marginBottom: 15 }}>
+  <Text style={styles.label}>Password</Text>
+  <TextInput
+    placeholder="Enter new password (optional)"
+    value={password}
+    onChangeText={setPassword}
+    secureTextEntry={!showPassword}
+    style={[styles.input, { paddingRight: 40 }]} // extra space for icon
+  />
+  <TouchableOpacity
+    style={{ position: 'absolute', right: 10, top: 37 }}
+    onPress={() => setShowPassword(!showPassword)}
+  >
+    <Feather
+      name={showPassword ? 'eye' : 'eye-off'}
+      size={20}
+      color="#888"
+    />
+  </TouchableOpacity>
+</View>
+
 
         <Text style={styles.label}>Kid's Name</Text>
         <TextInput
