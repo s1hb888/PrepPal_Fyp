@@ -15,6 +15,7 @@ import axios from "axios";
 import { Audio } from "expo-av";
 import * as FileSystem from "expo-file-system";
 import * as Speech from "expo-speech";
+import { Ionicons } from "@expo/vector-icons";
 import API_BASE_URL from "./config";
 
 const LEMONFOX_API_KEY = "JVTxkQ2MhlB2s3wyynOS5FW0fz9xLetf";
@@ -36,7 +37,11 @@ const VegetableQuizzes = () => {
   const [score, setScore] = useState(0);
   const [highlightedWord, setHighlightedWord] = useState(null);
 
-  // Preload sounds
+  // Reward states
+  const [finalScore, setFinalScore] = useState(null);
+  const [earnedStars, setEarnedStars] = useState(0);
+  const [rewardMessage, setRewardMessage] = useState("");
+
   const correctSound = useRef(new Audio.Sound());
   const wrongSound = useRef(new Audio.Sound());
 
@@ -52,7 +57,6 @@ const VegetableQuizzes = () => {
     loadSounds();
   }, []);
 
-  // Fetch quizzes
   useEffect(() => {
     const fetchQuizzes = async () => {
       try {
@@ -68,7 +72,6 @@ const VegetableQuizzes = () => {
     fetchQuizzes();
   }, []);
 
-  // Read question aloud when quiz or question changes
   useEffect(() => {
     if (quizzes.length === 0) return;
     const currentQuiz = quizzes[currentQuizIndex];
@@ -78,14 +81,10 @@ const VegetableQuizzes = () => {
     }
   }, [currentQuizIndex, currentQuestionIndex, quizzes]);
 
-  // Start recording
   const startRecording = async () => {
     try {
       await Audio.requestPermissionsAsync();
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      });
+      await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
       const { recording: rec } = await Audio.Recording.createAsync(
         Audio.RecordingOptionsPresets.HIGH_QUALITY
       );
@@ -97,7 +96,6 @@ const VegetableQuizzes = () => {
     }
   };
 
-  // Stop recording
   const stopRecording = async () => {
     try {
       if (!recording) return;
@@ -112,7 +110,6 @@ const VegetableQuizzes = () => {
     }
   };
 
-  // LemonFox transcription
   const sendToLemonFox = async (uri) => {
     try {
       const formData = new FormData();
@@ -154,16 +151,45 @@ const VegetableQuizzes = () => {
 
   const handleNext = () => {
     const currentQuiz = quizzes[currentQuizIndex];
-    const isLastQuestion =
-      currentQuestionIndex === currentQuiz.questions.length - 1;
+    const isLastQuestion = currentQuestionIndex === currentQuiz.questions.length - 1;
 
     if (isLastQuestion) {
       const isLastQuiz = currentQuizIndex === quizzes.length - 1;
+
       if (isLastQuiz) {
-        Alert.alert(
-          "Quiz Complete",
-          `You scored ${score} out of ${currentQuiz.questions.length}`
-        );
+        // Calculate reward
+        const totalQuestions = currentQuiz.questions.length;
+        const scorePercent = (score / totalQuestions) * 100;
+        let stars = 0;
+        let message = "";
+
+        if (scorePercent >= 90) {
+          stars = 3;
+          message = "Excellent! You earned 3 Gold Stars ⭐⭐⭐";
+        } else if (scorePercent >= 80) {
+          stars = 2;
+          message = "Great! You earned 2 Gold Stars ⭐⭐";
+        } else if (scorePercent >= 70) {
+          stars = 1;
+          message = "Good! You earned 1 Gold Star ⭐";
+        } else if (scorePercent >= 60) {
+          stars = 0;
+          message = "Well done! You’re one step away from earning a star.";
+        } else if (scorePercent > 50) {
+          stars = 0;
+          message = "Good effort! Keep trying.";
+        } else if (scorePercent === 50) {
+          stars = 0;
+          message = "You passed!";
+          Speech.speak("You passed!");
+        } else {
+          stars = 0;
+          message = "Don’t worry, you’ll do better next time!";
+        }
+
+        setFinalScore(scorePercent);
+        setEarnedStars(stars);
+        setRewardMessage(message);
       } else {
         setCurrentQuizIndex((p) => p + 1);
         setCurrentQuestionIndex(0);
@@ -216,6 +242,29 @@ const VegetableQuizzes = () => {
         <TouchableOpacity style={styles.stopBtn} onPress={stopRecording}>
           <Text style={styles.recordText}>⏹ Stop Recording</Text>
         </TouchableOpacity>
+      )}
+
+      {/* ✅ Reward Section */}
+      {finalScore !== null && (
+        <View style={{ marginTop: 30, alignItems: "center" }}>
+          <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}>
+            Quiz Complete! Score: {finalScore.toFixed(0)}%
+          </Text>
+
+          <View style={{ flexDirection: "row", marginBottom: 10 }}>
+            {[...Array(3)].map((_, i) => (
+              <Ionicons
+                key={i}
+                name={i < earnedStars ? "star" : "star-outline"}
+                size={40}
+                color="#FFD700"
+                style={{ marginHorizontal: 5 }}
+              />
+            ))}
+          </View>
+
+          <Text style={{ fontSize: 16, textAlign: "center" }}>{rewardMessage}</Text>
+        </View>
       )}
     </View>
   );

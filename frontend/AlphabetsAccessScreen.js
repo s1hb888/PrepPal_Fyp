@@ -1,5 +1,6 @@
 import axios from 'axios';
 import API_BASE_URL from './config';
+import { Alert } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -7,14 +8,13 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   Image,
   ActivityIndicator,
   SafeAreaView,
-  TextInput,
   Switch,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Slider from '@react-native-community/slider';
 
 const AlphabetAccessScreen = () => {
   const [alphabets, setAlphabets] = useState([]);
@@ -29,11 +29,7 @@ const AlphabetAccessScreen = () => {
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
-      if (!token) {
-        Alert.alert('Token Missing', 'Please log in again.');
-        setLoading(false);
-        return;
-      }
+      if (!token) return;
 
       const response = await axios.get(`${API_BASE_URL}/api/access/alphabets`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -45,22 +41,24 @@ const AlphabetAccessScreen = () => {
       const formatted = data.map(item => ({
         item_id: item._id,
         min_attempts: item.min_attempts ?? 3,
-        min_time_avg: item.min_time_avg ?? 2,
+        min_time_avg: item.min_time_avg ?? 5,
         min_correct_avg: item.min_correct_avg ?? 80,
         active: item.active ?? true,
       }));
       setAccessData(formatted);
     } catch (error) {
       console.error('Error fetching alphabets:', error.response?.data || error.message);
-      Alert.alert('Error', 'Could not load alphabets');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleFieldChange = (id, field, value) => {
+  // ✅ Update state directly when slider moves
+  const handleSliderChange = (id, field, value) => {
     setAccessData(prev =>
-      prev.map(a => (a.item_id === id ? { ...a, [field]: value } : a))
+      prev.map(a =>
+        a.item_id === id ? { ...a, [field]: Math.round(value) } : a
+      )
     );
   };
 
@@ -75,10 +73,7 @@ const AlphabetAccessScreen = () => {
   const saveAccess = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      if (!token) {
-        Alert.alert('Error', 'Token not found. Please log in again.');
-        return;
-      }
+      if (!token) return;
 
       await axios.put(
         `${API_BASE_URL}/api/update/alphabets/access`,
@@ -91,7 +86,6 @@ const AlphabetAccessScreen = () => {
       Alert.alert('✅ Success', 'Alphabet access updated successfully!');
     } catch (error) {
       console.error('Error saving alphabet access:', error);
-      Alert.alert('❌ Error', 'Failed to update alphabet access');
     }
   };
 
@@ -121,36 +115,54 @@ const AlphabetAccessScreen = () => {
 
         <View style={styles.separator} />
 
-        <View style={styles.fieldRow}>
-          <Text style={styles.label}>Attempts</Text>
-          <TextInput
-            editable={!disabled}
-            style={[styles.input, disabled && styles.disabledInput]}
-            keyboardType="numeric"
-            value={data.min_attempts.toString()}
-            onChangeText={(t) => handleFieldChange(item._id, 'min_attempts', t)}
+        {/* ✅ Attempts Range Slider */}
+        <View style={styles.sliderRow}>
+          <Text style={styles.label}>Attempts ({data.min_attempts})</Text>
+          <Slider
+            disabled={disabled}
+            style={styles.slider}
+            minimumValue={3}
+            maximumValue={20}
+            step={1}
+            value={data.min_attempts}
+            minimumTrackTintColor="#2BCB9A"
+            maximumTrackTintColor="#D1D5DB"
+            thumbTintColor="#2BCB9A"
+            onValueChange={(v) => handleSliderChange(item._id, 'min_attempts', v)}
           />
         </View>
 
-        <View style={styles.fieldRow}>
-          <Text style={styles.label}>Time Avg</Text>
-          <TextInput
-            editable={!disabled}
-            style={[styles.input, disabled && styles.disabledInput]}
-            keyboardType="numeric"
-            value={data.min_time_avg.toString()}
-            onChangeText={(t) => handleFieldChange(item._id, 'min_time_avg', t)}
+        {/* ✅ Time Avg Slider */}
+        <View style={styles.sliderRow}>
+          <Text style={styles.label}>Time Avg ({data.min_time_avg}s)</Text>
+          <Slider
+            disabled={disabled}
+            style={styles.slider}
+            minimumValue={5}
+            maximumValue={60}
+            step={1}
+            value={data.min_time_avg}
+             minimumTrackTintColor="#2BCB9A"
+            maximumTrackTintColor="#E5E7EB"
+            thumbTintColor="#2BCB9A"
+            onValueChange={(v) => handleSliderChange(item._id, 'min_time_avg', v)}
           />
         </View>
 
-        <View style={styles.fieldRow}>
-          <Text style={styles.label}>Correct %</Text>
-          <TextInput
-            editable={!disabled}
-            style={[styles.input, disabled && styles.disabledInput]}
-            keyboardType="numeric"
-            value={data.min_correct_avg.toString()}
-            onChangeText={(t) => handleFieldChange(item._id, 'min_correct_avg', t)}
+        {/* ✅ Correct % Slider */}
+        <View style={styles.sliderRow}>
+          <Text style={styles.label}>Correct % ({data.min_correct_avg}%)</Text>
+          <Slider
+            disabled={disabled}
+            style={styles.slider}
+            minimumValue={50}
+            maximumValue={95}
+            step={1}
+            value={data.min_correct_avg}
+              minimumTrackTintColor="#2BCB9A"
+            maximumTrackTintColor="#E5E7EB"
+            thumbTintColor="#2BCB9A"
+            onValueChange={(v) => handleSliderChange(item._id, 'min_correct_avg', v)}
           />
         </View>
 
@@ -190,7 +202,7 @@ const AlphabetAccessScreen = () => {
       />
 
       <TouchableOpacity style={styles.saveButton} onPress={saveAccess}>
-        <Text style={styles.saveButtonText}>💾 Save Changes</Text>
+        <Text style={styles.saveButtonText}>Save Changes</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -239,38 +251,20 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
 
-  fieldRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 3,
-    justifyContent: 'space-between',
+  sliderRow: {
     width: '90%',
+    marginVertical: 6,
   },
 
-  label: { fontSize: 13, color: '#111827', fontWeight: '600' },
-  input: {
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    borderRadius: 8,
-    paddingVertical: 4,
-    paddingHorizontal: 6,
-    width: 60,
-    textAlign: 'center',
-    fontSize: 13,
-    backgroundColor: '#F9FAFB',
-  },
-
-  disabledInput: {
-    backgroundColor: '#F3F4F6',
-    color: '#9CA3AF',
-  },
+  label: { fontSize: 13, color: '#111827', fontWeight: '600', marginBottom: 2 },
+  slider: { width: '100%', height: 40 },
 
   switchRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '90%',
-    marginTop: 8,
+    marginTop: 10,
   },
 
   switchLabel: { fontSize: 14, fontWeight: '600', color: '#111827' },

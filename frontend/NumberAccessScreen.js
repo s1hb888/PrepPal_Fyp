@@ -1,5 +1,6 @@
 import axios from 'axios';
 import API_BASE_URL from './config';
+import { Alert } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -7,13 +8,12 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   Image,
   ActivityIndicator,
   SafeAreaView,
-  TextInput,
   Switch,
 } from 'react-native';
+import Slider from '@react-native-community/slider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const NumbersAccessScreen = () => {
@@ -30,7 +30,6 @@ const NumbersAccessScreen = () => {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
       if (!token) {
-        Alert.alert('Token Missing', 'Please log in again.');
         setLoading(false);
         return;
       }
@@ -45,22 +44,27 @@ const NumbersAccessScreen = () => {
       const formatted = data.map(item => ({
         item_id: item._id,
         min_attempts: item.min_attempts ?? 3,
-        min_time_avg: item.min_time_avg ?? 2,
+        min_time_avg: item.min_time_avg ?? 5,
         min_correct_avg: item.min_correct_avg ?? 80,
         active: item.active ?? true,
       }));
       setAccessData(formatted);
     } catch (error) {
       console.error('Error fetching numbers:', error.response?.data || error.message);
-      Alert.alert('Error', 'Could not load numbers');
     } finally {
       setLoading(false);
     }
   };
 
   const handleFieldChange = (id, field, value) => {
+    let clampedValue = value;
+
+    if (field === 'min_attempts') clampedValue = Math.max(3, Math.min(20, value));
+    if (field === 'min_time_avg') clampedValue = Math.max(5, Math.min(60, value));
+    if (field === 'min_correct_avg') clampedValue = Math.max(50, Math.min(95, value));
+
     setAccessData(prev =>
-      prev.map(a => (a.item_id === id ? { ...a, [field]: value } : a))
+      prev.map(a => (a.item_id === id ? { ...a, [field]: clampedValue } : a))
     );
   };
 
@@ -75,23 +79,16 @@ const NumbersAccessScreen = () => {
   const saveAccess = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      if (!token) {
-        Alert.alert('Error', 'Token not found. Please log in again.');
-        return;
-      }
+      if (!token) return;
 
       await axios.put(
         `${API_BASE_URL}/api/update/numbers/access`,
         { numbers: accessData },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-
-      Alert.alert('✅ Success', 'Number access updated successfully!');
+       Alert.alert('✅ Success', 'Number access updated successfully!');
     } catch (error) {
       console.error('Error saving number access:', error);
-      Alert.alert('❌ Error', 'Failed to update number access');
     }
   };
 
@@ -116,39 +113,55 @@ const NumbersAccessScreen = () => {
 
         <View style={styles.separator} />
 
-        <View style={styles.fieldRow}>
-          <Text style={styles.label}>Attempts</Text>
-          <TextInput
-            editable={!disabled}
-            style={[styles.input, disabled && styles.disabledInput]}
-            keyboardType="numeric"
-            value={data.min_attempts.toString()}
-            onChangeText={(t) => handleFieldChange(item._id, 'min_attempts', t)}
+        {/* Attempts Slider */}
+        <View style={styles.fieldBlock}>
+          <Text style={styles.label}>Attempts: {data.min_attempts}</Text>
+          <Slider
+            minimumValue={3}
+            maximumValue={20}
+            step={1}
+            value={data.min_attempts}
+            onValueChange={(v) => handleFieldChange(item._id, 'min_attempts', v)}
+            minimumTrackTintColor="#2BCB9A"
+            maximumTrackTintColor="#E5E7EB"
+            thumbTintColor="#2BCB9A"
+            disabled={disabled}
           />
         </View>
 
-        <View style={styles.fieldRow}>
-          <Text style={styles.label}>Time Avg</Text>
-          <TextInput
-            editable={!disabled}
-            style={[styles.input, disabled && styles.disabledInput]}
-            keyboardType="numeric"
-            value={data.min_time_avg.toString()}
-            onChangeText={(t) => handleFieldChange(item._id, 'min_time_avg', t)}
+        {/* Time Avg Slider */}
+        <View style={styles.fieldBlock}>
+          <Text style={styles.label}>Time Avg (sec): {data.min_time_avg}</Text>
+          <Slider
+            minimumValue={5}
+            maximumValue={60}
+            step={1}
+            value={data.min_time_avg}
+            onValueChange={(v) => handleFieldChange(item._id, 'min_time_avg', v)}
+            minimumTrackTintColor="#2BCB9A"
+            maximumTrackTintColor="#E5E7EB"
+            thumbTintColor="#2BCB9A"
+            disabled={disabled}
           />
         </View>
 
-        <View style={styles.fieldRow}>
-          <Text style={styles.label}>Correct %</Text>
-          <TextInput
-            editable={!disabled}
-            style={[styles.input, disabled && styles.disabledInput]}
-            keyboardType="numeric"
-            value={data.min_correct_avg.toString()}
-            onChangeText={(t) => handleFieldChange(item._id, 'min_correct_avg', t)}
+        {/* Correct % Slider */}
+        <View style={styles.fieldBlock}>
+          <Text style={styles.label}>Correct %: {data.min_correct_avg}</Text>
+          <Slider
+            minimumValue={50}
+            maximumValue={95}
+            step={1}
+            value={data.min_correct_avg}
+            onValueChange={(v) => handleFieldChange(item._id, 'min_correct_avg', v)}
+            minimumTrackTintColor="#2BCB9A"
+            maximumTrackTintColor="#E5E7EB"
+            thumbTintColor="#2BCB9A"
+            disabled={disabled}
           />
         </View>
 
+        {/* Active Switch */}
         <View style={styles.switchRow}>
           <Text style={[styles.switchLabel, !data.active && styles.inactiveText]}>
             {data.active ? 'Active' : 'Inactive'}
@@ -185,7 +198,7 @@ const NumbersAccessScreen = () => {
       />
 
       <TouchableOpacity style={styles.saveButton} onPress={saveAccess}>
-        <Text style={styles.saveButtonText}>💾 Save Changes</Text>
+        <Text style={styles.saveButtonText}>Save Changes</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -216,12 +229,7 @@ const styles = StyleSheet.create({
     elevation: 3,
     alignItems: 'center',
   },
-
-  inactiveCard: {
-    backgroundColor: '#FDECEC',
-    borderColor: '#FCA5A5',
-  },
-
+  inactiveCard: { backgroundColor: '#FDECEC', borderColor: '#FCA5A5' },
   image: { width: 80, height: 80, marginBottom: 8 },
   placeholder: { justifyContent: 'center', alignItems: 'center' },
   placeholderText: { color: '#9CA3AF', fontSize: 12 },
@@ -233,33 +241,8 @@ const styles = StyleSheet.create({
     width: '100%',
     marginVertical: 8,
   },
-
-  fieldRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 3,
-    justifyContent: 'space-between',
-    width: '90%',
-  },
-
-  label: { fontSize: 13, color: '#111827', fontWeight: '600' },
-  input: {
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    borderRadius: 8,
-    paddingVertical: 4,
-    paddingHorizontal: 6,
-    width: 60,
-    textAlign: 'center',
-    fontSize: 13,
-    backgroundColor: '#F9FAFB',
-  },
-
-  disabledInput: {
-    backgroundColor: '#F3F4F6',
-    color: '#9CA3AF',
-  },
-
+  fieldBlock: { width: '90%', marginVertical: 4 },
+  label: { fontSize: 13, fontWeight: '600', color: '#111827', marginBottom: 2 },
   switchRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -267,10 +250,8 @@ const styles = StyleSheet.create({
     width: '90%',
     marginTop: 8,
   },
-
   switchLabel: { fontSize: 14, fontWeight: '600', color: '#111827' },
   inactiveText: { color: '#DC2626' },
-
   saveButton: {
     position: 'absolute',
     bottom: 25,
@@ -281,13 +262,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     elevation: 5,
   },
-  saveButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
-    letterSpacing: 0.5,
-  },
-
+  saveButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
 });
 

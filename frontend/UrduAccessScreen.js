@@ -1,5 +1,6 @@
 import axios from 'axios';
 import API_BASE_URL from './config';
+import { Alert } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -7,13 +8,12 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   Image,
   ActivityIndicator,
   SafeAreaView,
-  TextInput,
   Switch,
 } from 'react-native';
+import Slider from '@react-native-community/slider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const UrduAlphabetAccessScreen = () => {
@@ -29,11 +29,7 @@ const UrduAlphabetAccessScreen = () => {
     try {
       setLoading(true);
       const token = await AsyncStorage.getItem('token');
-      if (!token) {
-        Alert.alert('Token Missing', 'Please log in again.');
-        setLoading(false);
-        return;
-      }
+      if (!token) return;
 
       const response = await axios.get(`${API_BASE_URL}/api/access/urdu`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -45,14 +41,13 @@ const UrduAlphabetAccessScreen = () => {
       const formatted = data.map(item => ({
         item_id: item._id,
         min_attempts: item.min_attempts ?? 3,
-        min_time_avg: item.min_time_avg ?? 2,
+        min_time_avg: item.min_time_avg ?? 5,
         min_correct_avg: item.min_correct_avg ?? 80,
         active: item.active ?? true,
       }));
       setAccessData(formatted);
     } catch (error) {
       console.error('Error fetching Urdu alphabets:', error.response?.data || error.message);
-      Alert.alert('Error', 'Could not load Urdu alphabets');
     } finally {
       setLoading(false);
     }
@@ -75,10 +70,7 @@ const UrduAlphabetAccessScreen = () => {
   const saveAccess = async () => {
     try {
       const token = await AsyncStorage.getItem('token');
-      if (!token) {
-        Alert.alert('Error', 'Token not found. Please log in again.');
-        return;
-      }
+      if (!token) return;
 
       await axios.put(
         `${API_BASE_URL}/api/update/urdu/access`,
@@ -87,11 +79,9 @@ const UrduAlphabetAccessScreen = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-
-      Alert.alert('✅ Success', 'Urdu alphabet access updated successfully!');
+           Alert.alert('✅ Success', 'Urdu Alphabets access updated successfully!');
     } catch (error) {
       console.error('Error saving Urdu alphabet access:', error);
-      Alert.alert('❌ Error', 'Failed to update Urdu alphabet access');
     }
   };
 
@@ -121,36 +111,54 @@ const UrduAlphabetAccessScreen = () => {
 
         <View style={styles.separator} />
 
+        {/* Attempts Slider */}
         <View style={styles.fieldRow}>
-          <Text style={styles.label}>Attempts</Text>
-          <TextInput
-            editable={!disabled}
-            style={[styles.input, disabled && styles.disabledInput]}
-            keyboardType="numeric"
-            value={data.min_attempts.toString()}
-            onChangeText={(t) => handleFieldChange(item._id, 'min_attempts', t)}
+          <Text style={styles.label}>Attempts: {data.min_attempts}</Text>
+          <Slider
+            style={styles.slider}
+            minimumValue={3}
+            maximumValue={20}
+            step={1}
+            value={data.min_attempts}
+            disabled={disabled}
+            minimumTrackTintColor="#2BCB9A"
+            maximumTrackTintColor="#ddd"
+            thumbTintColor="#2BCB9A"
+            onValueChange={(val) => handleFieldChange(item._id, 'min_attempts', val)}
           />
         </View>
 
+        {/* Time Avg Slider */}
         <View style={styles.fieldRow}>
-          <Text style={styles.label}>Time Avg</Text>
-          <TextInput
-            editable={!disabled}
-            style={[styles.input, disabled && styles.disabledInput]}
-            keyboardType="numeric"
-            value={data.min_time_avg.toString()}
-            onChangeText={(t) => handleFieldChange(item._id, 'min_time_avg', t)}
+          <Text style={styles.label}>Time Avg: {data.min_time_avg}s</Text>
+          <Slider
+            style={styles.slider}
+            minimumValue={5}
+            maximumValue={60}
+            step={1}
+            value={data.min_time_avg}
+            disabled={disabled}
+            minimumTrackTintColor="#2BCB9A"
+            maximumTrackTintColor="#ddd"
+            thumbTintColor="#2BCB9A"
+            onValueChange={(val) => handleFieldChange(item._id, 'min_time_avg', val)}
           />
         </View>
 
+        {/* Correct % Slider */}
         <View style={styles.fieldRow}>
-          <Text style={styles.label}>Correct %</Text>
-          <TextInput
-            editable={!disabled}
-            style={[styles.input, disabled && styles.disabledInput]}
-            keyboardType="numeric"
-            value={data.min_correct_avg.toString()}
-            onChangeText={(t) => handleFieldChange(item._id, 'min_correct_avg', t)}
+          <Text style={styles.label}>Correct %: {data.min_correct_avg}%</Text>
+          <Slider
+            style={styles.slider}
+            minimumValue={50}
+            maximumValue={95}
+            step={1}
+            value={data.min_correct_avg}
+            disabled={disabled}
+            minimumTrackTintColor="#2BCB9A"
+            maximumTrackTintColor="#ddd"
+            thumbTintColor="#2BCB9A"
+            onValueChange={(val) => handleFieldChange(item._id, 'min_correct_avg', val)}
           />
         </View>
 
@@ -190,7 +198,7 @@ const UrduAlphabetAccessScreen = () => {
       />
 
       <TouchableOpacity style={styles.saveButton} onPress={saveAccess}>
-        <Text style={styles.saveButtonText}>💾 Save Changes</Text>
+        <Text style={styles.saveButtonText}>Save Changes</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -236,28 +244,11 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   fieldRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 3,
-    justifyContent: 'space-between',
     width: '90%',
+    marginVertical: 5,
   },
-  label: { fontSize: 13, color: '#111827', fontWeight: '600' },
-  input: {
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
-    borderRadius: 8,
-    paddingVertical: 4,
-    paddingHorizontal: 6,
-    width: 60,
-    textAlign: 'center',
-    fontSize: 13,
-    backgroundColor: '#F9FAFB',
-  },
-  disabledInput: {
-    backgroundColor: '#F3F4F6',
-    color: '#9CA3AF',
-  },
+  label: { fontSize: 13, color: '#111827', fontWeight: '600', marginBottom: 4 },
+  slider: { width: '100%', height: 35 },
   switchRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

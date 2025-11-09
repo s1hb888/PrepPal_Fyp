@@ -4,11 +4,11 @@ import { View, Text, Image, StyleSheet, TouchableOpacity, ActivityIndicator, Ale
 import axios from "axios";
 import { Audio } from "expo-av";
 import * as FileSystem from "expo-file-system";
-import * as Speech from "expo-speech"; // <-- import expo-speech
+import * as Speech from "expo-speech"; 
+import { Ionicons } from "@expo/vector-icons";
 import API_BASE_URL from "./config";
 
 const LEMONFOX_API_KEY = "JVTxkQ2MhlB2s3wyynOS5FW0fz9xLetf";
-
 const normalizeRaw = (text = "") => text.toString().toLowerCase().replace(/[\s.,!?؛،؟]/g, "").trim();
 
 const CountingQuizzes = () => {
@@ -19,6 +19,10 @@ const CountingQuizzes = () => {
   const [recording, setRecording] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   const [score, setScore] = useState(0);
+
+  const [finalScore, setFinalScore] = useState(null);
+  const [earnedStars, setEarnedStars] = useState(0);
+  const [rewardMessage, setRewardMessage] = useState("");
 
   // Sound refs
   const correctSound = useRef(new Audio.Sound());
@@ -134,7 +138,7 @@ const CountingQuizzes = () => {
     }
   };
 
-  // ------------------- Next question -------------------
+  // ------------------- Next question / quiz completion -------------------
   const handleNext = () => {
     const currentQuiz = quizzes[currentQuizIndex];
     const isLastQuestion = currentQuestionIndex === currentQuiz.questions.length - 1;
@@ -142,7 +146,40 @@ const CountingQuizzes = () => {
     if (isLastQuestion) {
       const isLastQuiz = currentQuizIndex === quizzes.length - 1;
       if (isLastQuiz) {
-        Alert.alert("Quiz Complete", `You scored ${score} out of ${currentQuiz.questions.length}`);
+        // Calculate final score and stars
+        const totalQuestions = currentQuiz.questions.length;
+        const scorePercent = (score / totalQuestions) * 100;
+
+        let stars = 0;
+        let message = "";
+
+        if (scorePercent >= 90) {
+          stars = 3;
+          message = "Excellent! You earned 3 Gold Stars ⭐⭐⭐";
+        } else if (scorePercent >= 80) {
+          stars = 2;
+          message = "Great! You earned 2 Gold Stars ⭐⭐";
+        } else if (scorePercent >= 70) {
+          stars = 1;
+          message = "Good! You earned 1 Gold Star ⭐";
+        } else if (scorePercent >= 60) {
+          stars = 0;
+          message = "Well done! You’re one step away from earning a star.";
+        } else if (scorePercent > 50) {
+          stars = 0;
+          message = "Good effort! Keep trying.";
+        } else if (scorePercent === 50) {
+          stars = 0;
+          message = "You passed!";
+          Speech.speak("You passed!");
+        } else {
+          stars = 0;
+          message = "Don’t worry, you’ll do better next time!";
+        }
+
+        setFinalScore(scorePercent);
+        setEarnedStars(stars);
+        setRewardMessage(message);
       } else {
         setCurrentQuizIndex((p) => p + 1);
         setCurrentQuestionIndex(0);
@@ -194,6 +231,29 @@ const CountingQuizzes = () => {
         <TouchableOpacity style={styles.stopBtn} onPress={stopRecording}>
           <Text style={styles.recordText}>⏹ Stop Recording</Text>
         </TouchableOpacity>
+      )}
+
+      {/* ✅ Display Stars and Reward Message */}
+      {finalScore !== null && (
+        <View style={{ marginTop: 30, alignItems: "center" }}>
+          <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}>
+            Quiz Complete! Score: {finalScore.toFixed(0)}%
+          </Text>
+
+          <View style={{ flexDirection: "row", marginBottom: 10 }}>
+            {[...Array(3)].map((_, i) => (
+              <Ionicons
+                key={i}
+                name={i < earnedStars ? "star" : "star-outline"}
+                size={40}
+                color="#FFD700"
+                style={{ marginHorizontal: 5 }}
+              />
+            ))}
+          </View>
+
+          <Text style={{ fontSize: 16, textAlign: "center" }}>{rewardMessage}</Text>
+        </View>
       )}
     </View>
   );

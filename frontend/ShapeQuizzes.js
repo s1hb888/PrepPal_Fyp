@@ -14,6 +14,7 @@ import {
 import { Audio } from "expo-av";
 import * as FileSystem from "expo-file-system";
 import * as Speech from "expo-speech";
+import { Ionicons } from "@expo/vector-icons";
 import API_BASE_URL from "./config";
 
 const LEMONFOX_API_KEY = "JVTxkQ2MhlB2s3wyynOS5FW0fz9xLetf";
@@ -33,12 +34,15 @@ const ShapeQuizzes = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [score, setScore] = useState(0);
   const [highlightedWord, setHighlightedWord] = useState(null);
-  const [hintIndex, setHintIndex] = useState(0); // 0 = first hint, 1 = second hint
+  const [hintIndex, setHintIndex] = useState(0);
+
+  const [finalScore, setFinalScore] = useState(null);
+  const [earnedStars, setEarnedStars] = useState(0);
+  const [rewardMessage, setRewardMessage] = useState("");
 
   const correctSound = useRef(new Audio.Sound());
   const wrongSound = useRef(new Audio.Sound());
 
-  // Load sounds
   useEffect(() => {
     const loadSounds = async () => {
       try {
@@ -51,7 +55,6 @@ const ShapeQuizzes = () => {
     loadSounds();
   }, []);
 
-  // Fetch quizzes
   useEffect(() => {
     const fetchQuizzes = async () => {
       try {
@@ -68,16 +71,12 @@ const ShapeQuizzes = () => {
     fetchQuizzes();
   }, []);
 
-  // Speak current hint
   useEffect(() => {
     if (quizzes.length === 0) return;
     const question = quizzes[0]?.questions[currentQuestionIndex];
-    if (question) {
-      Speech.speak(question.hints[hintIndex].text);
-    }
+    if (question) Speech.speak(question.hints[hintIndex].text);
   }, [currentQuestionIndex, hintIndex, quizzes]);
 
-  // Start recording
   const startRecording = async () => {
     try {
       await Audio.requestPermissionsAsync();
@@ -93,7 +92,6 @@ const ShapeQuizzes = () => {
     }
   };
 
-  // Stop recording
   const stopRecording = async () => {
     try {
       if (!recording) return;
@@ -108,7 +106,6 @@ const ShapeQuizzes = () => {
     }
   };
 
-  // LemonFox transcription
   const sendToLemonFox = async (uri) => {
     try {
       const formData = new FormData();
@@ -139,10 +136,8 @@ const ShapeQuizzes = () => {
         }, 2000);
       } else {
         if (hintIndex === 0 && question.hints[1]) {
-          // Show second hint
           setHintIndex(1);
         } else {
-          // Wrong answer after second hint, move next
           await wrongSound.current.replayAsync();
           setTimeout(() => {
             setHighlightedWord(null);
@@ -158,12 +153,41 @@ const ShapeQuizzes = () => {
 
   const nextQuestion = () => {
     const nextIndex = currentQuestionIndex + 1;
-    setHintIndex(0); // Reset hint for next question
+    setHintIndex(0); // reset hint
     if (nextIndex >= quizzes[0].questions.length) {
-      Alert.alert(
-        "Quiz Complete",
-        `You scored ${score} out of ${quizzes[0].questions.length}`
-      );
+      // Quiz finished -> calculate stars
+      const totalQuestions = quizzes[0].questions.length;
+      const scorePercent = (score / totalQuestions) * 100;
+      let stars = 0;
+      let message = "";
+
+      if (scorePercent >= 90) {
+        stars = 3;
+        message = "Excellent! You earned 3 Gold Stars ⭐⭐⭐";
+      } else if (scorePercent >= 80) {
+        stars = 2;
+        message = "Great! You earned 2 Gold Stars ⭐⭐";
+      } else if (scorePercent >= 70) {
+        stars = 1;
+        message = "Good! You earned 1 Gold Star ⭐";
+      } else if (scorePercent >= 60) {
+        stars = 0;
+        message = "Well done! You’re one step away from earning a star.";
+      } else if (scorePercent > 50) {
+        stars = 0;
+        message = "Good effort! Keep trying.";
+      } else if (scorePercent === 50) {
+        stars = 0;
+        message = "You passed!";
+        Speech.speak("You passed!");
+      } else {
+        stars = 0;
+        message = "Don’t worry, you’ll do better next time!";
+      }
+
+      setFinalScore(scorePercent);
+      setEarnedStars(stars);
+      setRewardMessage(message);
     } else {
       setCurrentQuestionIndex(nextIndex);
     }
@@ -206,6 +230,29 @@ const ShapeQuizzes = () => {
         <TouchableOpacity style={styles.stopBtn} onPress={stopRecording}>
           <Text style={styles.recordText}>⏹ Stop Recording</Text>
         </TouchableOpacity>
+      )}
+
+      {/* ✅ Reward Section */}
+      {finalScore !== null && (
+        <View style={{ marginTop: 30, alignItems: "center" }}>
+          <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}>
+            Quiz Complete! Score: {finalScore.toFixed(0)}%
+          </Text>
+
+          <View style={{ flexDirection: "row", marginBottom: 10 }}>
+            {[...Array(3)].map((_, i) => (
+              <Ionicons
+                key={i}
+                name={i < earnedStars ? "star" : "star-outline"}
+                size={40}
+                color="#FFD700"
+                style={{ marginHorizontal: 5 }}
+              />
+            ))}
+          </View>
+
+          <Text style={{ fontSize: 16, textAlign: "center" }}>{rewardMessage}</Text>
+        </View>
       )}
     </View>
   );
