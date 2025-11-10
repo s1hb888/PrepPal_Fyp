@@ -112,7 +112,6 @@ export const SessionProvider = ({ children, navigationRef, includedScreens = [] 
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
-      console.log('[🛑 Interval cleared]');
     }
   };
 
@@ -122,11 +121,6 @@ export const SessionProvider = ({ children, navigationRef, includedScreens = [] 
     if (!user || user.role !== 'kid') return;
 
     currentKidIdRef.current = user._id;
-
-    console.log('\n═══════════════════════════════════════');
-    console.log('[🚀 ATTEMPTING TO START NEW SESSION]');
-    console.log('═══════════════════════════════════════');
-
     await registerAndSaveFcmToken(user._id);
 
     try {
@@ -144,10 +138,6 @@ export const SessionProvider = ({ children, navigationRef, includedScreens = [] 
         enforceLockUI('All done for today! 🌙 Come back tomorrow for more fun!', null, true);
         return false;
       }
-
-      console.log('[✅ SESSION STARTED SUCCESSFULLY!]');
-      console.log('[⏰ Session end time:', data.endISO);
-      console.log('═══════════════════════════════════════\n');
       
       clearLockUI();
       isProcessingRef.current = false;
@@ -198,16 +188,6 @@ export const SessionProvider = ({ children, navigationRef, includedScreens = [] 
 
         // ✅ CASE 1: Active session that has ended
         if (sessionStart && sessionEnd && nowMoment.isSameOrAfter(sessionEnd) && !isLocked) {
-          console.log('\n╔═══════════════════════════════════════╗');
-          console.log('║   SESSION DURATION REACHED!           ║');
-          console.log('╚═══════════════════════════════════════╝');
-          console.log('[📊 Details:');
-          console.log('  - Session start:', sessionStart.format('HH:mm:ss'));
-          console.log('  - Session end:', sessionEnd.format('HH:mm:ss'));
-          console.log('  - Current time:', nowMoment.format('HH:mm:ss'));
-          console.log('  - Sessions used:', sessionsUsed);
-          console.log('  - Sessions allowed:', sessionsAllowed);
-          console.log('  - Sessions remaining:', sessionsRemaining);
           
           // Lock the session
           console.log('[🔒 Calling /lock-session API...]');
@@ -227,11 +207,6 @@ export const SessionProvider = ({ children, navigationRef, includedScreens = [] 
           const newSessionsAllowed = freshRec.dailyUsageLimit || 0;
           const newSessionsRemaining = newSessionsAllowed - newSessionsUsed;
 
-          console.log('[📊 After locking:');
-          console.log('  - Backend isLocked:', freshRec?.isLocked);
-          console.log('  - Sessions used:', newSessionsUsed);
-          console.log('  - Sessions remaining:', newSessionsRemaining);
-
           if (freshRec?.isLocked) {
             console.log('[✅ Backend confirmed lock]');
             
@@ -247,8 +222,6 @@ export const SessionProvider = ({ children, navigationRef, includedScreens = [] 
                 console.log('[⏰ Next session available at:', nextSessionAt.format('HH:mm:ss'));
               }
 
-              console.log(`[✅ ${newSessionsRemaining} session(s) remaining - Starting gap period]`);
-              console.log('╚═══════════════════════════════════════╝\n');
               
               enforceLockUI(
                 `Great job! 🎉 Time for a break. You have ${newSessionsRemaining} more session${newSessionsRemaining > 1 ? 's' : ''} today!`,
@@ -271,17 +244,8 @@ export const SessionProvider = ({ children, navigationRef, includedScreens = [] 
           const isNewLock = currentLockTime !== lastSessionEndTimeRef.current;
           
           if (nowMoment.isSameOrAfter(gapEndTime)) {
-            console.log('\n╔═══════════════════════════════════════╗');
-            console.log('║   GAP PERIOD COMPLETED!               ║');
-            console.log('╚═══════════════════════════════════════╝');
-            console.log('[📊 Details:');
-            console.log('  - Gap ended at:', gapEndTime.format('HH:mm:ss'));
-            console.log('  - Current time:', nowMoment.format('HH:mm:ss'));
-            console.log('  - Sessions remaining:', sessionsRemaining);
             
             if (sessionsRemaining > 0) {
-              console.log('[🎯 Attempting to start next session...]');
-              console.log('╚═══════════════════════════════════════╝\n');
               
               // Clear interval and lock UI before starting new session
               clearIntervalSafe();
@@ -295,8 +259,6 @@ export const SessionProvider = ({ children, navigationRef, includedScreens = [] 
                 console.log('[❌ Failed to start next session - Daily limit may have been reached]');
               }
             } else {
-              console.log('[🚫 No sessions remaining]');
-              console.log('╚═══════════════════════════════════════╝\n');
               clearIntervalSafe();
               enforceLockUI('All done for today! 🌙 Come back tomorrow for more fun!', null, true);
             }
