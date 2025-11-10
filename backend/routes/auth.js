@@ -1,5 +1,3 @@
-
-
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
@@ -58,17 +56,10 @@ router.post('/register', async (req, res) => {
 
     await UserAccess.create({
       user_id: savedUser._id,
-      restricted: false,
       access: {
         numbers: [],
         alphabets: [],
-        urdu_alphabets: [],
-        animals: [],
-        fruits: [],
-        vegetables: [],
-        body_parts: [],
-        shapes: [],
-        counting: []
+        urdu_alphabets: []
       }
     });
 
@@ -97,9 +88,9 @@ router.get("/verify-email", async (req, res) => {
     user.verificationToken = null;
     await user.save();
 
-    // ✅ Show confirmation page with deep link
+    // Show confirmation page with deep link
     return res.send(`
-      <h2>✅ Account verified successfully!</h2>
+      <h2> Account verified successfully!</h2>
       <p>You can now <a href="preppal://login">login in the PrepPal app</a> or 
          <a href="${process.env.FRONTEND_URL}">login on web</a>.</p>
     `);
@@ -423,11 +414,12 @@ router.get('/access/alphabets', verifyToken, async (req, res) => {
         _id: alphabet._id,
         alphabet: alphabet.alphabet,
         word: alphabet.word,
+        sound_text:alphabet.sound_text, 
         image_url: alphabet.image_url,
         active: access?.active ?? true, // default: true if not set
-        min_attempts: access?.min_attempts ?? 3,
-        min_time_avg: access?.min_time_avg ?? 2.0,
-        min_correct_avg: access?.min_correct_avg ?? 80,
+        min_attempts: access?.min_attempts ?? alphabet.min_attempts,
+        min_time_avg: access?.min_time_avg ?? alphabet.min_time_avg,
+        min_correct_avg: access?.min_correct_avg ?? alphabet.min_correct_avg,
       };
     });
 
@@ -466,12 +458,13 @@ router.get('/access/numbers', verifyToken, async (req, res) => {
       return {
         _id: num._id,
         number: num.number,          // e.g. "1", "2", "3"
-        word: num.word,              // e.g. "One", "Two"
+        word: num.word,
+        sound_text:num.sound_text,               // e.g. "One", "Two"
         image_url: num.image_url,    // Image for number
         active: access?.active ?? true, // Default: true if not set
-        min_attempts: access?.min_attempts ?? 3,
-        min_time_avg: access?.min_time_avg ?? 2.0,
-        min_correct_avg: access?.min_correct_avg ?? 80,
+        min_attempts: access?.min_attempts ?? num.min_attempts,
+        min_time_avg: access?.min_time_avg ?? num.min_time_avg,
+        min_correct_avg: access?.min_correct_avg ?? num.min_correct_avg,
       };
     });
 
@@ -511,12 +504,13 @@ router.get('/access/urdu', verifyToken, async (req, res) => {
       return {
         _id: alphabet._id,
         alphabet: alphabet.alphabet, // Urdu letter
-        word: alphabet.word,         // Urdu word (e.g., "الف → انار")
+        word: alphabet.word,
+        sound_text:alphabet.sound_text,         // Urdu word (e.g., "الف → انار")
         image_url: alphabet.image_url,
         active: access?.active ?? true, // Default: true if not set
-        min_attempts: access?.min_attempts ?? 3,
-        min_time_avg: access?.min_time_avg ?? 2.0,
-        min_correct_avg: access?.min_correct_avg ?? 80,
+         min_attempts: access?.min_attempts ?? alphabet.min_attempts,
+        min_time_avg: access?.min_time_avg ?? alphabet.min_time_avg,
+        min_correct_avg: access?.min_correct_avg ?? alphabet.min_correct_avg,
       };
     });
 

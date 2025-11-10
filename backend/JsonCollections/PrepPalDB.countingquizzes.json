@@ -10,7 +10,7 @@
           { "url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FcountingQuizzes%2F2.png?alt=media&token=c1c5213a-376d-4de0-b1aa-6bcca72884af" },
           { "url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FcountingQuizzes%2F4.png?alt=media&token=e58c1f77-f1a5-42af-8655-f5eb52b0958e" }
         ],
-        "answer": "Two 2",
+        "answer": "Two",
         "_id": { "$oid": "69100001faa1d1b6488d99dc" }
       },
       {
@@ -20,7 +20,7 @@
           { "url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FcountingQuizzes%2F9.png?alt=media&token=6e3bd747-811c-4637-a182-70f42051aebb" },
           { "url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FcountingQuizzes%2F10.png?alt=media&token=4a94c710-36d9-49ae-a6a7-e08a0b272a2b" }
         ],
-        "answer": "Nine 9",
+        "answer": "Nine",
         "_id": { "$oid": "69100002faa1d1b6488d99dd" }
       },
       {
@@ -30,17 +30,17 @@
           { "url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FcountingQuizzes%2F2.png?alt=media&token=c1c5213a-376d-4de0-b1aa-6bcca72884af" },
           { "url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FcountingQuizzes%2F5.png?alt=media&token=20281bac-ef55-4220-9b5f-a6d52d2def5a" }
         ],
-        "answer": "3",
+        "answer": "Three",
         "_id": { "$oid": "69100003faa1d1b6488d99de" }
       },
       {
-        "question": "Which number comes between One 1 and 3?",
+        "question": "Which number comes between 1 and 3?",
         "images": [
           { "url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FcountingQuizzes%2F4.png?alt=media&token=e58c1f77-f1a5-42af-8655-f5eb52b0958e" },
           { "url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FcountingQuizzes%2F2.png?alt=media&token=c1c5213a-376d-4de0-b1aa-6bcca72884af" },
           { "url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FcountingQuizzes%2F5.png?alt=media&token=20281bac-ef55-4220-9b5f-a6d52d2def5a" }
         ],
-        "answer": "2",
+        "answer": "Two",
         "_id": { "$oid": "69100004faa1d1b6488d99df" }
       },
       {
@@ -50,7 +50,7 @@
           { "url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FcountingQuizzes%2F8.png?alt=media&token=c11cc6f2-95cc-4b70-8fc7-f406be81517f" },
           { "url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FcountingQuizzes%2F7.png?alt=media&token=db01ba51-15df-40d3-b549-c7228624c2c9" }
         ],
-        "answer": "9",
+        "answer": "Nine",
         "_id": { "$oid": "69100005faa1d1b6488d99e0" }
       },
       {
@@ -60,7 +60,7 @@
           { "url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FcountingQuizzes%2F7.png?alt=media&token=db01ba51-15df-40d3-b549-c7228624c2c9" },
           { "url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FcountingQuizzes%2F4.png?alt=media&token=e58c1f77-f1a5-42af-8655-f5eb52b0958e" }
         ],
-        "answer": "7",
+        "answer": "Seven",
         "_id": { "$oid": "69100006faa1d1b6488d99e1" }
       },
       {
@@ -70,7 +70,7 @@
           { "url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FcountingQuizzes%2F4.png?alt=media&token=e58c1f77-f1a5-42af-8655-f5eb52b0958e" },
           { "url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FcountingQuizzes%2F5.png?alt=media&token=20281bac-ef55-4220-9b5f-a6d52d2def5a" }
         ],
-        "answer": "3",
+        "answer": "Three",
         "_id": { "$oid": "69100007faa1d1b6488d99e2" }
       },
       {
@@ -80,7 +80,7 @@
           { "url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FcountingQuizzes%2F8.png?alt=media&token=c11cc6f2-95cc-4b70-8fc7-f406be81517f" },
           { "url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FcountingQuizzes%2F10.png?alt=media&token=4a94c710-36d9-49ae-a6a7-e08a0b272a2b" }
         ],
-        "answer": "8",
+        "answer": "Eight",
         "_id": { "$oid": "69100008faa1d1b6488d99e3" }
       },
       {
@@ -90,7 +90,7 @@
           { "url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FcountingQuizzes%2F4.png?alt=media&token=e58c1f77-f1a5-42af-8655-f5eb52b0958e" },
           { "url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FcountingQuizzes%2F7.png?alt=media&token=db01ba51-15df-40d3-b549-c7228624c2c9" }
         ],
-        "answer": "5",
+        "answer": "Five",
         "_id": { "$oid": "69100009faa1d1b6488d99e4" }
       },
       {
@@ -100,7 +100,7 @@
           { "url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FcountingQuizzes%2F9.png?alt=media&token=6e3bd747-811c-4637-a182-70f42051aebb" },
           { "url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2FcountingQuizzes%2F10.png?alt=media&token=4a94c710-36d9-49ae-a6a7-e08a0b272a2b" }
         ],
-        "answer": "10",
+        "answer": "Ten",
         "_id": { "$oid": "69100010faa1d1b6488d99e5" }
       }
     ],

@@ -7,24 +7,22 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
-  Animated,
-  Dimensions,
-  FlatList,
 } from "react-native";
 import axios from "axios";
 import { Audio } from "expo-av";
 import * as FileSystem from "expo-file-system";
 import * as Speech from "expo-speech";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import API_BASE_URL from "./config";
 
-const LEMONFOX_API_KEY = "JVTxkQ2MhlB2s3wyynOS5FW0fz9xLetf";
-const { width } = Dimensions.get("window");
+const LEMONFOX_API_KEY = "nTmqKSP4x1kaFTCdEyAsYv3tQ6Vk4Stm";
 
 const normalizeRaw = (text = "") =>
   text.toString().toLowerCase().replace(/[\s.,!?؛،؟]/g, "").trim();
 
 const VowelQuizzes = () => {
+  const navigation = useNavigation();
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
@@ -37,7 +35,6 @@ const VowelQuizzes = () => {
   const [earnedStars, setEarnedStars] = useState(0);
   const [rewardMessage, setRewardMessage] = useState("");
 
-  const animValue = useRef(new Animated.Value(0)).current;
   const correctSound = useRef(new Audio.Sound());
   const wrongSound = useRef(new Audio.Sound());
 
@@ -73,12 +70,6 @@ const VowelQuizzes = () => {
     const currentQuestion = quizzes[currentQuizIndex]?.questions[currentQuestionIndex];
     if (currentQuestion?.question) {
       Speech.speak(currentQuestion.question);
-    }
-  }, [currentQuizIndex, currentQuestionIndex, quizzes]);
-
-  useEffect(() => {
-    if (quizzes.length > 0 && quizzes[currentQuizIndex]?.questions.length > 0) {
-      animValue.setValue(0);
     }
   }, [currentQuizIndex, currentQuestionIndex, quizzes]);
 
@@ -138,58 +129,64 @@ const VowelQuizzes = () => {
         await wrongSound.current.replayAsync();
       }
 
-      Animated.timing(animValue, {
-        toValue: width,
-        duration: 500,
-        useNativeDriver: true,
-      }).start(() => {
-        const isLastQuestion = currentQuestionIndex === currentQuiz.questions.length - 1;
-        const isLastQuiz = currentQuizIndex === quizzes.length - 1;
-
-        if (isLastQuestion && isLastQuiz) {
-          // Calculate reward
-          const totalQuestions = currentQuiz.questions.length;
-          const scorePercent = ((score + (incrementScore ? 1 : 0)) / totalQuestions) * 100;
-          let stars = 0;
-          let message = "";
-
-          if (scorePercent >= 90) {
-            stars = 3;
-            message = "Excellent! You earned 3 Gold Stars ⭐⭐⭐";
-          } else if (scorePercent >= 80) {
-            stars = 2;
-            message = "Great! You earned 2 Gold Stars ⭐⭐";
-          } else if (scorePercent >= 70) {
-            stars = 1;
-            message = "Good! You earned 1 Gold Star ⭐";
-          } else if (scorePercent >= 60) {
-            stars = 0;
-            message = "Well done! You’re one step away from earning a star.";
-          } else if (scorePercent > 50) {
-            stars = 0;
-            message = "Good effort! Keep trying.";
-          } else if (scorePercent === 50) {
-            stars = 0;
-            message = "You passed!";
-            Speech.speak("You passed!");
-          } else {
-            stars = 0;
-            message = "Don’t worry, you’ll do better next time!";
-          }
-
-          setFinalScore(scorePercent);
-          setEarnedStars(stars);
-          setRewardMessage(message);
-        } else if (isLastQuestion) {
-          setCurrentQuizIndex((p) => p + 1);
-          setCurrentQuestionIndex(0);
-        } else {
-          setCurrentQuestionIndex((p) => p + 1);
-        }
-      });
+      setTimeout(() => handleNext(incrementScore), 1500);
     } catch (err) {
       console.error("Lemonfox transcription error:", err);
+      Alert.alert("Error", "Could not understand your answer.");
     }
+  };
+const handleNext = (incrementScore = false) => {
+  const currentQuiz = quizzes[currentQuizIndex];
+  const isLastQuestion = currentQuestionIndex === currentQuiz.questions.length - 1;
+  const isLastQuiz = currentQuizIndex === quizzes.length - 1;
+
+  if (isLastQuestion && isLastQuiz) {
+    const totalQuestions = quizzes.reduce((sum, q) => sum + q.questions.length, 0);
+    const scorePercent = ((score + (incrementScore ? 1 : 0)) / totalQuestions) * 100;
+
+    let stars = 0;
+    let message = "";
+
+    if (scorePercent >= 90) {
+      stars = 3;
+      message = "Excellent! You earned 3 Gold Stars";
+    } else if (scorePercent >= 80) {
+      stars = 2;
+      message = "Great! You earned 2 Gold Stars";
+    } else if (scorePercent >= 70) {
+      stars = 1;
+      message = "Good! You earned 1 Gold Star";
+    } else if (scorePercent >= 60) {
+      stars = 0;
+      message = "Well done! You’re one step away from earning a star.";
+    } else if (scorePercent > 50) {
+      stars = 0;
+      message = "Good effort! Keep trying.";
+    } else if (scorePercent === 50) {
+      stars = 0;
+      message = "You passed!";
+    } else {
+      stars = 0;
+      message = "Don’t worry, you’ll do better next time!";
+    }
+
+    setFinalScore(scorePercent);
+    setEarnedStars(stars);
+    setRewardMessage(message);
+
+    // ✅ Speak the reward message aloud
+    Speech.speak(message);
+  } else if (isLastQuestion) {
+    setCurrentQuizIndex((p) => p + 1);
+    setCurrentQuestionIndex(0);
+  } else {
+    setCurrentQuestionIndex((p) => p + 1);
+  }
+};
+
+  const handleOkPress = () => {
+    Speech.stop();
+    navigation.goBack();
   };
 
   if (loading)
@@ -199,7 +196,7 @@ const VowelQuizzes = () => {
       </View>
     );
 
-  if (quizzes.length === 0 || quizzes[currentQuizIndex]?.questions.length === 0)
+  if (quizzes.length === 0)
     return (
       <View style={styles.center}>
         <Text>No quizzes found.</Text>
@@ -208,106 +205,87 @@ const VowelQuizzes = () => {
 
   const currentQuiz = quizzes[currentQuizIndex];
   const question = currentQuiz.questions[currentQuestionIndex];
-  const upcomingQuestions = currentQuiz.questions.filter((_, i) => i !== currentQuestionIndex);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.score}>Score: {score}</Text>
-      <Text style={styles.quizTitle}>{currentQuiz.quiz_title}</Text>
+      {finalScore !== null ? (
+        <View style={styles.resultContainer}>
+          <Text style={styles.resultTitle}>🎉 Quiz Complete!</Text>
+          <Text style={styles.resultScore}>Score: {finalScore.toFixed(0)}%</Text>
 
-      <Animated.View style={[styles.questionCard, { transform: [{ translateX: animValue }] }]}>
-        <Text style={styles.questionText}>{question.question}</Text>
-        {question.image_url && <Image source={{ uri: question.image_url }} style={styles.image} />}
-      </Animated.View>
-
-      <FlatList
-        data={upcomingQuestions}
-        keyExtractor={(_, index) => index.toString()}
-        numColumns={2}
-        columnWrapperStyle={{ justifyContent: "space-between", marginTop: 15 }}
-        renderItem={({ item }) => (
-          <View style={styles.upcomingCard}>
-            <Text style={styles.questionText}>{item.question}</Text>
-            {item.image_url && <Image source={{ uri: item.image_url }} style={styles.upcomingImage} />}
-          </View>
-        )}
-      />
-
-      {!isRecording ? (
-        <TouchableOpacity style={styles.recordBtn} onPress={startRecording}>
-          <Text style={styles.recordText}>🎤 Speak Answer</Text>
-        </TouchableOpacity>
-      ) : (
-        <TouchableOpacity style={styles.stopBtn} onPress={stopRecording}>
-          <Text style={styles.recordText}>⏹ Stop Recording</Text>
-        </TouchableOpacity>
-      )}
-
-      {/* ✅ Reward Section */}
-      {finalScore !== null && (
-        <View style={{ marginTop: 30, alignItems: "center" }}>
-          <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}>
-            Quiz Complete! Score: {finalScore.toFixed(0)}%
-          </Text>
-
-          <View style={{ flexDirection: "row", marginBottom: 10 }}>
+          <View style={styles.starsRow}>
             {[...Array(3)].map((_, i) => (
               <Ionicons
                 key={i}
                 name={i < earnedStars ? "star" : "star-outline"}
-                size={40}
+                size={50}
                 color="#FFD700"
                 style={{ marginHorizontal: 5 }}
               />
             ))}
           </View>
 
-          <Text style={{ fontSize: 16, textAlign: "center" }}>{rewardMessage}</Text>
+          <Text style={styles.rewardMessage}>{rewardMessage}</Text>
+
+          <TouchableOpacity style={styles.okButton} onPress={handleOkPress}>
+            <Text style={styles.okButtonText}>OK</Text>
+          </TouchableOpacity>
         </View>
+      ) : (
+        <>
+          <Text style={styles.score}>Score: {score}</Text>
+          <Text style={styles.quizTitle}>{currentQuiz.quiz_title}</Text>
+
+          <View style={styles.questionCard}>
+            <Text style={styles.questionText}>{question.question}</Text>
+            {question.image_url && <Image source={{ uri: question.image_url }} style={styles.image} />}
+          </View>
+
+          {!isRecording ? (
+            <TouchableOpacity style={styles.recordBtn} onPress={startRecording}>
+              <Text style={styles.recordText}>🎤 Speak Answer</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.stopBtn} onPress={stopRecording}>
+              <Text style={styles.recordText}>⏹ Stop Recording</Text>
+            </TouchableOpacity>
+          )}
+        </>
       )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#F9F9F9" },
+  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
   score: { fontSize: 22, fontWeight: "bold", color: "#FFD54F", marginBottom: 10, textAlign: "center", paddingTop: 20 },
   quizTitle: { fontSize: 24, fontWeight: "bold", color: "#FFB6C1", marginBottom: 20, textAlign: "center" },
-
   questionCard: {
     backgroundColor: "#7BE7CE",
     borderRadius: 15,
-    padding: 12,
+    padding: 20,
     alignItems: "center",
-    justifyContent: "center",
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
-    width: "100%",
-    height: 200,
-    marginBottom: 15,
+    marginBottom: 20,
   },
-
-  questionText: { fontSize: 18, color: "#333", marginBottom: 8, textAlign: "center" },
-  image: { width: "100%", height: 120, resizeMode: "contain", borderRadius: 10, marginBottom: 5 },
-
-  upcomingCard: {
-    backgroundColor: "#D1F2EB",
-    borderRadius: 12,
-    padding: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    width: "48%",
-    marginBottom: 12,
-    height: 150,
-  },
-  upcomingImage: { width: "100%", height: 60, resizeMode: "contain", borderRadius: 8, marginTop: 5 },
-
+  questionText: { fontSize: 18, color: "#333", textAlign: "center", marginBottom: 10 },
+  image: { width: "100%", height: 150, resizeMode: "contain", borderRadius: 10, marginBottom: 10 },
   recordBtn: { marginTop: 20, backgroundColor: "#FFD54F", paddingVertical: 14, borderRadius: 10, alignItems: "center" },
   stopBtn: { marginTop: 20, backgroundColor: "#FFB6C1", paddingVertical: 14, borderRadius: 10, alignItems: "center" },
   recordText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+
+  // Result screen
+  resultContainer: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#fff" },
+  resultTitle: { fontSize: 26, fontWeight: "bold", color: "#333", marginBottom: 10 },
+  resultScore: { fontSize: 22, color: "#FFB6C1", marginBottom: 20 },
+  starsRow: { flexDirection: "row", marginBottom: 20 },
+  rewardMessage: { fontSize: 18, textAlign: "center", color: "#555", paddingHorizontal: 20, marginBottom: 30 },
+  okButton: { backgroundColor: "#7BE7CE", paddingVertical: 12, paddingHorizontal: 50, borderRadius: 25, elevation: 3 },
+  okButtonText: { color: "#fff", fontSize: 18, fontWeight: "600" },
 });
 
 export default VowelQuizzes;

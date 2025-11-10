@@ -16,7 +16,7 @@ try {
   ResultModel = require('../models/Result');
 } catch (e) {
   ResultModel = null;
-  console.log('ℹ️ Result model not found, skipping Result-to-Quiz sync fallback.');
+  console.log(' Result model not found, skipping Result-to-Quiz sync fallback.');
 }
 
 // Map subject → model and field
@@ -31,9 +31,7 @@ const subjectFields = {
   Alphabet: 'alphabet',
 };
 
-/* ---------------- GENERATE endpoint ----------------
-   - NOTE: generate no longer writes performance.
-*/
+/* ---------------- GENERATE endpoint ----------------*/
 router.post('/generate', verifyToken, async (req, res) => {
   const { subject } = req.body;
   const userId = req.user?.id || req.user?._id;
@@ -65,25 +63,26 @@ router.post('/generate', verifyToken, async (req, res) => {
 
     let itemsToUse = [];
 
-    if (!perfRecords || perfRecords.length === 0) {
-      // 🧩 First-time user → pick all items that are active in user access (if exists)
-      const allDocs = await Model.find({}, { [field]: 1 });
-      const activeAccessItems = userAccess?.access?.[accessKey]
-        ?.filter(a => a.active)
-        ?.map(a => a.item_id.toString()) || [];
+   if (!perfRecords || perfRecords.length === 0) {
+  // 🧩 First-time user → pick only items that are active in user access
+  const allDocs = await Model.find({}, { [field]: 1 });
 
-      if (activeAccessItems.length > 0) {
-        // Only include docs that match active item_ids
-        itemsToUse = allDocs
-          .filter(d => activeAccessItems.includes(d._id.toString()))
-          .map(d => d[field]);
-      } else {
-        // No user access data → fallback to all items
-        itemsToUse = allDocs.map(d => d[field]);
-      }
+  const activeAccessItems = userAccess?.access?.[accessKey]
+    ?.filter(a => a.active)
+    ?.map(a => a.item_id.toString()) || [];
 
-      console.log(`🟢 First-time user: ${itemsToUse.length} active ${subject} items`);
-    } else {
+  if (activeAccessItems.length > 0) {
+    // ✅ Only include docs that match active item_ids
+    itemsToUse = allDocs
+      .filter(d => activeAccessItems.includes(d._id.toString()))
+      .map(d => d[field]);
+  } else {
+    // 🚫 No active access → no items
+    itemsToUse = [];
+  }
+
+  console.log(`🟢 First-time user: ${itemsToUse.length} active ${subject} items`);
+}else {
       // 🧩 Existing user → only pick items with done=false
       const pendingItems = perfRecords.filter(r => !r.done).map(r => r.item);
 

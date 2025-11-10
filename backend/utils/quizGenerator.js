@@ -2,14 +2,14 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const apiKey = process.env.GEMINI_API_KEY;
 if (!apiKey) {
-  throw new Error("❌ Missing Gemini API key. Set GEMINI_API_KEY in your .env file.");
+  throw new Error(" Missing Gemini API key. Set GEMINI_API_KEY in your .env file.");
 }
 
 const UrduAlphabet = require('../models/Urdu');
 const Alphabet = require('../models/Alphabet'); // English
 const NumberModel = require('../models/Number'); // Maths
 
-// ✅ Initialize Gemini model
+// Initialize Gemini model
 const genAI = new GoogleGenerativeAI(apiKey);
 const model = genAI.getGenerativeModel({
   model: "gemini-2.5-flash",
@@ -21,7 +21,7 @@ const model = genAI.getGenerativeModel({
 });
 
 /**
- * 🔹 Dynamic prompt builder
+ *  Dynamic prompt builder
  * @param {string} subject - "urdu", "english", "math"
  * @param {string[]} allowedItems - allowed letters/numbers/words
  */
@@ -127,7 +127,7 @@ async function attachOptionImages(quiz, subject) {
 }
 
 /**
- * 🔹 Generate quiz from Gemini restricted to provided items
+ * Generate quiz from Gemini restricted to provided items
  * @param {string} subject - urdu | english | math
  * @param {string[]} allowedItems - list of allowed letters or numbers
  */
@@ -138,7 +138,8 @@ async function generateQuiz(subject, allowedItems = []) {
     const result = await model.generateContent(prompt);
     const response = result.response;
     let text = response.text();
-
+console.log("********************************************************************************");
+console.log(text);
     text = text.replace(/```json|```/g, "").trim();
     const match = text.match(/\[[\s\S]*\]/);
     if (!match) throw new Error("No valid JSON found in AI response");
@@ -158,7 +159,7 @@ async function generateQuiz(subject, allowedItems = []) {
     
     return quiz;
   } catch (error) {
-    console.error("❌ Quiz generation error:", error);
+    console.error(" Quiz generation error:", error);
     throw error;
   }
 }

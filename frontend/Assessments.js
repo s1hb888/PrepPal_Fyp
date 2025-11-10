@@ -1,4 +1,3 @@
-// screens/Assessments.js
 import React, { useState } from "react";
 import {
   View,
@@ -66,7 +65,6 @@ const Assessments = () => {
     Urdu: "Urdu",
     Maths: "Number",
   };
-
   const handleSubjectQuiz = async (subject) => {
     try {
       setLoading(true);
@@ -76,7 +74,7 @@ const Assessments = () => {
         return;
       }
 
-      const backendSubject = subjectMap[subject] || subject;
+      const backendSubject = subjectMap[subject];
 
       const response = await axios.post(
         `${API_BASE_URL}/api/quiz/generate`,

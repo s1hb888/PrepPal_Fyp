@@ -4,7 +4,7 @@ const Performance = require('../models/Performance');
 const NumberModel = require('../models/Number');
 const UrduModel = require('../models/Urdu');
 const AlphabetModel = require('../models/Alphabet');
-
+const UserAccess = require('../models/UserAccess');
 const router = express.Router();
 
 // Map subject → model
@@ -78,8 +78,7 @@ router.get('/summary', verifyToken, async (req, res) => {
 /**
  * GET /api/performance/summary/:subject
  * Detailed report for one subject + passing criteria
- */
-router.get('/summary/:subject', verifyToken, async (req, res) => {
+ */router.get('/summary/:subject', verifyToken, async (req, res) => {
   try {
     const userId = req.user.id;
     const { subject } = req.params;
@@ -103,7 +102,7 @@ router.get('/summary/:subject', verifyToken, async (req, res) => {
       });
     }
 
-    // Fetch all items (e.g. words/numbers/alphabets) for that subject
+    // Fetch ALL items (e.g., words/numbers/alphabets) for that subject
     const itemsData = await Model.find({}, {
       [subject === 'Number' ? 'number' : 'alphabet']: 1,
       min_attempts: 1,
@@ -111,14 +110,24 @@ router.get('/summary/:subject', verifyToken, async (req, res) => {
       min_correct_avg: 1,
     }).lean();
 
+    // Fetch user-specific access limits
+    const userAccess = await UserAccess.findOne({ user_id: userId });
+    const accessSettings = subject === 'Alphabet'
+      ? userAccess?.access?.alphabets || []
+      : userAccess?.access?.numbers || [];
+
     // Build quick lookup by item text
     const keyField = subject === 'Number' ? 'number' : 'alphabet';
     const criteriaMap = {};
     itemsData.forEach((it) => {
+      const userLimit = accessSettings.find(
+        (a) => a.item_id?.toString() === it._id.toString()
+      );
+
       criteriaMap[it[keyField]] = {
-        min_attempts: it.min_attempts ?? 0,
-        min_time_avg: it.min_time_avg ?? 0,
-        min_correct_avg: it.min_correct_avg ?? 0,
+        min_attempts: userLimit?.min_attempts ?? it.min_attempts ?? 0,
+        min_time_avg: userLimit?.min_time_avg ?? it.min_time_avg ?? 0,
+        min_correct_avg: userLimit?.min_correct_avg ?? it.min_correct_avg ?? 0,
       };
     });
 
@@ -153,5 +162,6 @@ router.get('/summary/:subject', verifyToken, async (req, res) => {
     });
   }
 });
+
 
 module.exports = router;

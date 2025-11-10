@@ -27,7 +27,7 @@ const LIGHT_PINK = "#FFB6C1";
 const WHITE = "#ffffff";
 
 const boxColors = [PINK, MINT, YELLOW, LIGHT_PINK];
-const LEMONFOX_API_KEY = "JVTxkQ2MhlB2s3wyynOS5FW0fz9xLetf";
+const LEMONFOX_API_KEY = "nTmqKSP4x1kaFTCdEyAsYv3tQ6Vk4Stm";
 
 const normalizeRaw = (text = "") =>
   text

@@ -26,11 +26,9 @@ import Courses from './frontend/Courses';
 import LearningMenu from './frontend/LearningMenu';
 import AcademicLearning from './frontend/AcademicLearning';
 import Assessments from './frontend/Assessments';
-import Assesment from './frontend/Assesment';
 import GeneralKnowledge from './frontend/GeneralKnowledge';
 import EnglishAlphaBetsScreen from './frontend/EnglishAlphaBetsScreen';
 import Numbers from './frontend/Numbers';
-import Alphabets from './frontend/Alphabets';
 import Urdu from './frontend/Urdu';
 import VowelScreen from './frontend/VowelsScreen';
 import BodypartsScreen from './frontend/BodypartsScreen';
@@ -66,11 +64,9 @@ const includedScreens = [
   'LearningMenu',
   'AcademicLearning',
   'Assessments',
-  'Assesment',
   'GeneralKnowledge',
   'EnglishAlphaBetsScreen',
   'Numbers',
-  'Alphabets',
   'Urdu',
   'VowelScreen',
   'BodypartsScreen',
@@ -149,11 +145,9 @@ export default function App() {
           <Stack.Screen name="LearningMenu" component={LearningMenu} />
           <Stack.Screen name="AcademicLearning" component={AcademicLearning} />
           <Stack.Screen name="Assessments" component={Assessments} />
-          <Stack.Screen name="Assesment" component={Assesment} />
           <Stack.Screen name="GeneralKnowledge" component={GeneralKnowledge} />
           <Stack.Screen name="EnglishAlphaBetsScreen" component={EnglishAlphaBetsScreen} />
           <Stack.Screen name="Numbers" component={Numbers} />
-          <Stack.Screen name="Alphabets" component={Alphabets} />
           <Stack.Screen name="Urdu" component={Urdu} />
           <Stack.Screen name="VowelScreen" component={VowelScreen} />
           <Stack.Screen name="BodypartsScreen" component={BodypartsScreen} />

@@ -41,7 +41,8 @@ const Numbers = () => {
       });
 
       console.log('Fetched:', response.data);
-      setAlphabetData(response.data);
+       const activeItems = response.data.filter(item => item.active === true);
+      setAlphabetData(activeItems);
     } catch (error) {
       console.error('Error loading numbers:', error);
       Alert.alert('Error', 'Failed to load numbers. Please try again.');

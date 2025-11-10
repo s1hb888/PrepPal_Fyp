@@ -77,7 +77,7 @@
       }
     },
     {
-      "question": "What is the coor of star?",
+      "question": "What is the color of star?",
       "image_url": "https://firebasestorage.googleapis.com/v0/b/funlearm.appspot.com/o/prepPal%2Fcolors%2Fpurple_star-removebg-preview.png?alt=media&token=cd56b556-4b35-44e3-93ec-c940ca907223",
       "correct_answer": "Purple",
       "_id": {

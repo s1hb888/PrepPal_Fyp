@@ -41,7 +41,8 @@ const EnglishAlphaBetsScreen = () => {
       });
 
       console.log('Fetched:', response.data);
-      setAlphabetData(response.data);
+      const activeItems = response.data.filter(item => item.active === true);
+      setAlphabetData(activeItems);
     } catch (error) {
       console.error('Error loading alphabets:', error);
       Alert.alert('Error', 'Failed to load alphabets. Please try again.');

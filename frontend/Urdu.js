@@ -41,7 +41,9 @@ const Urdu = () => {
       });
 
       console.log('Fetched:', response.data);
-      setAlphabetData(response.data);
+      const activeItems = response.data.filter(item => item.active === true);
+
+      setAlphabetData(activeItems);
     } catch (error) {
       console.error('Error loading urdu:', error);
       Alert.alert('Error', 'Failed to load urdu. Please try again.');

@@ -15,9 +15,10 @@ import { Audio } from "expo-av";
 import * as FileSystem from "expo-file-system";
 import * as Speech from "expo-speech";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import API_BASE_URL from "./config";
 
-const LEMONFOX_API_KEY = "JVTxkQ2MhlB2s3wyynOS5FW0fz9xLetf";
+const LEMONFOX_API_KEY = "nTmqKSP4x1kaFTCdEyAsYv3tQ6Vk4Stm";
 
 if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -27,6 +28,7 @@ const normalizeRaw = (text = "") =>
   text.toString().toLowerCase().replace(/[\s.,!?؛،؟]/g, "").trim();
 
 const ShapeQuizzes = () => {
+  const navigation = useNavigation();
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -152,45 +154,48 @@ const ShapeQuizzes = () => {
   };
 
   const nextQuestion = () => {
-    const nextIndex = currentQuestionIndex + 1;
-    setHintIndex(0); // reset hint
-    if (nextIndex >= quizzes[0].questions.length) {
-      // Quiz finished -> calculate stars
-      const totalQuestions = quizzes[0].questions.length;
-      const scorePercent = (score / totalQuestions) * 100;
-      let stars = 0;
-      let message = "";
+  const nextIndex = currentQuestionIndex + 1;
+  setHintIndex(0);
 
-      if (scorePercent >= 90) {
-        stars = 3;
-        message = "Excellent! You earned 3 Gold Stars ⭐⭐⭐";
-      } else if (scorePercent >= 80) {
-        stars = 2;
-        message = "Great! You earned 2 Gold Stars ⭐⭐";
-      } else if (scorePercent >= 70) {
-        stars = 1;
-        message = "Good! You earned 1 Gold Star ⭐";
-      } else if (scorePercent >= 60) {
-        stars = 0;
-        message = "Well done! You’re one step away from earning a star.";
-      } else if (scorePercent > 50) {
-        stars = 0;
-        message = "Good effort! Keep trying.";
-      } else if (scorePercent === 50) {
-        stars = 0;
-        message = "You passed!";
-        Speech.speak("You passed!");
-      } else {
-        stars = 0;
-        message = "Don’t worry, you’ll do better next time!";
-      }
+  if (nextIndex >= quizzes[0].questions.length) {
+    const totalQuestions = quizzes[0].questions.length;
+    const scorePercent = (score / totalQuestions) * 100;
+    let stars = 0;
+    let message = "";
 
-      setFinalScore(scorePercent);
-      setEarnedStars(stars);
-      setRewardMessage(message);
+    if (scorePercent >= 90) {
+      stars = 3;
+      message = "Excellent! You earned 3 Gold Stars";
+    } else if (scorePercent >= 80) {
+      stars = 2;
+      message = "Great! You earned 2 Gold Stars";
+    } else if (scorePercent >= 70) {
+      stars = 1;
+      message = "Good! You earned 1 Gold Star";
+    } else if (scorePercent >= 60) {
+      message = "Well done! You’re one step away from earning a star.";
+    } else if (scorePercent > 50) {
+      message = "Good effort! Keep trying.";
+    } else if (scorePercent === 50) {
+      message = "You passed!";
     } else {
-      setCurrentQuestionIndex(nextIndex);
+      message = "Don’t worry, you’ll do better next time!";
     }
+
+    setFinalScore(scorePercent);
+    setEarnedStars(stars);
+    setRewardMessage(message);
+
+    // ✅ Speak the reward message aloud
+    Speech.speak(message);
+  } else {
+    setCurrentQuestionIndex(nextIndex);
+  }
+};
+
+  const handleOkPress = () => {
+    Speech.stop();
+    navigation.goBack();
   };
 
   if (loading)
@@ -211,55 +216,59 @@ const ShapeQuizzes = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.score}>Score: {score}</Text>
-      <Text style={styles.quizTitle}>Shapes Quiz</Text>
+      {finalScore !== null ? (
+        <View style={styles.resultContainer}>
+          <Text style={styles.resultTitle}>🎉 Quiz Complete!</Text>
+          <Text style={styles.resultScore}>Score: {finalScore.toFixed(0)}%</Text>
 
-      <View style={styles.questionCard}>
-        <Text style={styles.questionText}>{question.hints[hintIndex].text}</Text>
-        <Image source={{ uri: question.imageUrl }} style={styles.image} />
-        {highlightedWord && (
-          <Text style={styles.highlightedText}>Correct: {highlightedWord}</Text>
-        )}
-      </View>
-
-      {!isRecording ? (
-        <TouchableOpacity style={styles.recordBtn} onPress={startRecording}>
-          <Text style={styles.recordText}>🎤 Speak Answer</Text>
-        </TouchableOpacity>
-      ) : (
-        <TouchableOpacity style={styles.stopBtn} onPress={stopRecording}>
-          <Text style={styles.recordText}>⏹ Stop Recording</Text>
-        </TouchableOpacity>
-      )}
-
-      {/* ✅ Reward Section */}
-      {finalScore !== null && (
-        <View style={{ marginTop: 30, alignItems: "center" }}>
-          <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}>
-            Quiz Complete! Score: {finalScore.toFixed(0)}%
-          </Text>
-
-          <View style={{ flexDirection: "row", marginBottom: 10 }}>
+          <View style={styles.starsRow}>
             {[...Array(3)].map((_, i) => (
               <Ionicons
                 key={i}
                 name={i < earnedStars ? "star" : "star-outline"}
-                size={40}
+                size={50}
                 color="#FFD700"
                 style={{ marginHorizontal: 5 }}
               />
             ))}
           </View>
 
-          <Text style={{ fontSize: 16, textAlign: "center" }}>{rewardMessage}</Text>
+          <Text style={styles.rewardMessage}>{rewardMessage}</Text>
+
+          <TouchableOpacity style={styles.okButton} onPress={handleOkPress}>
+            <Text style={styles.okButtonText}>OK</Text>
+          </TouchableOpacity>
         </View>
+      ) : (
+        <>
+          <Text style={styles.score}>Score: {score}</Text>
+          <Text style={styles.quizTitle}>Shapes Quiz</Text>
+
+          <View style={styles.questionCard}>
+            <Text style={styles.questionText}>{question.hints[hintIndex].text}</Text>
+            <Image source={{ uri: question.imageUrl }} style={styles.image} />
+            {highlightedWord && (
+              <Text style={styles.highlightedText}>Correct: {highlightedWord}</Text>
+            )}
+          </View>
+
+          {!isRecording ? (
+            <TouchableOpacity style={styles.recordBtn} onPress={startRecording}>
+              <Text style={styles.recordText}>🎤 Speak Answer</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.stopBtn} onPress={stopRecording}>
+              <Text style={styles.recordText}>⏹ Stop Recording</Text>
+            </TouchableOpacity>
+          )}
+        </>
       )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#F9F9F9" },
+  container: { flex: 1, padding: 20, backgroundColor: "#FFFFFF" },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
   score: { fontSize: 22, fontWeight: "bold", color: "#FFD54F", marginBottom: 10, textAlign: "center", paddingTop: 20 },
   quizTitle: { fontSize: 24, fontWeight: "bold", color: "#FFB6C1", marginBottom: 20, textAlign: "center" },
@@ -270,6 +279,15 @@ const styles = StyleSheet.create({
   recordBtn: { marginTop: 30, backgroundColor: "#FFD54F", paddingVertical: 14, borderRadius: 10, alignItems: "center" },
   stopBtn: { marginTop: 30, backgroundColor: "#FFB6C1", paddingVertical: 14, borderRadius: 10, alignItems: "center" },
   recordText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+
+  // Result screen styles
+  resultContainer: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#fff" },
+  resultTitle: { fontSize: 26, fontWeight: "bold", color: "#333", marginBottom: 10 },
+  resultScore: { fontSize: 22, color: "#FFB6C1", marginBottom: 20 },
+  starsRow: { flexDirection: "row", marginBottom: 20 },
+  rewardMessage: { fontSize: 18, textAlign: "center", color: "#555", paddingHorizontal: 20, marginBottom: 30 },
+  okButton: { backgroundColor: "#7BE7CE", paddingVertical: 12, paddingHorizontal: 50, borderRadius: 25, elevation: 3 },
+  okButtonText: { color: "#fff", fontSize: 18, fontWeight: "600" },
 });
 
 export default ShapeQuizzes;

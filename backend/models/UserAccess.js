@@ -16,20 +16,11 @@ const UserAccessSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  restricted: {
-    type: Boolean,
-    default: false
-  },
+
   access: {
     numbers: [AccessSettingsSchema],
     alphabets: [AccessSettingsSchema],
-    urdu_alphabets: [AccessSettingsSchema],
-    animals: [AccessSettingsSchema],
-    fruits: [AccessSettingsSchema],
-    vegetables: [AccessSettingsSchema],
-    body_parts: [AccessSettingsSchema],
-    shapes: [AccessSettingsSchema],
-    counting: [AccessSettingsSchema]
+    urdu_alphabets: [AccessSettingsSchema]
   }
 });
 

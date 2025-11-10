@@ -8,10 +8,10 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  Animated,
   LayoutAnimation,
   UIManager,
   Platform,
-  Animated,
   Dimensions,
 } from "react-native";
 import axios from "axios";
@@ -19,9 +19,10 @@ import * as Speech from "expo-speech";
 import { Audio } from "expo-av";
 import * as FileSystem from "expo-file-system";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import API_BASE_URL from "./config";
 
-const LEMONFOX_API_KEY = "JVTxkQ2MhlB2s3wyynOS5FW0fz9xLetf";
+const LEMONFOX_API_KEY = "nTmqKSP4x1kaFTCdEyAsYv3tQ6Vk4Stm";
 
 if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -34,6 +35,7 @@ const { width } = Dimensions.get("window");
 const TRACK_LENGTH = width - 120;
 
 const FruitQuizzes = () => {
+  const navigation = useNavigation();
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
@@ -49,7 +51,6 @@ const FruitQuizzes = () => {
   const [earnedStars, setEarnedStars] = useState(0);
   const [rewardMessage, setRewardMessage] = useState("");
 
-  // Preload sounds
   const correctSound = useRef(new Audio.Sound());
   const wrongSound = useRef(new Audio.Sound());
 
@@ -65,7 +66,6 @@ const FruitQuizzes = () => {
     loadSounds();
   }, []);
 
-  // Fetch quizzes
   useEffect(() => {
     const fetchQuizzes = async () => {
       try {
@@ -81,30 +81,24 @@ const FruitQuizzes = () => {
     fetchQuizzes();
   }, []);
 
-  // Setup current question & start race
   useEffect(() => {
-    if (quizzes.length === 0) return;
-
+    if (quizzes.length === 0 || finalScore !== null) return;
     const q = quizzes[currentQuizIndex].questions[currentQuestionIndex];
     if (!q) return;
 
     if (q.question) Speech.speak(q.question);
 
-    // Shuffle options
     const shuffled = [...q.options].sort(() => Math.random() - 0.5);
     setSortedOptions(shuffled);
 
-    // Initialize animations
     shuffled.forEach((_, i) => {
       if (!animations[i]) animations[i] = new Animated.Value(0);
       else animations[i].setValue(0);
     });
 
-    // Start race
     startRaceAnimation(shuffled, q.winner);
-  }, [currentQuizIndex, currentQuestionIndex, quizzes]);
+  }, [currentQuizIndex, currentQuestionIndex, quizzes, finalScore]);
 
-  // Start recording
   const startRecording = async () => {
     try {
       await Audio.requestPermissionsAsync();
@@ -123,7 +117,6 @@ const FruitQuizzes = () => {
     }
   };
 
-  // Stop recording
   const stopRecording = async () => {
     try {
       if (!recording) return;
@@ -138,7 +131,6 @@ const FruitQuizzes = () => {
     }
   };
 
-  // LemonFox transcription
   const sendToLemonFox = async (uri) => {
     try {
       const formData = new FormData();
@@ -178,7 +170,6 @@ const FruitQuizzes = () => {
     }
   };
 
-  // Race animation
   const startRaceAnimation = (options, winnerWord) => {
     if (!options || options.length === 0) return;
 
@@ -195,53 +186,55 @@ const FruitQuizzes = () => {
     });
   };
 
-  // Next question / quiz completion
   const handleNext = () => {
     const isLastQuestion =
       currentQuestionIndex === quizzes[currentQuizIndex].questions.length - 1;
     if (isLastQuestion) {
       const isLastQuiz = currentQuizIndex === quizzes.length - 1;
-      if (isLastQuiz) {
-        // Calculate stars & reward
-        const totalQuestions = quizzes[currentQuizIndex].questions.length;
-        const scorePercent = (score / totalQuestions) * 100;
-        let stars = 0;
-        let message = "";
+     if (isLastQuiz) {
+  const totalQuestions = quizzes[currentQuizIndex].questions.length;
+  const scorePercent = (score / totalQuestions) * 100;
+  let stars = 0;
+  let message = "";
 
-        if (scorePercent >= 90) {
-          stars = 3;
-          message = "Excellent! You earned 3 Gold Stars ⭐⭐⭐";
-        } else if (scorePercent >= 80) {
-          stars = 2;
-          message = "Great! You earned 2 Gold Stars ⭐⭐";
-        } else if (scorePercent >= 70) {
-          stars = 1;
-          message = "Good! You earned 1 Gold Star ⭐";
-        } else if (scorePercent >= 60) {
-          stars = 0;
-          message = "Well done! You’re one step away from earning a star.";
-        } else if (scorePercent > 50) {
-          stars = 0;
-          message = "Good effort! Keep trying.";
-        } else if (scorePercent === 50) {
-          stars = 0;
-          message = "You passed!";
-          Speech.speak("You passed!");
-        } else {
-          stars = 0;
-          message = "Don’t worry, you’ll do better next time!";
-        }
+  if (scorePercent >= 90) {
+    stars = 3;
+    message = "Excellent! You earned 3 Gold Stars";
+  } else if (scorePercent >= 80) {
+    stars = 2;
+    message = "Great! You earned 2 Gold Stars";
+  } else if (scorePercent >= 70) {
+    stars = 1;
+    message = "Good! You earned 1 Gold Star";
+  } else if (scorePercent >= 60) {
+    message = "Well done! You’re one step away from earning a star.";
+  } else if (scorePercent > 50) {
+    message = "Good effort! Keep trying.";
+  } else if (scorePercent === 50) {
+    message = "You passed!";
+  } else {
+    message = "Don’t worry, you’ll do better next time!";
+  }
 
-        setFinalScore(scorePercent);
-        setEarnedStars(stars);
-        setRewardMessage(message);
-      } else {
+  setFinalScore(scorePercent);
+  setEarnedStars(stars);
+  setRewardMessage(message);
+
+  // ✅ Speak the message aloud
+  Speech.speak(message);
+}
+ else {
         setCurrentQuizIndex((p) => p + 1);
         setCurrentQuestionIndex(0);
       }
     } else {
       setCurrentQuestionIndex((p) => p + 1);
     }
+  };
+
+  const handleOkPress = () => {
+    Speech.stop();
+    navigation.goBack();
   };
 
   if (loading)
@@ -263,68 +256,74 @@ const FruitQuizzes = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.score}>🌟 Score: {score}</Text>
-      <Text style={styles.quizTitle}>{currentQuiz.quiz_title}</Text>
-
-      <View style={styles.questionCard}>
-        <Text style={styles.questionText}>{currentQuestion.question}</Text>
-
-        {sortedOptions.map((item, index) => (
-          <View key={index} style={styles.raceTrack}>
-            <Animated.View
-              style={[
-                styles.imageContainer,
-                { transform: [{ translateX: animations[index] }] },
-                highlightedWord === item.word && styles.highlightedImage,
-              ]}
-            >
-              {item.image_url && (
-                <Image source={{ uri: item.image_url }} style={styles.image} />
-              )}
-            </Animated.View>
-            <Text
-              style={[
-                styles.optionText,
-                highlightedWord === item.word && styles.highlightedText,
-              ]}
-            >
-              {item.word}
-            </Text>
-          </View>
-        ))}
-      </View>
-
-      {!isRecording ? (
-        <TouchableOpacity style={styles.recordBtn} onPress={startRecording}>
-          <Text style={styles.recordText}>🎤 Speak Answer</Text>
-        </TouchableOpacity>
-      ) : (
-        <TouchableOpacity style={styles.stopBtn} onPress={stopRecording}>
-          <Text style={styles.recordText}>⏹ Stop Recording</Text>
-        </TouchableOpacity>
-      )}
-
-      {/* ✅ Reward Section */}
-      {finalScore !== null && (
-        <View style={{ marginTop: 30, alignItems: "center" }}>
-          <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}>
-            Quiz Complete! Score: {finalScore.toFixed(0)}%
+      {finalScore !== null ? (
+        <View style={styles.resultContainer}>
+          <Text style={styles.resultTitle}>🎉 Quiz Complete!</Text>
+          <Text style={styles.resultScore}>
+            Score: {finalScore.toFixed(0)}%
           </Text>
 
-          <View style={{ flexDirection: "row", marginBottom: 10 }}>
+          <View style={styles.starsRow}>
             {[...Array(3)].map((_, i) => (
               <Ionicons
                 key={i}
                 name={i < earnedStars ? "star" : "star-outline"}
-                size={40}
+                size={50}
                 color="#FFD700"
                 style={{ marginHorizontal: 5 }}
               />
             ))}
           </View>
 
-          <Text style={{ fontSize: 16, textAlign: "center" }}>{rewardMessage}</Text>
+          <Text style={styles.rewardMessage}>{rewardMessage}</Text>
+
+          <TouchableOpacity style={styles.okButton} onPress={handleOkPress}>
+            <Text style={styles.okButtonText}>OK</Text>
+          </TouchableOpacity>
         </View>
+      ) : (
+        <>
+          <Text style={styles.score}>🌟 Score: {score}</Text>
+          <Text style={styles.quizTitle}>{currentQuiz.quiz_title}</Text>
+
+          <View style={styles.questionCard}>
+            <Text style={styles.questionText}>{currentQuestion.question}</Text>
+
+            {sortedOptions.map((item, index) => (
+              <View key={index} style={styles.raceTrack}>
+                <Animated.View
+                  style={[
+                    styles.imageContainer,
+                    { transform: [{ translateX: animations[index] }] },
+                    highlightedWord === item.word && styles.highlightedImage,
+                  ]}
+                >
+                  {item.image_url && (
+                    <Image source={{ uri: item.image_url }} style={styles.image} />
+                  )}
+                </Animated.View>
+                <Text
+                  style={[
+                    styles.optionText,
+                    highlightedWord === item.word && styles.highlightedText,
+                  ]}
+                >
+                  {item.word}
+                </Text>
+              </View>
+            ))}
+          </View>
+
+          {!isRecording ? (
+            <TouchableOpacity style={styles.recordBtn} onPress={startRecording}>
+              <Text style={styles.recordText}>🎤 Speak Answer</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.stopBtn} onPress={stopRecording}>
+              <Text style={styles.recordText}>⏹ Stop Recording</Text>
+            </TouchableOpacity>
+          )}
+        </>
       )}
     </View>
   );
@@ -346,6 +345,15 @@ const styles = StyleSheet.create({
   recordBtn: { marginTop: 20, backgroundColor: "#7BE7CE", paddingVertical: 10, borderRadius: 10, alignItems: "center", elevation: 3 },
   stopBtn: { marginTop: 20, backgroundColor: "#FFB6C1", paddingVertical: 10, borderRadius: 10, alignItems: "center", elevation: 3 },
   recordText: { color: "#333", fontSize: 15, fontWeight: "bold" },
+
+  // Result screen styles
+  resultContainer: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#fff" },
+  resultTitle: { fontSize: 26, fontWeight: "bold", color: "#333", marginBottom: 10 },
+  resultScore: { fontSize: 22, color: "#FFB6C1", marginBottom: 20 },
+  starsRow: { flexDirection: "row", marginBottom: 20 },
+  rewardMessage: { fontSize: 18, textAlign: "center", color: "#555", paddingHorizontal: 20, marginBottom: 30 },
+  okButton: { backgroundColor: "#7BE7CE", paddingVertical: 12, paddingHorizontal: 50, borderRadius: 25, elevation: 3 },
+  okButtonText: { color: "#fff", fontSize: 18, fontWeight: "600" },
 });
 
 export default FruitQuizzes;

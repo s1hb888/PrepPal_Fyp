@@ -1,17 +1,28 @@
 // screens/CountingQuizzes.js
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
 import axios from "axios";
 import { Audio } from "expo-av";
 import * as FileSystem from "expo-file-system";
-import * as Speech from "expo-speech"; 
+import * as Speech from "expo-speech";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import API_BASE_URL from "./config";
 
-const LEMONFOX_API_KEY = "JVTxkQ2MhlB2s3wyynOS5FW0fz9xLetf";
-const normalizeRaw = (text = "") => text.toString().toLowerCase().replace(/[\s.,!?؛،؟]/g, "").trim();
+const LEMONFOX_API_KEY = "nTmqKSP4x1kaFTCdEyAsYv3tQ6Vk4Stm";
+const normalizeRaw = (text = "") =>
+  text.toString().toLowerCase().replace(/[\s.,!?؛،؟]/g, "").trim();
 
 const CountingQuizzes = () => {
+  const navigation = useNavigation();
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentQuizIndex, setCurrentQuizIndex] = useState(0);
@@ -24,16 +35,18 @@ const CountingQuizzes = () => {
   const [earnedStars, setEarnedStars] = useState(0);
   const [rewardMessage, setRewardMessage] = useState("");
 
-  // Sound refs
   const correctSound = useRef(new Audio.Sound());
   const wrongSound = useRef(new Audio.Sound());
 
-  // ------------------- Load sounds -------------------
   useEffect(() => {
     const loadSounds = async () => {
       try {
-        await correctSound.current.loadAsync(require("../assets/sounds/answer-correct.mp3"));
-        await wrongSound.current.loadAsync(require("../assets/sounds/buzzer-new.mp3"));
+        await correctSound.current.loadAsync(
+          require("../assets/sounds/answer-correct.mp3")
+        );
+        await wrongSound.current.loadAsync(
+          require("../assets/sounds/buzzer-new.mp3")
+        );
       } catch (err) {
         console.error("Failed to load sounds:", err);
       }
@@ -41,7 +54,6 @@ const CountingQuizzes = () => {
     loadSounds();
   }, []);
 
-  // ------------------- Fetch quizzes -------------------
   useEffect(() => {
     const fetchQuizzes = async () => {
       try {
@@ -51,7 +63,9 @@ const CountingQuizzes = () => {
           questions: quiz.questions.map((q) => ({
             ...q,
             images: Array.isArray(q.images)
-              ? q.images.map((img) => ({ url: img.url || img.image_url || img }))
+              ? q.images.map((img) => ({
+                  url: img.url || img.image_url || img,
+                }))
               : [],
           })),
         }));
@@ -66,16 +80,15 @@ const CountingQuizzes = () => {
     fetchQuizzes();
   }, []);
 
-  // ------------------- Speak the current question -------------------
   useEffect(() => {
-    if (quizzes.length === 0) return;
-    const currentQuestion = quizzes[currentQuizIndex]?.questions[currentQuestionIndex];
+    if (quizzes.length === 0 || finalScore !== null) return;
+    const currentQuestion =
+      quizzes[currentQuizIndex]?.questions[currentQuestionIndex];
     if (currentQuestion?.question) {
       Speech.speak(currentQuestion.question, { language: "en" });
     }
-  }, [currentQuizIndex, currentQuestionIndex, quizzes]);
+  }, [currentQuizIndex, currentQuestionIndex, quizzes, finalScore]);
 
-  // ------------------- Recording -------------------
   const startRecording = async () => {
     try {
       const { status } = await Audio.requestPermissionsAsync();
@@ -83,8 +96,13 @@ const CountingQuizzes = () => {
         Alert.alert("Permission required", "Microphone permission not granted!");
         return;
       }
-      await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
-      const { recording: rec } = await Audio.Recording.createAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+      const { recording: rec } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
       setRecording(rec);
       setIsRecording(true);
     } catch (err) {
@@ -107,7 +125,6 @@ const CountingQuizzes = () => {
     }
   };
 
-  // ------------------- LemonFox transcription + feedback -------------------
   const sendToLemonFox = async (uri) => {
     try {
       const formData = new FormData();
@@ -115,14 +132,19 @@ const CountingQuizzes = () => {
       formData.append("language", "english");
       formData.append("response_format", "json");
 
-      const res = await fetch("https://api.lemonfox.ai/v1/audio/transcriptions", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${LEMONFOX_API_KEY}` },
-        body: formData,
-      });
+      const res = await fetch(
+        "https://api.lemonfox.ai/v1/audio/transcriptions",
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${LEMONFOX_API_KEY}` },
+          body: formData,
+        }
+      );
       const data = await res.json();
       const spoken = normalizeRaw(data.text || "");
-      const currentQuestion = quizzes[currentQuizIndex]?.questions[currentQuestionIndex];
+      console.log(spoken);
+      const currentQuestion =
+        quizzes[currentQuizIndex]?.questions[currentQuestionIndex];
       const correctAnswer = normalizeRaw(currentQuestion.answer);
 
       if (spoken.includes(correctAnswer)) {
@@ -131,146 +153,195 @@ const CountingQuizzes = () => {
       } else {
         await wrongSound.current.replayAsync();
       }
-      handleNext();
+      setTimeout(() => handleNext(), 2000);
     } catch (err) {
       console.error("Lemonfox transcription error:", err);
       Alert.alert("Error", "Could not understand your answer.");
     }
   };
 
-  // ------------------- Next question / quiz completion -------------------
   const handleNext = () => {
     const currentQuiz = quizzes[currentQuizIndex];
-    const isLastQuestion = currentQuestionIndex === currentQuiz.questions.length - 1;
+    const isLastQuestion =
+      currentQuestionIndex === currentQuiz.questions.length - 1;
 
     if (isLastQuestion) {
       const isLastQuiz = currentQuizIndex === quizzes.length - 1;
       if (isLastQuiz) {
-        // Calculate final score and stars
-        const totalQuestions = currentQuiz.questions.length;
-        const scorePercent = (score / totalQuestions) * 100;
+  const totalQuestions = quizzes[currentQuizIndex].questions.length;
+  const scorePercent = (score / totalQuestions) * 100;
+  let stars = 0;
+  let message = "";
 
-        let stars = 0;
-        let message = "";
+  if (scorePercent >= 90) {
+    stars = 3;
+    message = "Excellent! You earned 3 Gold Stars";
+  } else if (scorePercent >= 80) {
+    stars = 2;
+    message = "Great! You earned 2 Gold Stars";
+  } else if (scorePercent >= 70) {
+    stars = 1;
+    message = "Good! You earned 1 Gold Star";
+  } else if (scorePercent >= 60) {
+    message = "Well done! You’re one step away from earning a star.";
+  } else if (scorePercent > 50) {
+    message = "Good effort! Keep trying.";
+  } else if (scorePercent === 50) {
+    message = "You passed!";
+  } else {
+    message = "Don’t worry, you’ll do better next time!";
+  }
 
-        if (scorePercent >= 90) {
-          stars = 3;
-          message = "Excellent! You earned 3 Gold Stars ⭐⭐⭐";
-        } else if (scorePercent >= 80) {
-          stars = 2;
-          message = "Great! You earned 2 Gold Stars ⭐⭐";
-        } else if (scorePercent >= 70) {
-          stars = 1;
-          message = "Good! You earned 1 Gold Star ⭐";
-        } else if (scorePercent >= 60) {
-          stars = 0;
-          message = "Well done! You’re one step away from earning a star.";
-        } else if (scorePercent > 50) {
-          stars = 0;
-          message = "Good effort! Keep trying.";
-        } else if (scorePercent === 50) {
-          stars = 0;
-          message = "You passed!";
-          Speech.speak("You passed!");
-        } else {
-          stars = 0;
-          message = "Don’t worry, you’ll do better next time!";
-        }
+  setFinalScore(scorePercent);
+  setEarnedStars(stars);
+  setRewardMessage(message);
 
-        setFinalScore(scorePercent);
-        setEarnedStars(stars);
-        setRewardMessage(message);
-      } else {
-        setCurrentQuizIndex((p) => p + 1);
-        setCurrentQuestionIndex(0);
-      }
+  // ✅ Speak the message aloud
+  Speech.speak(message);
+}
+
     } else {
       setCurrentQuestionIndex((p) => p + 1);
     }
   };
 
-  // ------------------- Loading / Empty -------------------
-  if (loading) return (
-    <View style={styles.center}>
-      <ActivityIndicator size="large" color="#FFD54F" />
-    </View>
-  );
+  const handleOkPress = () => {
+    Speech.stop();
+    navigation.goBack();
+  };
 
-  if (!quizzes.length) return (
-    <View style={styles.center}>
-      <Text>No quizzes found.</Text>
-    </View>
-  );
+  if (loading)
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#FFD54F" />
+      </View>
+    );
 
-  // ------------------- Current quiz/question -------------------
+  if (!quizzes.length)
+    return (
+      <View style={styles.center}>
+        <Text>No quizzes found.</Text>
+      </View>
+    );
+
   const currentQuiz = quizzes[currentQuizIndex];
   const currentQuestion = currentQuiz.questions[currentQuestionIndex];
   const images = currentQuestion?.images || [];
 
   return (
     <View style={styles.container}>
-      <Text style={styles.score}>Score: {score}</Text>
-      <Text style={styles.quizTitle}>{currentQuiz.quiz_title}</Text>
-      <Text style={styles.questionText}>{currentQuestion.question}</Text>
-
-      {images.length > 0 ? (
-        <View style={styles.optionsRow}>
-          {images.map((imgObj, i) => (
-            <Image key={i} source={{ uri: imgObj.url }} style={styles.image} />
-          ))}
-        </View>
-      ) : (
-        <Text style={{ textAlign: "center", marginVertical: 20 }}>No images available</Text>
-      )}
-
-      {!isRecording ? (
-        <TouchableOpacity style={styles.recordBtn} onPress={startRecording}>
-          <Text style={styles.recordText}>🎤 Speak Answer</Text>
-        </TouchableOpacity>
-      ) : (
-        <TouchableOpacity style={styles.stopBtn} onPress={stopRecording}>
-          <Text style={styles.recordText}>⏹ Stop Recording</Text>
-        </TouchableOpacity>
-      )}
-
-      {/* ✅ Display Stars and Reward Message */}
-      {finalScore !== null && (
-        <View style={{ marginTop: 30, alignItems: "center" }}>
-          <Text style={{ fontSize: 20, fontWeight: "bold", marginBottom: 10 }}>
-            Quiz Complete! Score: {finalScore.toFixed(0)}%
+      {finalScore !== null ? (
+        <View style={styles.resultContainer}>
+          <Text style={styles.resultTitle}>🎉 Quiz Complete!</Text>
+          <Text style={styles.resultScore}>
+            Score: {finalScore.toFixed(0)}%
           </Text>
 
-          <View style={{ flexDirection: "row", marginBottom: 10 }}>
+          <View style={styles.starsRow}>
             {[...Array(3)].map((_, i) => (
               <Ionicons
                 key={i}
                 name={i < earnedStars ? "star" : "star-outline"}
-                size={40}
+                size={50}
                 color="#FFD700"
                 style={{ marginHorizontal: 5 }}
               />
             ))}
           </View>
 
-          <Text style={{ fontSize: 16, textAlign: "center" }}>{rewardMessage}</Text>
+          <Text style={styles.rewardMessage}>{rewardMessage}</Text>
+
+          <TouchableOpacity style={styles.okButton} onPress={handleOkPress}>
+            <Text style={styles.okButtonText}>OK</Text>
+          </TouchableOpacity>
         </View>
+      ) : (
+        <>
+          <Text style={styles.score}>Score: {score}</Text>
+          <Text style={styles.quizTitle}>{currentQuiz.quiz_title}</Text>
+          <Text style={styles.questionText}>{currentQuestion.question}</Text>
+
+          {images.length > 0 ? (
+            <View style={styles.optionsRow}>
+              {images.map((imgObj, i) => (
+                <Image
+                  key={i}
+                  source={{ uri: imgObj.url }}
+                  style={styles.image}
+                />
+              ))}
+            </View>
+          ) : (
+            <Text style={{ textAlign: "center", marginVertical: 20 }}>
+              No images available
+            </Text>
+          )}
+
+          {!isRecording ? (
+            <TouchableOpacity style={styles.recordBtn} onPress={startRecording}>
+              <Text style={styles.recordText}>🎤 Speak Answer</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.stopBtn} onPress={stopRecording}>
+              <Text style={styles.recordText}>⏹ Stop Recording</Text>
+            </TouchableOpacity>
+          )}
+        </>
       )}
     </View>
   );
 };
 
-// ---------------------- Styles ----------------------
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: "#F9F9F9" },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  score: { fontSize: 22, fontWeight: "bold", color: "#FFD54F", marginBottom: 10, textAlign: "center", paddingTop: 20 },
-  quizTitle: { fontSize: 24, fontWeight: "bold", color: "#FFB6C1", marginBottom: 20, textAlign: "center" },
+  score: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#FFD54F",
+    marginBottom: 10,
+    textAlign: "center",
+    paddingTop: 20,
+  },
+  quizTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#FFB6C1",
+    marginBottom: 20,
+    textAlign: "center",
+  },
   questionText: { fontSize: 18, color: "#333", marginBottom: 10, textAlign: "center" },
   optionsRow: { flexDirection: "row", justifyContent: "space-around", marginVertical: 20 },
   image: { width: 100, height: 100, resizeMode: "contain", borderRadius: 10 },
   recordBtn: { marginTop: 30, backgroundColor: "#FFD54F", paddingVertical: 14, borderRadius: 10, alignItems: "center" },
   stopBtn: { marginTop: 30, backgroundColor: "#FFB6C1", paddingVertical: 14, borderRadius: 10, alignItems: "center" },
   recordText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+
+  // Result screen styles
+  resultContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
+  resultTitle: { fontSize: 26, fontWeight: "bold", color: "#333", marginBottom: 10 },
+  resultScore: { fontSize: 22, color: "#FFB6C1", marginBottom: 20 },
+  starsRow: { flexDirection: "row", marginBottom: 20 },
+  rewardMessage: {
+    fontSize: 18,
+    textAlign: "center",
+    color: "#555",
+    paddingHorizontal: 20,
+    marginBottom: 30,
+  },
+  okButton: {
+    backgroundColor: "#7BE7CE",
+    paddingVertical: 12,
+    paddingHorizontal: 50,
+    borderRadius: 25,
+    elevation: 3,
+  },
+  okButtonText: { color: "#fff", fontSize: 18, fontWeight: "600" },
 });
 
 export default CountingQuizzes;
