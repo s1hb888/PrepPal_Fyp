@@ -12,17 +12,25 @@ const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 /* ───────── HELPERS ───────── */
 const doDailyReset = async (rec) => {
-  if (!rec.lastReset || now().isAfter(moment(rec.lastReset).endOf('day'))) {
-    console.log('[🌅 DAILY RESET] Resetting all counters for new day');
+  // Check if we need to reset (new day has started)
+  const lastResetDate = rec.lastReset ? moment(rec.lastReset) : null;
+  const currentDate = now();
+  
+  // If lastReset is null or if current time is after the end of lastReset's day
+  const needsReset = !lastResetDate || currentDate.isAfter(lastResetDate.endOf('day'));
+  
+  if (needsReset) {
     rec.openCountToday     = 0;
     rec.totalUsedTimeToday = 0;
     rec.isLocked           = false;
     rec.sessionStartTime   = null;
     rec.sessionEndTime     = null;
     rec.lastSessionEndTime = null;
+    rec.startFormatted     = null;
+    rec.endFormatted       = null;
     rec.lastReset          = now().toDate();
+    
     await rec.save();
-    console.log('[✅ Daily reset complete]');
   }
 };
 
@@ -32,18 +40,10 @@ const autoUnlockIfGapPassed = async (rec) => {
     const nowTime = now();
     
     if (nowTime.isSameOrAfter(unlockAt)) {
-      console.log('[🔓 AUTO-UNLOCK] Gap period completed');
-      console.log('  - Gap started:', moment(rec.lastSessionEndTime).format('HH:mm:ss'));
-      console.log('  - Unlock time:', unlockAt.format('HH:mm:ss'));
-      console.log('  - Current time:', nowTime.format('HH:mm:ss'));
       
       rec.isLocked = false;
       await rec.save();
-      console.log('[✅ Backend unlocked - ready for next session]');
     } else {
-      console.log('[⏰ GAP STILL ACTIVE]');
-      console.log('  - Unlock at:', unlockAt.format('HH:mm:ss'));
-      console.log('  - Time remaining:', unlockAt.diff(nowTime, 'seconds'), 'seconds');
     }
   }
 };
@@ -51,27 +51,15 @@ const autoUnlockIfGapPassed = async (rec) => {
 /* ───────── START SESSION ───────── */
 router.post('/start-session', async (req, res) => {
   const { userId } = req.body;
-  
-  console.log('\n╔════════════════════════════════════════════╗');
-  console.log('║     START SESSION REQUEST RECEIVED         ║');
-  console.log('╚════════════════════════════════════════════╝');
-  
+
   if (!isValidId(userId)) {
-    console.log('[❌ Invalid userId]');
     return res.status(400).json({ success:false, message:'Bad userId' });
   }
 
   let rec = await ScreenTime.findOne({ userId });
   if (!rec) {
-    console.log('[❌ No screen time record found]');
     return res.status(404).json({ success:false, message:'Record not found' });
   }
-
-  console.log('[📊 Current State Before Processing:');
-  console.log('  - openCountToday:', rec.openCountToday);
-  console.log('  - dailyUsageLimit:', rec.dailyUsageLimit);
-  console.log('  - isLocked:', rec.isLocked);
-  console.log('  - Has active session:', !!rec.sessionStartTime);
 
   /* 1️⃣ Housekeeping */
   await doDailyReset(rec);
@@ -80,8 +68,6 @@ router.post('/start-session', async (req, res) => {
 
   /* 2️⃣ Check if gap is still running */
   if (rec.isLocked) {
-    console.log('[🔒 REJECTED: Still locked (gap period active)]');
-    console.log('╚════════════════════════════════════════════╝\n');
     return res.status(403).json({ 
       success: false, 
       locked: true, 
@@ -95,13 +81,8 @@ router.post('/start-session', async (req, res) => {
   const currentTime = rec.totalUsedTimeToday || 0;
   const allowedTime = num(rec.totalDailyTime);
 
-  console.log('[🔍 Checking Daily Limits:');
-  console.log('  - Sessions: ', currentSessions, '/', allowedSessions);
-  console.log('  - Time used:', currentTime, '/', allowedTime, 'minutes');
 
   if (allowedSessions > 0 && currentSessions >= allowedSessions) {
-    console.log('[🚫 REJECTED: Daily session limit reached]');
-    console.log('╚════════════════════════════════════════════╝\n');
     return res.status(403).json({ 
       success: false, 
       locked: true, 
@@ -110,8 +91,6 @@ router.post('/start-session', async (req, res) => {
   }
 
   if (allowedTime > 0 && currentTime >= allowedTime) {
-    console.log('[🚫 REJECTED: Daily time limit reached]');
-    console.log('╚════════════════════════════════════════════╝\n');
     return res.status(403).json({ 
       success: false, 
       locked: true, 
@@ -132,13 +111,6 @@ router.post('/start-session', async (req, res) => {
   rec.openCountToday  += 1;
 
   await rec.save();
-
-  console.log('[✅ SESSION STARTED SUCCESSFULLY!]');
-  console.log('  - Session number:', rec.openCountToday, '/', allowedSessions);
-  console.log('  - Start time:', start.format('HH:mm:ss'));
-  console.log('  - End time:', end ? end.format('HH:mm:ss') : 'No limit');
-  console.log('  - Duration:', rec.sessionDuration, 'minutes');
-  console.log('╚════════════════════════════════════════════╝\n');
 
   return res.json({
     success: true,
@@ -195,7 +167,6 @@ router.post('/save', async (req, res) => {
 
     return res.json({ success: true, data: rec });
   } catch (e) {
-    console.error('[❌ Save error:', e.message);
     return res.status(500).json({ success: false, error: e.message });
   }
 });
@@ -238,7 +209,6 @@ router.get('/:userId', async (req, res) => {
       data: rec.toObject(),
     });
   } catch (e) {
-    console.error('[❌ Get status error:', e.message);
     res.status(500).json({ success: false, error: e.message });
   }
 });
@@ -292,17 +262,11 @@ router.post('/lock-session', async (req, res) => {
     rec.startFormatted = null;
     rec.endFormatted = null;
     rec.isLocked = true;
-
     await rec.save();
-
-    const sessionsRemaining = rec.dailyUsageLimit - rec.openCountToday;
-
-  
+    const sessionsRemaining = rec.dailyUsageLimit - rec.openCountToday; 
     if (rec.nextSessionGap > 0) {
       const unlockTime = moment(rec.lastSessionEndTime).add(rec.nextSessionGap, 'minutes');
     }
-    
-
     res.json({ 
       success: true, 
       locked: true, 
@@ -313,7 +277,6 @@ router.post('/lock-session', async (req, res) => {
         : null
     });
   } catch (e) {
-    console.error('[❌ Lock session error:', e.message);
     res.status(500).json({ success: false, error: e.message });
   }
 });
