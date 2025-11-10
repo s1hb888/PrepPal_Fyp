@@ -1,6 +1,6 @@
 const express = require('express');
 const User = require('../models/User');
-const Quiz = require('../models/Quiz');
+
 const verifyToken = require('../middleware/authMiddleware');
 const bcrypt = require('bcryptjs');
 const upload = require('../middleware/upload');
@@ -78,38 +78,6 @@ router.put('/update', verifyToken, async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error, please try again later.' });
-  }
-});
-
-
-router.get('/summary', verifyToken, async (req, res) => {
-  try {
-    const quizzes = await Quiz.find({ userId: req.user.id }).select('score total');
-
-    if (!quizzes || quizzes.length === 0) {
-      return res.status(200).json({
-        success: true,
-        totalQuizzes: 0,
-        passed: 0,
-        failed: 0,
-        quizzes: [],
-      });
-    }
-
-    const totalQuizzes = quizzes.length;
-    const passed = quizzes.filter(q => q.score > 8).length;
-    const failed = totalQuizzes - passed;
-
-    res.status(200).json({
-      success: true,
-      totalQuizzes,
-      passed,
-      failed,
-      quizzes, // optional: include all quiz scores
-    });
-  } catch (error) {
-    console.error('Quiz summary error:', error);
-    res.status(500).json({ success: false, message: 'Server error, please try again later.' });
   }
 });
 

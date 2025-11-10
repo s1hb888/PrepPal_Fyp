@@ -37,7 +37,7 @@ const PerformanceReport = ({ navigation }) => {
     fetchPerformance();
   }, []);
 
-  // 🎯 Reward Logic
+  //  Reward Logic
   const getReward = (accuracy, avgTime, completionRate) => {
     if (accuracy >= 90 && avgTime <= 5 && completionRate >= 90) {
       return { grade: 'Gold', icon: 'award', color: '#FFD700', message: 'Excellent Performance!' };

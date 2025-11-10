@@ -106,21 +106,21 @@ export default function QuizScreen({ route }) {
       const res1 = await axios.post(`${API_BASE_URL}/api/result/save`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("✅ Result saved:", res1.data);
+      console.log(" Result saved:", res1.data);
 
       const res2 = await axios.post(
         `${API_BASE_URL}/api/quiz/complete`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log("🔁 Performance refreshed:", res2.data);
+      console.log(" Performance refreshed:", res2.data);
 
       Alert.alert(
-        "✅ Quiz Complete",
+        "Quiz Complete",
         "Results saved and performance updated successfully!"
       );
     } catch (e) {
-      console.error("❌ Save or Refresh error:", e.response?.data || e);
+      console.error(" Save or Refresh error:", e.response?.data || e);
       Alert.alert("Error", "Failed to save or refresh results.");
     }
   };
@@ -163,7 +163,7 @@ const playSound = async (isCorrect) => {
       timeTaken: timeTakenMs,
     };
     setAnswers(nextAnswers);
-    setFeedback(isCorrect ? "✅ Correct!" : "❌ Wrong!");
+    setFeedback(isCorrect ? " Correct!" : " Wrong!");
     playSound(isCorrect);
 
 
@@ -204,7 +204,7 @@ const playSound = async (isCorrect) => {
       rec.setOnRecordingStatusUpdate(null);
       setRecording(rec);
       setIsRecording(true);
-      console.log("✅ Recording started at:", newFile);
+      console.log(" Recording started at:", newFile);
     } catch (e) {
       console.error("Start record error:", e);
     }
@@ -213,10 +213,10 @@ const playSound = async (isCorrect) => {
   const stopRecording = async () => {
     try {
       if (!recording) return;
-      console.log("🛑 Stopping recording...");
+      console.log(" Stopping recording...");
       await recording.stopAndUnloadAsync();
       const uri = recording.getURI();
-      console.log("🎧 File ready:", uri);
+      console.log(" File ready:", uri);
 
       setIsRecording(false);
       setRecording(null);
@@ -231,7 +231,7 @@ const playSound = async (isCorrect) => {
 
   const sendToLemonFox = async (uri) => {
     try {
-      console.log("📤 Sending audio to LemonFox...");
+      console.log(" Sending audio to LemonFox...");
       const formData = new FormData();
       formData.append("file", {
         uri,
@@ -250,10 +250,10 @@ const playSound = async (isCorrect) => {
       });
 
       const data = await res.json();
-      console.log("🧠 LemonFox Response:", data);
+      console.log(" LemonFox Response:", data);
 
       const spoken = normalizeRaw(data.text || "");
-      console.log("🎤 You said (cleaned):", spoken);
+      console.log(" You said (cleaned):", spoken);
 
       if (!spoken) {
         Speech.speak(subjectLower === "urdu" ? "میں سمجھ نہیں پایا، دوبارہ کہیے۔" : "I couldn't catch that, please repeat.", {
@@ -270,10 +270,10 @@ const playSound = async (isCorrect) => {
       );
 
       if (matched) {
-        console.log("✅ Matched:", matched.text);
+        console.log(" Matched:", matched.text);
         handleAnswer(matched);
       } else {
-        console.warn("⚠️ No match for:", spoken);
+        console.warn(" No match for:", spoken);
         Speech.speak(
           subjectLower === "urdu" ? "براہ کرم دوبارہ کوشش کریں، میں آپ کا جواب سمجھ نہیں پایا۔" : 
           "Please try again, I didn't understand your answer.",
@@ -289,7 +289,7 @@ const playSound = async (isCorrect) => {
   };
 
   const restartQuiz = async () => {
-    console.log("♻️ Restarting...");
+    console.log(" Restarting...");
     if (recording) {
       await recording.stopAndUnloadAsync().catch(() => {});
     }

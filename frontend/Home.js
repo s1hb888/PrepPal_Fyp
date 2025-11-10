@@ -41,7 +41,7 @@ const Home = ({ navigation }) => {
       const token = await AsyncStorage.getItem('token');
       if (!token) return;
 
-      const res = await fetch(`${API_BASE_URL}/api/summary`, {
+      const res = await fetch(`${API_BASE_URL}/api/performance/quiz-summary`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,

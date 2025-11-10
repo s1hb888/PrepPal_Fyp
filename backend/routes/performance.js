@@ -6,7 +6,7 @@ const UrduModel = require('../models/Urdu');
 const AlphabetModel = require('../models/Alphabet');
 const UserAccess = require('../models/UserAccess');
 const router = express.Router();
-
+const Quiz = require('../models/Quiz');
 // Map subject → model
 const subjectModels = {
   Number: NumberModel,
@@ -18,6 +18,37 @@ const subjectModels = {
  * GET /api/performance/summary
  * Summary by subject (already implemented)
  */
+router.get('/quiz-summary', verifyToken, async (req, res) => {
+  try {
+    const quizzes = await Quiz.find({ userId: req.user.id }).select('score total');
+
+    if (!quizzes || quizzes.length === 0) {
+      return res.status(200).json({
+        success: true,
+        totalQuizzes: 0,
+        passed: 0,
+        failed: 0,
+        quizzes: [],
+      });
+    }
+
+    const totalQuizzes = quizzes.length;
+    const passed = quizzes.filter(q => q.score > 8).length;
+    const failed = totalQuizzes - passed;
+
+    res.status(200).json({
+      success: true,
+      totalQuizzes,
+      passed,
+      failed,
+      quizzes, // optional: include all quiz scores
+    });
+  } catch (error) {
+    console.error('Quiz summary error:', error);
+    res.status(500).json({ success: false, message: 'Server error, please try again later.' });
+  }
+});
+
 router.get('/summary', verifyToken, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -103,12 +134,7 @@ router.get('/summary', verifyToken, async (req, res) => {
     }
 
     // Fetch ALL items (e.g., words/numbers/alphabets) for that subject
-    const itemsData = await Model.find({}, {
-      [subject === 'Number' ? 'number' : 'alphabet']: 1,
-      min_attempts: 1,
-      min_time_avg: 1,
-      min_correct_avg: 1,
-    }).lean();
+    const itemsData = await Model.find().lean();
 
     // Fetch user-specific access limits
     const userAccess = await UserAccess.findOne({ user_id: userId });
@@ -125,9 +151,9 @@ router.get('/summary', verifyToken, async (req, res) => {
       );
 
       criteriaMap[it[keyField]] = {
-        min_attempts: userLimit?.min_attempts ?? it.min_attempts ?? 0,
-        min_time_avg: userLimit?.min_time_avg ?? it.min_time_avg ?? 0,
-        min_correct_avg: userLimit?.min_correct_avg ?? it.min_correct_avg ?? 0,
+        min_attempts: userLimit?.min_attempts ?? it.min_attempts,
+        min_time_avg: userLimit?.min_time_avg ?? it.min_time_avg,
+        min_correct_avg: userLimit?.min_correct_avg ?? it.min_correct_avg,
       };
     });
 

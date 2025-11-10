@@ -18,7 +18,7 @@ const PerformanceDetail = ({ route, navigation }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Same reward logic from PerformanceReport
+  // Same reward logic from PerformanceReport
   const getReward = (accuracy, avgTime) => {
     if (accuracy >= 90 && avgTime <= 5 ) {
       return { grade: 'Gold', emoji: '🥇', color: '#FFD700', message: 'Excellent Performance!' };
