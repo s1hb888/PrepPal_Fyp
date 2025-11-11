@@ -21,7 +21,7 @@ router.post("/save", verifyToken, async (req, res) => {
       return res.status(400).json({ message: "answers must be an array" });
     }
 
-    // ✅ Map user answers into questions
+    //  Map user answers into questions
     quiz.questions = quiz.questions.map((q) => {
       // Find corresponding answer
       const ans = answers.find((a) => a.question === q.question);
@@ -49,7 +49,7 @@ router.post("/save", verifyToken, async (req, res) => {
       quizId: quiz._id,
     });
   } catch (err) {
-    console.error("❌ Save result error:", err);
+    console.error(" Save result error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });

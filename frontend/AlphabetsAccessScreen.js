@@ -53,7 +53,7 @@ const AlphabetAccessScreen = () => {
     }
   };
 
-  // ✅ Update state directly when slider moves
+  // Update state directly when slider moves
   const handleSliderChange = (id, field, value) => {
     setAccessData(prev =>
       prev.map(a =>
@@ -83,7 +83,7 @@ const AlphabetAccessScreen = () => {
         }
       );
 
-      Alert.alert('✅ Success', 'Alphabet access updated successfully!');
+      Alert.alert(' Success', 'Alphabet access updated successfully!');
     } catch (error) {
       console.error('Error saving alphabet access:', error);
     }
@@ -115,7 +115,7 @@ const AlphabetAccessScreen = () => {
 
         <View style={styles.separator} />
 
-        {/* ✅ Attempts Range Slider */}
+        {/* Attempts Range Slider */}
         <View style={styles.sliderRow}>
           <Text style={styles.label}>Attempts ({data.min_attempts})</Text>
           <Slider
@@ -132,7 +132,7 @@ const AlphabetAccessScreen = () => {
           />
         </View>
 
-        {/* ✅ Time Avg Slider */}
+        {/*  Time Avg Slider */}
         <View style={styles.sliderRow}>
           <Text style={styles.label}>Time Avg ({data.min_time_avg}s)</Text>
           <Slider
@@ -149,7 +149,7 @@ const AlphabetAccessScreen = () => {
           />
         </View>
 
-        {/* ✅ Correct % Slider */}
+        {/* Correct % Slider */}
         <View style={styles.sliderRow}>
           <Text style={styles.label}>Correct % ({data.min_correct_avg}%)</Text>
           <Slider

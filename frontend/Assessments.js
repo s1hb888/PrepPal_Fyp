@@ -93,10 +93,10 @@ const Assessments = () => {
         return;
       }
 
-      Alert.alert("✅ Success", `${subject} quiz generated!`);
+      Alert.alert(" Success", `${subject} quiz generated!`);
       navigation.navigate("QuizScreen", { subject, quizText: quiz, quizId });
     } catch (error) {
-      console.error("❌ Quiz API error:", error);
+      console.error(" Quiz API error:", error);
       Alert.alert("Error", "Failed to generate quiz. Please try again.");
     } finally {
       setLoading(false);
@@ -114,7 +114,7 @@ const Assessments = () => {
           if (isAcademic) {
             handleSubjectQuiz(item.title);
           } else {
-            // ✅ General Knowledge Navigation Logic
+            // General Knowledge Navigation Logic
             switch (item.title) {
               case "Body Parts":
                 navigation.navigate("BodyPartQuizzes");

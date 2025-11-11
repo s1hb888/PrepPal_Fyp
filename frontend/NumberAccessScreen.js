@@ -86,7 +86,7 @@ const NumbersAccessScreen = () => {
         { numbers: accessData },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-       Alert.alert('✅ Success', 'Number access updated successfully!');
+       Alert.alert(' Success', 'Number access updated successfully!');
     } catch (error) {
       console.error('Error saving number access:', error);
     }
