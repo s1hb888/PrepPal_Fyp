@@ -12,7 +12,7 @@ const NumberModel = require('../models/Number'); // Maths
 // Initialize Gemini model
 const genAI = new GoogleGenerativeAI(apiKey);
 const model = genAI.getGenerativeModel({
-  model: "gemini-2.5-flash",
+  model: "gemini-2.0-flash",
   generationConfig: {
     temperature: 0.9,
     topP: 0.9,

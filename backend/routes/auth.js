@@ -423,8 +423,6 @@ router.get('/access/alphabets', verifyToken, async (req, res) => {
       };
     });
 
-    // Show only active ones
-//    const filtered = enriched.filter((item) => item.active);
 
     return res.json(enriched);
   } catch (err) {

@@ -63,18 +63,31 @@ router.post('/generate', verifyToken, async (req, res) => {
     .filter(a => a.active)
     .map(a => a.item_id.toString());
 
-  if (activeAccessItems.length > 0) {
-    // Include only active item_ids
-    itemsToUse = allDocs
-      .filter(d => activeAccessItems.includes(d._id.toString()))
-      .map(d => d[field]);
-  } else if (Array.isArray(accessItems) && accessItems.length === 0) {
-    // ✅ If access array exists but empty → pick all available letters/items
+  if (userAccess && Array.isArray(accessItems)) {
+  if (accessItems.length === 0) {
+    // Case 1: access key exists but array empty → means admin hasn’t configured → use all
     itemsToUse = allDocs.map(d => d[field]);
   } else {
-    // No access data at all → no items
-    itemsToUse = [];
+    // Case 2: access key exists with items (some may be inactive)
+    const activeAccessItems = accessItems
+      .filter(a => a.active)
+      .map(a => a.item_id.toString());
+
+    if (activeAccessItems.length > 0) {
+      // use only active ones
+      itemsToUse = allDocs
+        .filter(d => activeAccessItems.includes(d._id.toString()))
+        .map(d => d[field]);
+    } else {
+      // all are inactive → no quiz
+      itemsToUse = [];
+    }
   }
+} else {
+  // Case 3: userAccess or this key missing → fallback to all
+  itemsToUse = allDocs.map(d => d[field]);
+}
+
 
   console.log(` First-time user: ${itemsToUse.length} ${subject} items`);
 }else {

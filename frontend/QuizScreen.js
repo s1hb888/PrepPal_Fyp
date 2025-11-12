@@ -42,6 +42,7 @@ export default function QuizScreen({ route }) {
 
   const { subject = "General", quizText = [], quizId = null } = route?.params || {};
   const subjectLower = (subject || "").toString().toLowerCase();
+const isMathSubject = subjectLower === "math" || subjectLower === "maths";
 
   const cleanQuiz = useMemo(() => {
     if (!Array.isArray(quizText)) return [];
@@ -386,23 +387,27 @@ const playSound = async (isCorrect) => {
             )}
 
             {/* Voice Recording Button */}
-            <View style={styles.recordContainer}>
-              {!isRecording ? (
-                <TouchableOpacity onPress={startRecording} style={styles.recordButton}>
-                  <LinearGradient colors={[MINT, '#7BE7CE']} style={styles.recordGradient}>
-                    <Ionicons name="mic" size={20} color="#000" />
-                    <Text style={styles.recordText}>Speak Answer</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity onPress={stopRecording} style={styles.recordButton}>
-                  <LinearGradient colors={[RED, '#D32F2F']} style={styles.recordGradient}>
-                    <Ionicons name="stop-circle" size={20} color="#fff" />
-                    <Text style={[styles.recordText, { color: '#fff' }]}>Stop Recording</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-              )}
-            </View>
+           {/* Voice Recording Button (hidden for Math subjects) */}
+{!isMathSubject && (
+  <View style={styles.recordContainer}>
+    {!isRecording ? (
+      <TouchableOpacity onPress={startRecording} style={styles.recordButton}>
+        <LinearGradient colors={[MINT, '#7BE7CE']} style={styles.recordGradient}>
+          <Ionicons name="mic" size={20} color="#000" />
+          <Text style={styles.recordText}>Speak Answer</Text>
+        </LinearGradient>
+      </TouchableOpacity>
+    ) : (
+      <TouchableOpacity onPress={stopRecording} style={styles.recordButton}>
+        <LinearGradient colors={[RED, '#D32F2F']} style={styles.recordGradient}>
+          <Ionicons name="stop-circle" size={20} color="#fff" />
+          <Text style={[styles.recordText, { color: '#fff' }]}>Stop Recording</Text>
+        </LinearGradient>
+      </TouchableOpacity>
+    )}
+  </View>
+)}
+
 
             {/* Options Grid */}
             <FlatList

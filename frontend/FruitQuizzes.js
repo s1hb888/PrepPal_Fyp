@@ -187,49 +187,50 @@ const FruitQuizzes = () => {
   };
 
   const handleNext = () => {
-      const isLastQuestion =
-        currentQuestionIndex === quizzes[currentQuizIndex].questions.length - 1;
-  
-      if (isLastQuestion) {
-        const isLastQuiz = currentQuizIndex === quizzes.length - 1;
-  
-        if (isLastQuiz) {
-          const totalQuestions = quizzes[currentQuizIndex].questions.length;
-          const scorePercent = (score / totalQuestions) * 100;
-          let stars = 0;
-          let message = "";
-  
-          if (scorePercent >= 90) {
-            stars = 3;
-            message = "Excellent! You earned 3 Gold Stars";
-          } else if (scorePercent >= 80) {
-            stars = 2;
-            message = "Great! You earned 2 Gold Stars";
-          } else if (scorePercent >= 70) {
-            stars = 1;
-            message = "Good! You earned 1 Gold Star";
-          } else if (scorePercent >= 60) {
-            message = "Well done! You're one step away from earning a star.";
-          } else if (scorePercent > 50) {
-            message = "Good effort! Keep trying.";
-          } else if (scorePercent === 50) {
-            message = "You passed!";
-          } else {
-            message = "Don't worry, you'll do better next time!";
-          }
-  
-          setFinalScore(scorePercent);
-          setEarnedStars(stars);
-          setRewardMessage(message);
-          Speech.speak(message);
-        } else {
-          setCurrentQuizIndex((p) => p + 1);
-          setCurrentQuestionIndex(0);
-        }
-      } else {
-        setCurrentQuestionIndex((p) => p + 1);
+    const isLastQuestion =
+      currentQuestionIndex === quizzes[currentQuizIndex].questions.length - 1;
+    if (isLastQuestion) {
+      const isLastQuiz = currentQuizIndex === quizzes.length - 1;
+     if (isLastQuiz) {
+  const totalQuestions = quizzes[currentQuizIndex].questions.length;
+  const scorePercent = (score / totalQuestions) * 100;
+  let stars = 0;
+  let message = "";
+
+  if (scorePercent >= 90) {
+    stars = 3;
+    message = "Excellent! You earned 3 Gold Stars";
+  } else if (scorePercent >= 80) {
+    stars = 2;
+    message = "Great! You earned 2 Gold Stars";
+  } else if (scorePercent >= 70) {
+    stars = 1;
+    message = "Good! You earned 1 Gold Star";
+  } else if (scorePercent >= 60) {
+    message = "Well done! You’re one step away from earning a star.";
+  } else if (scorePercent > 50) {
+    message = "Good effort! Keep trying.";
+  } else if (scorePercent === 50) {
+    message = "You passed!";
+  } else {
+    message = "Don’t worry, you’ll do better next time!";
+  }
+
+  setFinalScore(scorePercent);
+  setEarnedStars(stars);
+  setRewardMessage(message);
+
+  // ✅ Speak the message aloud
+  Speech.speak(message);
+}
+ else {
+        setCurrentQuizIndex((p) => p + 1);
+        setCurrentQuestionIndex(0);
       }
-    };
+    } else {
+      setCurrentQuestionIndex((p) => p + 1);
+    }
+  };
 
   const handleOkPress = () => {
     Speech.stop();
@@ -351,7 +352,7 @@ const styles = StyleSheet.create({
   resultScore: { fontSize: 22, color: "#FFB6C1", marginBottom: 20 },
   starsRow: { flexDirection: "row", marginBottom: 20 },
   rewardMessage: { fontSize: 18, textAlign: "center", color: "#555", paddingHorizontal: 20, marginBottom: 30 },
-  okButton: { backgroundColor: "#3cbd1cff", paddingVertical: 12, paddingHorizontal: 50, borderRadius: 25, elevation: 3 },
+  okButton: { backgroundColor: "#7BE7CE", paddingVertical: 12, paddingHorizontal: 50, borderRadius: 25, elevation: 3 },
   okButtonText: { color: "#fff", fontSize: 18, fontWeight: "600" },
 });
 
